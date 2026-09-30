@@ -212,13 +212,13 @@ const SRC = "Fonte: The World Atlas of Coffee.";
 
 export const builtinIt = {
   recipes: {
-    "builtin-pourover-cone": {
-      name: "Pour-over a cono",
-      notes: `60 g/L, macinatura media (più fine per una tazza singola). Sciacqua il filtro, aspetta circa 10 s dopo l'ebollizione, fai la pre-infusione con circa il doppio del peso del caffè in acqua per 30 s, poi versa lentamente sul caffè e non sulle pareti. Ruota il dripper alla fine. Troppo amaro: macina più grossa. Debole o acido: macina più fine. I tempi dopo la pre-infusione sono stimati. ${SRC}`,
+    "builtin-v60": {
+      name: "V60",
+      notes: `60 g/L (30 g con 500 g), macinatura appena più fine della media. Sciacqua il filtro e crea una piccola conca nel caffè. Usa acqua più calda possibile (con una tostatura scura puoi aspettare 15-25 s dopo l'ebollizione). Pre-infusione con 2 volte il peso del caffè (mai più di 3), ruota finché l'impasto è uniforme e lascia riposare 30-45 s. Versa fino al 60% del totale entro 1:15, tenendo il cono pieno, poi lentamente fino al 100% in altri 30 s. Mescola una volta per direzione e ruota ancora prima che il letto si svuoti. Regola l'estrazione solo con la macinatura: vuoto o acido, macina più fine; amaro o duro, macina più grossa. I tempi di mescolata e drenaggio sono stimati. Fonti: The World Atlas of Coffee e il video sul V60 di James Hoffmann.`,
     },
     "builtin-chemex": {
       name: "Chemex",
-      notes: `60 g/L (30 g con 500 ml). Sciacqua il filtro e tieni il lato spesso (triplo strato) sopra il beccuccio, così non aderisce al vetro bloccando l'estrazione (funziona anche uno stecchino nel brewer). Non macinare molto più grossa che per un V60 per compensare la carta spessa: 4-5 minuti per 500 ml sono normali. Pre-infusione con 2-3 volte il peso del caffè per almeno 45 s (60-90 g per 30 g di caffè), versate a fasi come per il V60, poi mescola delicatamente e ruota per un letto piatto. I tempi di versata e drenaggio sono stimati. Fonti: The World Atlas of Coffee e il video sulla Chemex di James Hoffmann.`,
+      notes: `60 g/L (30 g con 500 ml). Sciacqua il filtro e tieni il lato spesso (triplo strato) sopra il beccuccio, così non aderisce al vetro bloccando l'estrazione (funziona anche uno stecchino nel brewer). Non macinare molto più grossa che per un V60 per compensare la carta spessa: 4-5 minuti per 500 ml sono normali. Pre-infusione con 2-3 volte il peso del caffè per almeno 45 s (60-90 g per 30 g di caffè), versate nelle stesse due fasi del V60 (60% dell'acqua, poi 100%), poi mescola delicatamente e ruota per un letto piatto. I tempi di mescolata e drenaggio sono stimati. Fonti: The World Atlas of Coffee e il video sulla Chemex di James Hoffmann.`,
     },
     "builtin-french-press": {
       name: "French Press (senza premere)",
@@ -250,13 +250,16 @@ export const builtinIt = {
     },
   } as Record<string, { name: string; notes: string }>,
   steps: {
-    "poc-0": "Pre-infusione",
-    "poc-1": "Versa lentamente",
-    "poc-2": "Ruota e drenaggio",
+    "v60-0": "Pre-infusione",
+    "v60-1": "Prima versata",
+    "v60-2": "Seconda versata",
+    "v60-3": "Mescola e ruota",
+    "v60-4": "Drenaggio",
     "chx-0": "Pre-infusione",
-    "chx-1": "Versa lentamente",
-    "chx-2": "Mescola e ruota",
-    "chx-3": "Drenaggio",
+    "chx-1": "Prima versata",
+    "chx-2": "Seconda versata",
+    "chx-3": "Mescola e ruota",
+    "chx-4": "Drenaggio",
     "fp-0": "Versa l'acqua",
     "fp-1": "Infusione",
     "fp-2": "Rompi la crosta e schiuma",

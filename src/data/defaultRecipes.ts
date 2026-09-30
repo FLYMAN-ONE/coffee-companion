@@ -1,7 +1,7 @@
 import type { Recipe, RecipeStep } from "../types";
 
 /** Bump when the seeded recipes change: builtin recipes are refreshed once per version. */
-export const SEED_VERSION = 3;
+export const SEED_VERSION = 4;
 
 const steps = (prefix: string, rows: [string, number, number][]): RecipeStep[] =>
   rows.map(([label, seconds, waterPct], i) => ({
@@ -13,26 +13,29 @@ const steps = (prefix: string, rows: [string, number, number][]): RecipeStep[] =
 
 const base = { favorite: false, createdAt: "2026-01-01T00:00:00.000Z" };
 const SRC = "Source: The World Atlas of Coffee.";
+const SRC_V60 = "Sources: The World Atlas of Coffee and James Hoffmann's V60 video.";
 const SRC_CHEMEX = "Sources: The World Atlas of Coffee and James Hoffmann's Chemex video.";
 
-// Recipes follow James Hoffmann's "The World Atlas of Coffee" (brewing chapter) and his Chemex video.
+// Recipes follow James Hoffmann's "The World Atlas of Coffee" (brewing chapter) and his V60 and Chemex videos.
 // Times marked "estimated" in the notes are not given in the book.
 export const defaultRecipes: Recipe[] = [
   {
     ...base,
-    id: "builtin-pourover-cone",
-    name: "Pour-Over Cone",
+    id: "builtin-v60",
+    name: "V60",
     method: "v60",
     dose: 60,
     water: 500,
     tempC: 95,
-    grind: "Medium",
-    notes: `60 g/L, medium grind (finer for a single cup). Rinse the paper, wait about 10 s after the boil, bloom with roughly twice the coffee's weight in water for 30 s, then pour slowly onto the coffee, not the walls. Swirl at the end. Too bitter: grind coarser. Weak or sour: grind finer. Timings after the bloom are estimated. ${SRC}`,
+    grind: "Medium-fine",
+    notes: `60 g/L (30 g to 500 g), grind slightly finer than medium. Rinse the paper and make a small well in the grounds. Use water as hot as possible (a dark roast can rest 15-25 s after the boil). Bloom with 2 times the coffee's weight (never more than 3 times), swirl until the slurry is even and rest 30-45 s. Pour to 60% of the total by 1:15, keeping the cone full, then slowly to 100% within 30 s. Stir once in each direction, and swirl again before the bed drains. Change the extraction with the grind only: hollow or acidic, grind finer; bitter or harsh, grind coarser. Stir and drawdown timings are estimated. ${SRC_V60}`,
     favorite: true,
-    steps: steps("poc", [
-      ["Bloom", 30, 12],
-      ["Pour slowly", 90, 100],
-      ["Swirl & drawdown", 60, 100],
+    steps: steps("v60", [
+      ["Bloom", 45, 12],
+      ["First pour", 30, 60],
+      ["Second pour", 30, 100],
+      ["Stir & swirl", 15, 100],
+      ["Drawdown", 75, 100],
     ]),
   },
   {
@@ -44,12 +47,13 @@ export const defaultRecipes: Recipe[] = [
     water: 500,
     tempC: 95,
     grind: "Medium",
-    notes: `60 g/L (30 g to 500 ml). Rinse the paper and keep its thick, triple-ply side over the spout so it cannot seal against the glass and stall the brew (a chopstick in the brewer also works). Do not grind much coarser than for a V60 to make up for the thick paper: 4-5 minutes for 500 ml is normal. Bloom with 2-3 times the coffee's weight for at least 45 s (60-90 g for 30 g of coffee), pour in phases as for a V60, then stir gently and swirl for a flat bed. Pour and drawdown timings are estimated. ${SRC_CHEMEX}`,
+    notes: `60 g/L (30 g to 500 ml). Rinse the paper and keep its thick, triple-ply side over the spout so it cannot seal against the glass and stall the brew (a chopstick in the brewer also works). Do not grind much coarser than for a V60 to make up for the thick paper: 4-5 minutes for 500 ml is normal. Bloom with 2-3 times the coffee's weight for at least 45 s (60-90 g for 30 g of coffee), pour in the same two phases as for a V60 (60% of the water, then 100%), then stir gently and swirl for a flat bed. Stir and drawdown timings are estimated. ${SRC_CHEMEX}`,
     steps: steps("chx", [
       ["Bloom", 45, 18],
-      ["Pour slowly", 150, 100],
+      ["First pour", 30, 60],
+      ["Second pour", 30, 100],
       ["Stir & swirl", 15, 100],
-      ["Drawdown", 60, 100],
+      ["Drawdown", 150, 100],
     ]),
   },
   {
