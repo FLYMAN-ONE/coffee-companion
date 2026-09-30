@@ -208,58 +208,70 @@ export const it: Dict = {
 };
 
 /** Italian text for the seeded recipes, keyed by recipe id / step id. */
+const SRC = "Fonte: The World Atlas of Coffee.";
+
 export const builtinIt = {
   recipes: {
-    "builtin-v60-classic": {
-      name: "V60 classico",
-      notes: "Brillante e pulito. Versa con movimenti circolari e tieni il letto di caffè livellato.",
+    "builtin-pourover-cone": {
+      name: "Pour-over a cono",
+      notes: `60 g/L, macinatura media (più fine per una tazza singola). Sciacqua il filtro, aspetta circa 10 s dopo l'ebollizione, fai la pre-infusione con circa il doppio del peso del caffè in acqua per 30 s, poi versa lentamente sul caffè e non sulle pareti. Ruota il dripper alla fine. Troppo amaro: macina più grossa. Debole o acido: macina più fine. I tempi dopo la pre-infusione sono stimati. ${SRC}`,
     },
-    "builtin-v60-split": {
-      name: "V60 in cinque versate",
-      notes: "Cinque versate uguali: facile da ripetere e da regolare.",
-    },
-    "builtin-chemex": {
-      name: "Chemex classica",
-      notes: "Filtro spesso: aspettati una tazza pulita, simile al tè.",
-    },
-    "builtin-aeropress": {
-      name: "AeroPress standard",
-      notes: "Metodo dritto. Mescola, lascia in infusione, poi premi lentamente.",
+    "builtin-pourover-large": {
+      name: "Pour-over per grandi quantità",
+      notes: `Lo stesso metodo pour-over in scala maggiore: 60 g/L, e più caffè prepari più devi macinare grossa. Volumi maggiori impiegano più tempo a drenare. I tempi dopo la pre-infusione sono stimati. ${SRC}`,
     },
     "builtin-french-press": {
-      name: "French Press",
-      notes: "Rompi la crosta dopo 4 minuti e schiuma prima di premere.",
+      name: "French Press (senza premere)",
+      notes: `75 g/L, macinatura media. Versa in fretta, lascia in infusione 4 minuti, rompi la crosta e schiuma via la schiuma, aspetta altri 5 minuti, poi appoggia lo stantuffo senza premere e versa lentamente, lasciando il fondo nel recipiente. I tempi di versata, rottura della crosta e servizio sono stimati. ${SRC}`,
+    },
+    "builtin-aeropress-traditional": {
+      name: "AeroPress tradizionale",
+      notes: `75 g/L (15 g con 200 ml). Sciacqua il filtro, aspetta 10-20 s dopo l'ebollizione, mescola, inserisci il pistone, infusione di 1 minuto, poi premi lentamente. Per un caffè corto e forte usa 100 g/L. Cambia una sola variabile alla volta. ${SRC}`,
+    },
+    "builtin-aeropress-inverted": {
+      name: "AeroPress invertita",
+      notes: `Massimo circa 200 ml d'acqua. Pistone inserito di 2 cm, capovolgi, aggiungi caffè e acqua, infusione di 1 minuto, monta il filtro sciacquato, capovolgi sulla tazza e premi lentamente. Fai attenzione quando capovolgi. Il tempo per montare il filtro e capovolgere è stimato. ${SRC}`,
+    },
+    "builtin-moka": {
+      name: "Moka delicata",
+      notes: `200 g/L: riempi il filtro a livello senza pressare e riempi la base con acqua calda fino appena sotto la valvola. Fuoco medio-basso con il coperchio aperto; al primo gorgoglio spegni e raffredda la base sotto l'acqua fredda. Macinatura abbastanza fine (sale), più grossa di quella per espresso. Funziona meglio con una tostatura chiara da espresso. Il tempo di riscaldamento è stimato. ${SRC}`,
     },
     "builtin-espresso": {
       name: "Espresso 1:2",
-      notes: "18 g in ingresso, 36 g in uscita in circa 28 secondi. Regola la macinatura a gusto.",
+      notes: `18 g in ingresso, 36 g in uscita in 27-29 s, acqua a 90-94 °C. Troppo liquido: macina più fine. Troppo poco: macina più grossa. Le tostature più chiare gradiscono una temperatura più alta. ${SRC}`,
+    },
+    "builtin-espresso-15": {
+      name: "Espresso 1:1.5",
+      notes: `18 g in ingresso, 27 g in uscita. Corpo più pieno, adatto a tostature un po' più scure. Macina più fine per mantenere circa lo stesso tempo di estrazione. ${SRC}`,
     },
     "builtin-cold-brew": {
       name: "Cold Brew concentrato",
-      notes: "Lascia in infusione in frigo per 12-18 ore, filtra e diluisci 1:1 per servire.",
+      notes: "Lascia in infusione in frigo per 12-18 ore, filtra e diluisci 1:1 per servire. Non trattato nel libro.",
     },
   } as Record<string, { name: string; notes: string }>,
   steps: {
-    "v60c-0": "Pre-infusione",
-    "v60c-1": "Prima versata",
-    "v60c-2": "Seconda versata",
-    "v60c-3": "Drenaggio",
-    "v60s-0": "Versata 1",
-    "v60s-1": "Versata 2",
-    "v60s-2": "Versata 3",
-    "v60s-3": "Versata 4",
-    "v60s-4": "Versata 5",
-    "v60s-5": "Drenaggio",
-    "chx-0": "Pre-infusione",
-    "chx-1": "Seconda versata",
-    "chx-2": "Terza versata",
-    "chx-3": "Drenaggio",
+    "poc-0": "Pre-infusione",
+    "poc-1": "Versa lentamente",
+    "poc-2": "Ruota e drenaggio",
+    "pol-0": "Pre-infusione",
+    "pol-1": "Versa lentamente",
+    "pol-2": "Ruota e drenaggio",
+    "fp-0": "Versa l'acqua",
+    "fp-1": "Infusione",
+    "fp-2": "Rompi la crosta e schiuma",
+    "fp-3": "Riposo",
+    "fp-4": "Versa lentamente",
     "aer-0": "Versa e mescola",
     "aer-1": "Infusione",
-    "aer-2": "Pressa",
-    "fp-0": "Versa tutta l'acqua",
-    "fp-1": "Infusione",
-    "fp-2": "Mescola e premi",
+    "aer-2": "Premi lentamente",
+    "aei-0": "Versa e mescola",
+    "aei-1": "Infusione",
+    "aei-2": "Monta il filtro e capovolgi",
+    "aei-3": "Premi lentamente",
+    "mok-0": "Riempi con acqua calda",
+    "mok-1": "Riscalda dolcemente",
+    "mok-2": "Ferma e raffredda la base",
     "esp-0": "Estrazione",
+    "es2-0": "Estrazione",
   } as Record<string, string>,
 };

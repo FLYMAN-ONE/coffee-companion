@@ -10,11 +10,11 @@ export interface Method {
 }
 
 export const methods: Method[] = [
-  { id: "v60", label: "V60", dose: 60, tempC: 93, grind: "Medium-fine" },
-  { id: "chemex", label: "Chemex", dose: 55, tempC: 94, grind: "Medium-coarse" },
-  { id: "aeropress", label: "AeroPress", dose: 65, tempC: 88, grind: "Medium-fine" },
-  { id: "french-press", label: "French Press", dose: 60, tempC: 95, grind: "Coarse" },
-  { id: "moka", label: "Moka", dose: 100, tempC: 95, grind: "Fine" },
+  { id: "v60", label: "V60", dose: 60, tempC: 95, grind: "Medium" },
+  { id: "chemex", label: "Chemex", dose: 60, tempC: 95, grind: "Medium-coarse" },
+  { id: "aeropress", label: "AeroPress", dose: 75, tempC: 94, grind: "Medium-fine" },
+  { id: "french-press", label: "French Press", dose: 75, tempC: 95, grind: "Medium" },
+  { id: "moka", label: "Moka", dose: 200, tempC: 95, grind: "Medium-fine" },
   { id: "espresso", label: "Espresso", dose: 500, tempC: 93, grind: "Fine" },
   { id: "cold-brew", label: "Cold Brew", dose: 125, tempC: 4, grind: "Coarse" },
   { id: "other", label: "Other", dose: 60, tempC: 93, grind: "Medium" },

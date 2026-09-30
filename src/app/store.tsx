@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { LogEntry, Recipe } from "../types";
-import { defaultRecipes } from "../data/defaultRecipes";
+import { SEED_VERSION, defaultRecipes } from "../data/defaultRecipes";
 import { useLocalStorage, downloadJson } from "../lib/storage";
 import { useBrewCalculator } from "../features/brew-calculator/hooks/useBrewCalculator";
 import { useTimer, type TimerApi } from "../features/timer/useTimer";
@@ -64,6 +64,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const { t, lang } = useI18n();
   const [storedRecipes, setRecipes] = useLocalStorage<Recipe[]>("cc:recipes:v1", defaultRecipes);
+  const [seedVersion, setSeedVersion] = useLocalStorage<number>("cc:seed:v1", 0);
+
+  // Refresh the seeded recipes once per SEED_VERSION. Favorites are kept,
+  // recipes created by the user are left untouched.
+  useEffect(() => {
+    if (seedVersion >= SEED_VERSION) return;
+    setRecipes((list) => {
+      const favorites = new Set(list.filter((r) => r.favorite).map((r) => r.id));
+      const own = list.filter((r) => !r.id.startsWith("builtin-"));
+      const fresh = defaultRecipes.map((r) => ({ ...r, favorite: r.favorite || favorites.has(r.id) }));
+      return [...fresh, ...own];
+    });
+    setSeedVersion(SEED_VERSION);
+  }, [seedVersion, setRecipes, setSeedVersion]);
+
   const recipes = useMemo(
     () => storedRecipes.map((r) => localizeRecipe(r, lang)),
     [storedRecipes, lang]
