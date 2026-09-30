@@ -25,7 +25,7 @@ export const it: Dict = {
     v60: "V60",
     chemex: "Chemex",
     aeropress: "AeroPress",
-    "french-press": "Pressa francese",
+    "french-press": "French Press",
     moka: "Moka",
     espresso: "Espresso",
     "cold-brew": "Cold Brew",
@@ -227,7 +227,7 @@ export const builtinIt = {
       notes: "Metodo dritto. Mescola, lascia in infusione, poi premi lentamente.",
     },
     "builtin-french-press": {
-      name: "Pressa francese",
+      name: "French Press",
       notes: "Rompi la crosta dopo 4 minuti e schiuma prima di premere.",
     },
     "builtin-espresso": {
