@@ -11,7 +11,7 @@ export interface Method {
 
 export const methods: Method[] = [
   { id: "v60", label: "V60", dose: 60, tempC: 95, grind: "Medium" },
-  { id: "chemex", label: "Chemex", dose: 60, tempC: 95, grind: "Medium-coarse" },
+  { id: "chemex", label: "Chemex", dose: 60, tempC: 95, grind: "Medium" },
   { id: "aeropress", label: "AeroPress", dose: 75, tempC: 94, grind: "Medium-fine" },
   { id: "french-press", label: "French Press", dose: 75, tempC: 95, grind: "Medium" },
   { id: "moka", label: "Moka", dose: 200, tempC: 95, grind: "Medium-fine" },

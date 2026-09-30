@@ -1,7 +1,7 @@
 import type { Recipe, RecipeStep } from "../types";
 
 /** Bump when the seeded recipes change: builtin recipes are refreshed once per version. */
-export const SEED_VERSION = 2;
+export const SEED_VERSION = 3;
 
 const steps = (prefix: string, rows: [string, number, number][]): RecipeStep[] =>
   rows.map(([label, seconds, waterPct], i) => ({
@@ -13,8 +13,9 @@ const steps = (prefix: string, rows: [string, number, number][]): RecipeStep[] =
 
 const base = { favorite: false, createdAt: "2026-01-01T00:00:00.000Z" };
 const SRC = "Source: The World Atlas of Coffee.";
+const SRC_CHEMEX = "Sources: The World Atlas of Coffee and James Hoffmann's Chemex video.";
 
-// Recipes follow James Hoffmann's "The World Atlas of Coffee" (brewing chapter).
+// Recipes follow James Hoffmann's "The World Atlas of Coffee" (brewing chapter) and his Chemex video.
 // Times marked "estimated" in the notes are not given in the book.
 export const defaultRecipes: Recipe[] = [
   {
@@ -36,18 +37,19 @@ export const defaultRecipes: Recipe[] = [
   },
   {
     ...base,
-    id: "builtin-pourover-large",
-    name: "Large-Batch Pour-Over",
+    id: "builtin-chemex",
+    name: "Chemex",
     method: "chemex",
     dose: 60,
-    water: 600,
+    water: 500,
     tempC: 95,
-    grind: "Medium-coarse",
-    notes: `The same pour-over method scaled up: 60 g/L, and the more you brew the coarser you should grind. Bigger volumes take longer to drain. Timings after the bloom are estimated. ${SRC}`,
-    steps: steps("pol", [
-      ["Bloom", 30, 12],
-      ["Pour slowly", 120, 100],
-      ["Swirl & drawdown", 90, 100],
+    grind: "Medium",
+    notes: `60 g/L (30 g to 500 ml). Rinse the paper and keep its thick, triple-ply side over the spout so it cannot seal against the glass and stall the brew (a chopstick in the brewer also works). Do not grind much coarser than for a V60 to make up for the thick paper: 4-5 minutes for 500 ml is normal. Bloom with 2-3 times the coffee's weight for at least 45 s (60-90 g for 30 g of coffee), pour in phases as for a V60, then stir gently and swirl for a flat bed. Pour and drawdown timings are estimated. ${SRC_CHEMEX}`,
+    steps: steps("chx", [
+      ["Bloom", 45, 18],
+      ["Pour slowly", 150, 100],
+      ["Stir & swirl", 15, 100],
+      ["Drawdown", 60, 100],
     ]),
   },
   {
