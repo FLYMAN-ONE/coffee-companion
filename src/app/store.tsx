@@ -14,6 +14,7 @@ import { useLocalStorage, downloadJson } from "../lib/storage";
 import { useBrewCalculator } from "../features/brew-calculator/hooks/useBrewCalculator";
 import { useTimer, type TimerApi } from "../features/timer/useTimer";
 import type { BrewCalculatorReturn } from "../features/brew-calculator/types";
+import { localizeRecipe, useI18n } from "../i18n";
 import type { TabId } from "./navigation";
 
 interface AppStore {
@@ -61,7 +62,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [tab, setTab] = useState<TabId>("brew");
   const calc = useBrewCalculator();
 
-  const [recipes, setRecipes] = useLocalStorage<Recipe[]>("cc:recipes:v1", defaultRecipes);
+  const { t, lang } = useI18n();
+  const [storedRecipes, setRecipes] = useLocalStorage<Recipe[]>("cc:recipes:v1", defaultRecipes);
+  const recipes = useMemo(
+    () => storedRecipes.map((r) => localizeRecipe(r, lang)),
+    [storedRecipes, lang]
+  );
   const [logs, setLogs] = useLocalStorage<LogEntry[]>("cc:logs:v1", []);
   const [recipeDraft, setRecipeDraft] = useState<Recipe | null>(null);
   const [logDraft, setLogDraft] = useState<LogEntry | null>(null);
@@ -120,11 +126,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     downloadJson(`coffee-companion-backup-${new Date().toISOString().slice(0, 10)}.json`, {
       app: "coffee-companion",
       version: 1,
-      recipes,
+      recipes: storedRecipes,
       logs,
     });
-    toast("Backup downloaded");
-  }, [recipes, logs, toast]);
+    toast(t.store.backupDownloaded);
+  }, [storedRecipes, logs, toast, t]);
 
   const importBackup = useCallback(
     (text: string) => {
@@ -135,12 +141,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (!r.length && !l.length) throw new Error("empty");
         setRecipes((list) => r.reduce(upsert, list));
         setLogs((list) => l.reduce(upsert, list));
-        toast(`Imported ${r.length} recipes and ${l.length} brews`);
+        toast(t.store.imported(r.length, l.length));
       } catch {
-        toast("That file is not a valid backup");
+        toast(t.store.invalidBackup);
       }
     },
-    [setRecipes, setLogs, toast]
+    [setRecipes, setLogs, toast, t]
   );
 
   const value = useMemo<AppStore>(

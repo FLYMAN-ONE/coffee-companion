@@ -1,6 +1,7 @@
 import { navigationItems } from "../../app/navigation";
 import type { TabId } from "../../app/navigation";
 import { Icon } from "../ui/Icon";
+import { useI18n } from "../../i18n";
 
 interface TabBarProps {
   active: TabId;
@@ -9,6 +10,7 @@ interface TabBarProps {
 
 /** Bottom bar for narrow screens (phones). */
 export function TabBar({ active, onChange }: TabBarProps) {
+  const { t } = useI18n();
   return (
     <nav className="flex shrink-0 justify-around border-t border-line bg-card px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 md:hidden">
       {navigationItems.map((item) => {
@@ -23,7 +25,7 @@ export function TabBar({ active, onChange }: TabBarProps) {
             }`}
           >
             <Icon name={item.icon} className="h-6 w-6" />
-            {item.short}
+            {t.nav[item.id].short}
           </button>
         );
       })}

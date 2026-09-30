@@ -1,5 +1,6 @@
 import { useApp } from "../../app/store";
 import { getMethod } from "../../data/methods";
+import { useI18n } from "../../i18n";
 import { fmtTime, uid } from "../../lib/format";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
@@ -15,6 +16,7 @@ export function Timer() {
   const { timer, calc, recipes, timerRecipe, timerRecipeId, setTimerRecipeId, applyRecipe, go, setLogDraft } =
     useApp();
 
+  const { t } = useI18n();
   const steps = timerRecipe?.steps ?? [];
   const { status, hasSteps, stepIndex, elapsedMs, totalMs } = timer;
   const active = status === "running" || status === "paused";
@@ -40,18 +42,18 @@ export function Timer() {
 
   const caption =
     status === "done"
-      ? "Brew complete"
+      ? t.timer.brewComplete
       : step
         ? status === "idle"
-          ? `${step.label} · pour to ${target(step.waterPct)} ml`
+          ? t.timer.stepReady(step.label, target(step.waterPct))
           : pourDelta > 0
-            ? `Pour to ${target(step.waterPct)} ml (+${pourDelta})`
-            : "Wait"
+            ? t.timer.pourToDelta(target(step.waterPct), pourDelta)
+            : t.timer.wait
         : status === "idle"
-          ? "Stopwatch"
-          : "Brewing";
+          ? t.timer.stopwatch
+          : t.timer.brewing;
 
-  const label = status === "done" ? "Done" : step ? step.label : "Stopwatch";
+  const label = status === "done" ? t.timer.done : step ? step.label : t.timer.stopwatch;
 
   const saveToLog = () => {
     const m = getMethod(calc.method);
@@ -78,17 +80,17 @@ export function Timer() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
-        title="Timer"
+        title={t.timer.title}
         subtitle={
           timerRecipe
-            ? `${timerRecipe.name} · ${calc.coffee} g coffee · ${calc.water} ml`
-            : `Free stopwatch · ${calc.coffee} g coffee · ${calc.water} ml`
+            ? t.timer.subtitleRecipe(timerRecipe.name, calc.coffee, calc.water)
+            : t.timer.subtitleFree(calc.coffee, calc.water)
         }
       />
 
       <div className="no-scrollbar -mx-1 mb-5 flex gap-2 overflow-x-auto px-1 py-1">
         <Chip disabled={active} selected={timerRecipeId === null} onClick={() => { timer.reset(); setTimerRecipeId(null); }}>
-          Stopwatch
+          {t.timer.stopwatch}
         </Chip>
         {recipes
           .filter((r) => r.steps.length > 0)
@@ -129,7 +131,7 @@ export function Timer() {
               <div className="mt-3 text-lg text-mute">{caption}</div>
               {hasSteps && status !== "idle" ? (
                 <div className="tabular mt-1 text-sm text-mute">
-                  Total {fmtTime(Math.floor(elapsedMs / 1000))} / {fmtTime(totalMs / 1000)}
+                  {t.timer.total} {fmtTime(Math.floor(elapsedMs / 1000))} / {fmtTime(totalMs / 1000)}
                 </div>
               ) : null}
             </div>
@@ -138,30 +140,30 @@ export function Timer() {
           <div className="flex w-full flex-wrap justify-center gap-3">
             {status === "idle" && (
               <Button variant="primary" size="lg" icon="play" className="w-full max-w-sm" onClick={timer.start}>
-                Start
+                {t.timer.start}
               </Button>
             )}
             {status === "running" && (
               <>
-                <Button size="lg" icon="pause" onClick={timer.pause}>Pause</Button>
+                <Button size="lg" icon="pause" onClick={timer.pause}>{t.timer.pause}</Button>
                 {hasSteps && stepIndex < steps.length - 1 ? (
-                  <Button size="lg" icon="skip" onClick={timer.skip}>Next step</Button>
+                  <Button size="lg" icon="skip" onClick={timer.skip}>{t.timer.next}</Button>
                 ) : (
-                  <Button size="lg" icon="flag" onClick={timer.finish}>Finish</Button>
+                  <Button size="lg" icon="flag" onClick={timer.finish}>{t.timer.finish}</Button>
                 )}
               </>
             )}
             {status === "paused" && (
               <>
-                <Button variant="primary" size="lg" icon="play" onClick={timer.resume}>Resume</Button>
-                <Button size="lg" icon="flag" onClick={timer.finish}>Finish</Button>
-                <Button size="lg" icon="reset" onClick={timer.reset}>Reset</Button>
+                <Button variant="primary" size="lg" icon="play" onClick={timer.resume}>{t.timer.resume}</Button>
+                <Button size="lg" icon="flag" onClick={timer.finish}>{t.timer.finish}</Button>
+                <Button size="lg" icon="reset" onClick={timer.reset}>{t.timer.reset}</Button>
               </>
             )}
             {status === "done" && (
               <>
-                <Button variant="primary" size="lg" icon="log" onClick={saveToLog}>Save to log</Button>
-                <Button size="lg" icon="reset" onClick={timer.reset}>Reset</Button>
+                <Button variant="primary" size="lg" icon="log" onClick={saveToLog}>{t.timer.saveToLog}</Button>
+                <Button size="lg" icon="reset" onClick={timer.reset}>{t.timer.reset}</Button>
               </>
             )}
           </div>
@@ -189,7 +191,7 @@ export function Timer() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-lg font-medium">{s.label}</div>
-                      <div className="text-sm text-mute">to {target(s.waterPct)} ml</div>
+                      <div className="text-sm text-mute">{t.timer.toMl(target(s.waterPct))}</div>
                     </div>
                     <span className="tabular text-lg text-mute">{fmtTime(s.seconds)}</span>
                   </li>
@@ -199,9 +201,7 @@ export function Timer() {
           ) : (
             <div className="flex h-full min-h-48 flex-col items-center justify-center gap-3 text-center text-mute">
               <Icon name="timer" className="h-12 w-12" />
-              <p className="max-w-xs text-lg">
-                Plain stopwatch. Pick a recipe above to get a guided timer with pour targets, or add steps to your own recipes.
-              </p>
+              <p className="max-w-xs text-lg">{t.timer.plain}</p>
             </div>
           )}
         </GlassCard>

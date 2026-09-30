@@ -4,6 +4,7 @@ import { BrewCalculator } from "../features/brew-calculator/BrewCalculator";
 import { Recipes } from "../features/recipes/Recipes";
 import { Timer } from "../features/timer/Timer";
 import { BrewLog } from "../features/log/BrewLog";
+import { LanguageSwitch } from "../components/ui/LanguageSwitch";
 import { useApp } from "./store";
 
 export function AppShell() {
@@ -14,6 +15,11 @@ export function AppShell() {
       <Sidebar active={tab} onChange={go} />
 
       <main className="min-h-0 flex-1 overflow-y-auto p-4 pt-[max(1rem,env(safe-area-inset-top))] md:p-6 lg:p-8">
+        <div className="mb-4 flex justify-end md:hidden">
+          <div className="w-32">
+            <LanguageSwitch compact />
+          </div>
+        </div>
         {tab === "brew" && <BrewCalculator />}
         {tab === "recipes" && <Recipes />}
         {tab === "timer" && <Timer />}

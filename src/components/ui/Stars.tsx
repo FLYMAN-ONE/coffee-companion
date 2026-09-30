@@ -1,4 +1,5 @@
 import { Icon } from "./Icon";
+import { useI18n } from "../../i18n";
 
 interface StarsProps {
   value: number;
@@ -7,9 +8,10 @@ interface StarsProps {
 }
 
 export function Stars({ value, onChange, size = "lg" }: StarsProps) {
+  const { t } = useI18n();
   const dim = size === "lg" ? "h-9 w-9" : "h-4 w-4";
   return (
-    <div className="flex gap-1" role={onChange ? "radiogroup" : "img"} aria-label={`Rating ${value} of 5`}>
+    <div className="flex gap-1" role={onChange ? "radiogroup" : "img"} aria-label={t.common.rating(value)}>
       {[1, 2, 3, 4, 5].map((n) => {
         const star = (
           <Icon
@@ -24,7 +26,7 @@ export function Stars({ value, onChange, size = "lg" }: StarsProps) {
             type="button"
             onClick={() => onChange(value === n ? 0 : n)}
             className="flex h-12 w-12 items-center justify-center rounded-xl active:bg-soft"
-            aria-label={`${n} star${n > 1 ? "s" : ""}`}
+            aria-label={t.common.stars(n)}
           >
             {star}
           </button>

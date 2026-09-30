@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getMethod, grinds, methods } from "../../data/methods";
+import { useI18n } from "../../i18n";
 import { fmtTime, uid } from "../../lib/format";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
@@ -20,6 +21,7 @@ interface RecipeEditorProps {
 const label = "mb-2 block text-sm text-mute";
 
 export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: RecipeEditorProps) {
+  const { t } = useI18n();
   const [r, setR] = useState<Recipe>(recipe);
   const patch = (p: Partial<Recipe>) => setR((cur) => ({ ...cur, ...p }));
 
@@ -39,7 +41,7 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
     patch({
       steps: [
         ...r.steps,
-        { id: uid(), label: `Step ${r.steps.length + 1}`, seconds: 30, waterPct: last?.waterPct ?? 100 },
+        { id: uid(), label: t.recipes.stepN(r.steps.length + 1), seconds: 30, waterPct: last?.waterPct ?? 100 },
       ],
     });
   };
@@ -50,14 +52,14 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
   return (
     <Modal
       wide
-      title={isNew ? "New recipe" : "Edit recipe"}
+      title={isNew ? t.recipes.editorNew : t.recipes.editorEdit}
       onClose={onClose}
       footer={
         <>
-          {!isNew && <ConfirmButton label="Delete" onConfirm={onDelete} />}
+          {!isNew && <ConfirmButton label={t.common.delete} onConfirm={onDelete} />}
           <div className="flex-1" />
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             variant="primary"
@@ -65,7 +67,7 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
             disabled={!canSave}
             onClick={() => onSave({ ...r, name: r.name.trim() })}
           >
-            Save
+            {t.common.save}
           </Button>
         </>
       }
@@ -73,56 +75,58 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-5">
           <div>
-            <label className={label} htmlFor="r-name">Name</label>
+            <label className={label} htmlFor="r-name">{t.recipes.name}</label>
             <input
               id="r-name"
               className="input"
-              placeholder="e.g. Morning V60"
+              placeholder={t.recipes.namePh}
               value={r.name}
               onChange={(e) => patch({ name: e.target.value })}
             />
           </div>
 
           <div>
-            <span className={label}>Method</span>
+            <span className={label}>{t.recipes.method}</span>
             <div className="flex flex-wrap gap-2">
               {methods.map((m) => (
                 <Chip key={m.id} selected={r.method === m.id} onClick={() => patch({ method: m.id })}>
-                  {m.label}
+                  {t.methods[m.id]}
                 </Chip>
               ))}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <NumberField label="Dose" unit="g/L" value={r.dose} step={1} min={10} max={1000} onChange={(dose) => patch({ dose })} />
-            <NumberField label="Water" unit="ml" value={r.water} step={r.water < 100 ? 1 : 10} min={10} max={5000} onChange={(water) => patch({ water })} />
+            <NumberField label={t.recipes.doseLabel} unit="g/L" value={r.dose} step={1} min={10} max={1000} onChange={(dose) => patch({ dose })} />
+            <NumberField label={t.recipes.waterLabel} unit="ml" value={r.water} step={r.water < 100 ? 1 : 10} min={10} max={5000} onChange={(water) => patch({ water })} />
           </div>
           <div className="-mt-2 text-sm text-mute">
-            = {calculateCoffee(r.water, r.dose)} g coffee · ratio 1:
-            {r.dose ? Number((1000 / r.dose).toFixed(1)) : 0}
+            {t.recipes.coffeeEq(
+              calculateCoffee(r.water, r.dose),
+              r.dose ? Number((1000 / r.dose).toFixed(1)) : 0
+            )}
           </div>
 
-          <NumberField label="Water temperature" unit="°C" value={r.tempC} step={1} min={0} max={100} onChange={(tempC) => patch({ tempC })} />
+          <NumberField label={t.recipes.waterTempLabel} unit="°C" value={r.tempC} step={1} min={0} max={100} onChange={(tempC) => patch({ tempC })} />
 
           <div>
-            <span className={label}>Grind</span>
+            <span className={label}>{t.recipes.grindLabel}</span>
             <div className="flex flex-wrap gap-2">
               {grinds.map((g) => (
                 <Chip key={g} selected={r.grind === g} onClick={() => patch({ grind: g })}>
-                  {g}
+                  {t.grinds[g]}
                 </Chip>
               ))}
             </div>
           </div>
 
           <div>
-            <label className={label} htmlFor="r-notes">Notes</label>
+            <label className={label} htmlFor="r-notes">{t.recipes.notes}</label>
             <textarea
               id="r-notes"
               rows={3}
               className="input"
-              placeholder="Tips, taste goals, bean suggestions…"
+              placeholder={t.recipes.notesPh}
               value={r.notes}
               onChange={(e) => patch({ notes: e.target.value })}
             />
@@ -132,13 +136,13 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-lg font-semibold">Timer steps</div>
+              <div className="text-lg font-semibold">{t.recipes.timerSteps}</div>
               <div className="text-sm text-mute">
-                {r.steps.length ? `${r.steps.length} steps · ${fmtTime(totalSec)}` : "No steps: the timer runs as a stopwatch"}
+                {r.steps.length ? t.recipes.stepsSummary(r.steps.length, fmtTime(totalSec)) : t.recipes.noSteps}
               </div>
             </div>
             <Button icon="plus" onClick={addStep}>
-              Add step
+              {t.recipes.addStep}
             </Button>
           </div>
 
@@ -150,17 +154,17 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
                 </span>
                 <input
                   className="input !min-h-11 flex-1"
-                  aria-label={`Step ${i + 1} name`}
+                  aria-label={t.recipes.stepName(i + 1)}
                   value={s.label}
                   onChange={(e) => patchStep(s.id, { label: e.target.value })}
                 />
-                <Button variant="ghost" size="icon" icon="up" aria-label="Move up" disabled={i === 0} onClick={() => moveStep(i, -1)} />
-                <Button variant="ghost" size="icon" icon="down" aria-label="Move down" disabled={i === r.steps.length - 1} onClick={() => moveStep(i, 1)} />
-                <Button variant="ghost" size="icon" icon="trash" aria-label="Remove step" onClick={() => patch({ steps: r.steps.filter((x) => x.id !== s.id) })} />
+                <Button variant="ghost" size="icon" icon="up" aria-label={t.recipes.moveUp} disabled={i === 0} onClick={() => moveStep(i, -1)} />
+                <Button variant="ghost" size="icon" icon="down" aria-label={t.recipes.moveDown} disabled={i === r.steps.length - 1} onClick={() => moveStep(i, 1)} />
+                <Button variant="ghost" size="icon" icon="trash" aria-label={t.recipes.removeStep} onClick={() => patch({ steps: r.steps.filter((x) => x.id !== s.id) })} />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <NumberField label="Duration" unit="s" value={s.seconds} step={5} min={1} max={3600} onChange={(seconds) => patchStep(s.id, { seconds })} />
-                <NumberField label="Water by end" unit="%" value={s.waterPct} step={5} min={0} max={100} onChange={(waterPct) => patchStep(s.id, { waterPct })} />
+                <NumberField label={t.recipes.duration} unit="s" value={s.seconds} step={5} min={1} max={3600} onChange={(seconds) => patchStep(s.id, { seconds })} />
+                <NumberField label={t.recipes.waterByEnd} unit="%" value={s.waterPct} step={5} min={0} max={100} onChange={(waterPct) => patchStep(s.id, { waterPct })} />
               </div>
             </div>
           ))}

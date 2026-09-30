@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { Button } from "./Button";
+import { useI18n } from "../../i18n";
 
 interface ModalProps {
   title: string;
@@ -10,6 +11,7 @@ interface ModalProps {
 }
 
 export function Modal({ title, onClose, children, footer, wide = false }: ModalProps) {
+  const { t } = useI18n();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -31,7 +33,7 @@ export function Modal({ title, onClose, children, footer, wide = false }: ModalP
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-4">
           <h2 className="text-2xl font-semibold">{title}</h2>
-          <Button variant="ghost" size="icon" icon="close" onClick={onClose} aria-label="Close" />
+          <Button variant="ghost" size="icon" icon="close" onClick={onClose} aria-label={t.common.close} />
         </div>
         <div className="flex-1 overflow-y-auto p-6">{children}</div>
         {footer ? (

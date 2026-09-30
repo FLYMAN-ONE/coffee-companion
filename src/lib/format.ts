@@ -22,15 +22,15 @@ export const fromInputValue = (v: string): string => {
   return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
 };
 
-export const fmtDay = (iso: string): string =>
-  new Date(iso).toLocaleDateString(undefined, {
+export const fmtDay = (iso: string, locale?: string): string =>
+  new Date(iso).toLocaleDateString(locale, {
     weekday: "short",
     day: "numeric",
     month: "short",
   });
 
-export const fmtHour = (iso: string): string =>
-  new Date(iso).toLocaleTimeString(undefined, {
+export const fmtHour = (iso: string, locale?: string): string =>
+  new Date(iso).toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
   });

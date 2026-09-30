@@ -20,9 +20,11 @@ export const calculateRatio = (water: number, coffee: number): number => {
 export const rangeMax = (value: number, base: number): number =>
   value <= base ? base : Math.ceil(value / base) * base;
 
-export const describeStrength = (dose: number): string => {
-  if (dose <= 55) return "Light";
-  if (dose <= 70) return "Balanced";
-  if (dose <= 100) return "Strong";
-  return "Concentrated";
+export type Strength = "light" | "balanced" | "strong" | "concentrated";
+
+export const describeStrength = (dose: number): Strength => {
+  if (dose <= 55) return "light";
+  if (dose <= 70) return "balanced";
+  if (dose <= 100) return "strong";
+  return "concentrated";
 };

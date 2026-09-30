@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
+import { useI18n } from "../../i18n";
 
 interface ConfirmButtonProps {
   label: string;
@@ -10,9 +11,10 @@ interface ConfirmButtonProps {
 /** Two-tap delete: first tap arms it, second tap confirms. */
 export function ConfirmButton({
   label,
-  confirmLabel = "Tap again to confirm",
+  confirmLabel,
   onConfirm,
 }: ConfirmButtonProps) {
+  const { t } = useI18n();
   const [armed, setArmed] = useState(false);
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export function ConfirmButton({
       icon="trash"
       onClick={() => (armed ? onConfirm() : setArmed(true))}
     >
-      {armed ? confirmLabel : label}
+      {armed ? (confirmLabel ?? t.common.confirmDelete) : label}
     </Button>
   );
 }

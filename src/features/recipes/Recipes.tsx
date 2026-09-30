@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../../app/store";
-import { getMethod, methods } from "../../data/methods";
+import { methods } from "../../data/methods";
+import { useI18n } from "../../i18n";
 import { fmtTime } from "../../lib/format";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
@@ -17,6 +18,7 @@ export function Recipes() {
     recipeDraft, setRecipeDraft, applyRecipe, toast,
   } = useApp();
 
+  const { t } = useI18n();
   const [editing, setEditing] = useState<Recipe | null>(null);
   const [viewing, setViewing] = useState<Recipe | null>(null);
   const [filter, setFilter] = useState<MethodId | "fav" | "all">("all");
@@ -39,28 +41,28 @@ export function Recipes() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
-        title="Recipes"
-        subtitle={`${recipes.length} saved`}
+        title={t.recipes.title}
+        subtitle={t.recipes.saved(recipes.length)}
         actions={
           <Button variant="primary" icon="plus" onClick={() => setEditing(blankRecipe())}>
-            New recipe
+            {t.recipes.newRecipe}
           </Button>
         }
       />
 
       <div className="no-scrollbar -mx-1 mb-5 flex gap-2 overflow-x-auto px-1 py-1">
-        <Chip selected={filter === "all"} onClick={() => setFilter("all")}>All</Chip>
-        <Chip selected={filter === "fav"} onClick={() => setFilter("fav")}>Favorites</Chip>
+        <Chip selected={filter === "all"} onClick={() => setFilter("all")}>{t.recipes.all}</Chip>
+        <Chip selected={filter === "fav"} onClick={() => setFilter("fav")}>{t.recipes.favorites}</Chip>
         {usedMethods.map((m) => (
           <Chip key={m.id} selected={filter === m.id} onClick={() => setFilter(m.id)}>
-            {m.label}
+            {t.methods[m.id]}
           </Chip>
         ))}
       </div>
 
       {visible.length === 0 ? (
         <div className="rounded-[28px] border border-dashed border-line py-20 text-center text-lg text-mute">
-          Nothing here yet.
+          {t.recipes.empty}
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -88,11 +90,11 @@ export function Recipes() {
               <Button
                 onClick={() => {
                   applyRecipe(viewing, "brew");
-                  toast("Loaded into the calculator");
+                  toast(t.recipes.loaded);
                   setViewing(null);
                 }}
               >
-                Open in calculator
+                {t.recipes.openInCalc}
               </Button>
               <Button
                 variant="primary"
@@ -102,19 +104,19 @@ export function Recipes() {
                   setViewing(null);
                 }}
               >
-                Brew
+                {t.recipes.brew}
               </Button>
             </>
           }
         >
-          <div className="mb-5 text-accent">{getMethod(viewing.method).label}</div>
+          <div className="mb-5 text-accent">{t.methods[viewing.method]}</div>
           <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-5">
             {[
-              [`${viewing.dose} g/L`, "dose"],
-              [`${calculateCoffee(viewing.water, viewing.dose)} g`, "coffee"],
-              [`${viewing.water} ml`, "water"],
-              [`${viewing.tempC}°C`, "temperature"],
-              [viewing.grind, "grind"],
+              [`${viewing.dose} g/L`, t.recipes.dose],
+              [`${calculateCoffee(viewing.water, viewing.dose)} g`, t.recipes.coffee],
+              [`${viewing.water} ml`, t.recipes.water],
+              [`${viewing.tempC}°C`, t.recipes.temperature],
+              [t.grinds[viewing.grind], t.recipes.grind],
             ].map(([v, l]) => (
               <div key={l} className="rounded-2xl bg-soft px-4 py-3">
                 <div className="text-lg font-semibold">{v}</div>
@@ -138,7 +140,7 @@ export function Recipes() {
               ))}
             </ol>
           ) : (
-            <p className="text-mute">No timer steps. The timer runs as a stopwatch.</p>
+            <p className="text-mute">{t.recipes.noStepsView}</p>
           )}
         </Modal>
       ) : null}
@@ -152,12 +154,12 @@ export function Recipes() {
           onSave={(r) => {
             saveRecipe(r);
             setEditing(null);
-            toast("Recipe saved");
+            toast(t.recipes.toastSaved);
           }}
           onDelete={() => {
             deleteRecipe(editing.id);
             setEditing(null);
-            toast("Recipe deleted");
+            toast(t.recipes.toastDeleted);
           }}
         />
       ) : null}

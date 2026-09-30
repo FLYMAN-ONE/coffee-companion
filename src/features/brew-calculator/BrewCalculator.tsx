@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useApp } from "../../app/store";
 import { methods, getMethod } from "../../data/methods";
+import { useI18n } from "../../i18n";
 import { uid } from "../../lib/format";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
@@ -37,6 +38,7 @@ function FieldCard({
 
 export function BrewCalculator() {
   const { calc, go, setRecipeDraft, setLogDraft, timer } = useApp();
+  const { t } = useI18n();
   const method = getMethod(calc.method);
 
   const saveAsRecipe = () => {
@@ -81,11 +83,11 @@ export function BrewCalculator() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
-        title="Brew Calculator"
-        subtitle="Change any value — the others follow"
+        title={t.calc.title}
+        subtitle={t.calc.subtitle}
         actions={
           <Button variant="ghost" icon="reset" onClick={calc.reset}>
-            Reset
+            {t.common.reset}
           </Button>
         }
       />
@@ -93,17 +95,17 @@ export function BrewCalculator() {
       <div className="no-scrollbar -mx-1 mb-5 flex gap-2 overflow-x-auto px-1 py-1">
         {methods.map((m) => (
           <Chip key={m.id} selected={calc.method === m.id} onClick={() => calc.setMethod(m.id)}>
-            {m.label}
+            {t.methods[m.id]}
           </Chip>
         ))}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-12">
         <div className="flex flex-col gap-4 lg:col-span-7">
-          <FieldCard title="Dose" hint="coffee per litre" active={calc.activeField === "dose"}>
+          <FieldCard title={t.calc.dose} hint={t.calc.doseHint} active={calc.activeField === "dose"}>
             <NumberField
               size="lg"
-              label="Dose"
+              label={t.calc.dose}
               value={calc.dose}
               unit="g/L"
               step={1}
@@ -112,7 +114,7 @@ export function BrewCalculator() {
               onChange={calc.setDose}
             />
             <Slider
-              label="Dose slider"
+              label={t.calc.doseSlider}
               value={calc.dose}
               min={20}
               max={rangeMax(calc.dose, 150)}
@@ -121,10 +123,10 @@ export function BrewCalculator() {
             />
           </FieldCard>
 
-          <FieldCard title="Water" hint="total brew water" active={calc.activeField === "water"}>
+          <FieldCard title={t.calc.water} hint={t.calc.waterHint} active={calc.activeField === "water"}>
             <NumberField
               size="lg"
-              label="Water"
+              label={t.calc.water}
               value={calc.water}
               unit="ml"
               step={calc.water < 100 ? 1 : 10}
@@ -133,7 +135,7 @@ export function BrewCalculator() {
               onChange={calc.setWater}
             />
             <Slider
-              label="Water slider"
+              label={t.calc.waterSlider}
               value={calc.water}
               min={10}
               max={rangeMax(calc.water, 1000)}
@@ -142,10 +144,10 @@ export function BrewCalculator() {
             />
           </FieldCard>
 
-          <FieldCard title="Coffee" hint="ground coffee" active={calc.activeField === "coffee"}>
+          <FieldCard title={t.calc.coffee} hint={t.calc.coffeeHint} active={calc.activeField === "coffee"}>
             <NumberField
               size="lg"
-              label="Coffee"
+              label={t.calc.coffee}
               value={calc.coffee}
               unit="g"
               step={0.5}
@@ -155,7 +157,7 @@ export function BrewCalculator() {
               onChange={calc.setCoffee}
             />
             <Slider
-              label="Coffee slider"
+              label={t.calc.coffeeSlider}
               value={calc.coffee}
               min={1}
               max={rangeMax(calc.coffee, 100)}
@@ -167,27 +169,27 @@ export function BrewCalculator() {
 
         <div className="flex flex-col gap-4 lg:col-span-5">
           <GlassCard className="text-center">
-            <div className="text-sm text-mute">Brew ratio</div>
+            <div className="text-sm text-mute">{t.calc.ratio}</div>
             <div className="tabular my-2 text-7xl font-semibold tracking-tight text-accent">
               1:{calc.ratio}
             </div>
             <div className="text-lg text-mute">
-              {describeStrength(calc.dose)} · {method.label}
+              {t.calc.strength[describeStrength(calc.dose)]} · {t.methods[method.id]}
             </div>
             <div className="mt-4 flex justify-center gap-6 text-base">
               <span>
                 <b className="tabular text-xl">{method.tempC}°</b>
-                <span className="block text-sm text-mute">water</span>
+                <span className="block text-sm text-mute">{t.calc.waterTemp}</span>
               </span>
               <span>
-                <b className="text-xl">{method.grind}</b>
-                <span className="block text-sm text-mute">grind</span>
+                <b className="text-xl">{t.grinds[method.grind]}</b>
+                <span className="block text-sm text-mute">{t.calc.grind}</span>
               </span>
             </div>
           </GlassCard>
 
           <GlassCard className="!p-5">
-            <div className="mb-3 text-sm text-mute">Quick water</div>
+            <div className="mb-3 text-sm text-mute">{t.calc.quickWater}</div>
             <div className="flex flex-wrap gap-2">
               {quickWater.map((w) => (
                 <Chip key={w} selected={calc.water === w} onClick={() => calc.setWater(w)}>
@@ -199,14 +201,14 @@ export function BrewCalculator() {
 
           <div className="mt-auto flex flex-col gap-3">
             <Button variant="primary" size="lg" icon="play" onClick={() => go("timer")}>
-              {timer.status === "running" || timer.status === "paused" ? "Open timer" : "Start brewing"}
+              {timer.status === "running" || timer.status === "paused" ? t.calc.openTimer : t.calc.start}
             </Button>
             <div className="grid grid-cols-2 gap-3">
               <Button icon="book" onClick={saveAsRecipe}>
-                Save recipe
+                {t.calc.saveRecipe}
               </Button>
               <Button icon="log" onClick={logBrew}>
-                Log brew
+                {t.calc.logBrew}
               </Button>
             </div>
           </div>
