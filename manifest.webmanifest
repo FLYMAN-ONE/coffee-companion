@@ -5,7 +5,7 @@
   "start_url": "/coffee-companion/",
   "scope": "/coffee-companion/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#0f0d0b",
   "theme_color": "#0f0d0b",
   "icons": [
