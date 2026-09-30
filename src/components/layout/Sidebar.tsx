@@ -1,128 +1,45 @@
-import {
- navigationItems
-}
-from "../../app/navigation";
-
+import { navigationItems } from "../../app/navigation";
+import type { TabId } from "../../app/navigation";
+import { Icon } from "../ui/Icon";
 
 interface SidebarProps {
-
-active:string;
-
-onChange:
-(id:string)=>void;
-
+  active: TabId;
+  onChange: (id: TabId) => void;
 }
 
+/** Icon rail on iPad portrait, full sidebar from landscape width (lg). */
+export function Sidebar({ active, onChange }: SidebarProps) {
+  return (
+    <aside className="hidden h-full shrink-0 flex-col border-r border-line bg-card px-3 pb-6 pt-[max(1.5rem,env(safe-area-inset-top))] md:flex lg:w-60 lg:px-4">
+      <div className="mb-10 flex items-center gap-3 px-2">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-ink">
+          <Icon name="coffee" className="h-7 w-7" />
+        </div>
+        <span className="hidden text-xl font-semibold leading-tight lg:block">
+          Coffee
+          <br />
+          Companion
+        </span>
+      </div>
 
-export function Sidebar({
-
-active,
-onChange
-
-}:SidebarProps){
-
-
-return (
-
-<aside
-
-className="
-w-64
-h-screen
-shrink-0
-bg-[var(--bg-card)]
-border-r
-border-[var(--border)]
-p-6
-flex
-flex-col
-"
-
->
-
-<h1 className="
-text-2xl
-font-semibold
-mb-12
-">
-
-Coffee Companion
-
-</h1>
-
-
-
-<div className="
-space-y-3
-">
-
-
-{
-navigationItems.map(item=>(
-
-
-<button
-
-key={item.id}
-
-disabled={!item.available}
-
-onClick={()=>onChange(item.id)}
-
-className={`
-w-full
-flex
-items-center
-gap-4
-p-4
-rounded-2xl
-transition
-
-${
-active===item.id
-?
-"bg-[var(--accent-soft)] text-[var(--accent)]"
-:
-"text-[var(--text-secondary)]"
-}
-
-${
-!item.available
-?
-"opacity-40 cursor-not-allowed"
-:
-""
-}
-
-`}
-
->
-
-
-<span className="text-xl">
-{item.icon}
-</span>
-
-
-<span>
-{item.label}
-</span>
-
-
-</button>
-
-
-))
-
-}
-
-
-</div>
-
-
-
-</aside>
-
-)
-
+      <nav className="flex flex-col gap-2">
+        {navigationItems.map((item) => {
+          const on = active === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onChange(item.id)}
+              aria-current={on ? "page" : undefined}
+              className={`flex h-16 items-center justify-center gap-4 rounded-2xl px-4 text-lg font-medium transition active:scale-[0.98] lg:justify-start ${
+                on ? "bg-accent/15 text-accent" : "text-mute active:bg-soft active:text-ink"
+              }`}
+            >
+              <Icon name={item.icon} className="h-7 w-7 shrink-0" />
+              <span className="hidden lg:block">{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+    </aside>
+  );
 }

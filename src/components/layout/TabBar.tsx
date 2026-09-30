@@ -1,82 +1,32 @@
-const tabs = [
-
-{
-id:"brew",
-label:"☕ Brew"
-},
-
-{
-id:"recipes",
-label:"📖 Recipes"
-},
-
-{
-id:"timer",
-label:"⏱ Timer"
-},
-
-{
-id:"log",
-label:"📝 Log"
-}
-
-];
-
+import { navigationItems } from "../../app/navigation";
+import type { TabId } from "../../app/navigation";
+import { Icon } from "../ui/Icon";
 
 interface TabBarProps {
-
-active:string;
-
-onChange:(id:string)=>void;
-
+  active: TabId;
+  onChange: (id: TabId) => void;
 }
 
-
-export function TabBar({
-active,
-onChange
-}:TabBarProps){
-
-
-return (
-
-<div className="
-flex
-justify-around
-border-t
-p-4
-">
-
-{
-tabs.map(tab=>(
-
-<button
-
-key={tab.id}
-
-onClick={()=>onChange(tab.id)}
-
-className={`
-px-4
-py-2
-rounded-xl
-${active===tab.id
-?"bg-black text-white"
-:"text-gray-500"}
-`}
-
->
-
-{tab.label}
-
-</button>
-
-))
-
-}
-
-</div>
-
-);
-
+/** Bottom bar for narrow screens (phones). */
+export function TabBar({ active, onChange }: TabBarProps) {
+  return (
+    <nav className="flex shrink-0 justify-around border-t border-line bg-card px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 md:hidden">
+      {navigationItems.map((item) => {
+        const on = active === item.id;
+        return (
+          <button
+            key={item.id}
+            onClick={() => onChange(item.id)}
+            aria-current={on ? "page" : undefined}
+            className={`flex h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-xs ${
+              on ? "text-accent" : "text-mute"
+            }`}
+          >
+            <Icon name={item.icon} className="h-6 w-6" />
+            {item.short}
+          </button>
+        );
+      })}
+    </nav>
+  );
 }

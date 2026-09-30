@@ -1,31 +1,13 @@
-:root {
-
---bg-main:#0f0d0b;
-
---bg-card:#1c1915;
-
---bg-card-soft:#25211b;
-
-
---text-primary:#f5f0e8;
-
---text-secondary:#aaa18f;
-
-
---accent:#9dbb78;
-
---accent-soft:
-rgba(157,187,120,0.18);
-
-
---border:
-rgba(255,255,255,0.07);
-
-
---radius-lg:26px;
-
-
---shadow:
-0 25px 60px rgba(0,0,0,.45);
-
+@theme {
+  --color-app: #0f0d0b;
+  --color-card: #1c1915;
+  --color-soft: #26221b;
+  --color-raise: #322d24;
+  --color-ink: #f5f0e8;
+  --color-mute: #aaa18f;
+  --color-accent: #9dbb78;
+  --color-accent-ink: #11160b;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-danger: #e5806f;
+  --shadow-card: 0 20px 50px rgba(0, 0, 0, 0.35);
 }

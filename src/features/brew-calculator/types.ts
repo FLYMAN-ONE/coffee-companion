@@ -1,36 +1,22 @@
-export type ActiveField =
-  | "dose"
-  | "water"
-  | "coffee"
-  | null;
+import type { MethodId } from "../../types";
 
+export type ActiveField = "dose" | "water" | "coffee" | null;
 
-export interface BrewState {
-
-  dose: number;        // g/L
-  water: number;       // ml
-  coffee: number;      // g
-
-  activeField: ActiveField;
-
+export interface BrewValues {
+  dose: number; // g/L
+  water: number; // ml
+  coffee: number; // g
+  method: MethodId;
 }
 
-
-export interface BrewCalculatorReturn
-  extends BrewState {
-
+export interface BrewCalculatorReturn extends BrewValues {
+  activeField: ActiveField;
   ratio: number;
-
-  setDose:
-    (value:number)=>void;
-
-  setWater:
-    (value:number)=>void;
-
-  setCoffee:
-    (value:number)=>void;
-
-  reset:
-    ()=>void;
-
+  setDose: (value: number) => void;
+  setWater: (value: number) => void;
+  setCoffee: (value: number) => void;
+  setMethod: (id: MethodId) => void;
+  /** Load dose + water at once (recipes). */
+  setAll: (dose: number, water: number, method?: MethodId) => void;
+  reset: () => void;
 }

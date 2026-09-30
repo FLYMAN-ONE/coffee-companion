@@ -1,14 +1,124 @@
 @import "tailwindcss";
 @import "./styles/theme.css";
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
+html {
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  background-color: var(--bg-main);
-  color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: var(--color-app);
+  color: var(--color-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+button {
+  font: inherit;
+  touch-action: manipulation;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Text inputs and textareas */
+.input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1px solid var(--color-line);
+  background: var(--color-soft);
+  color: var(--color-ink);
+  font-size: 17px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+textarea.input {
+  padding: 14px 16px;
+  resize: none;
+}
+.input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgb(157 187 120 / 0.16);
+}
+.input::placeholder {
+  color: var(--color-mute);
+  opacity: 0.6;
+}
+
+/* Touch-friendly range slider; --pct is set inline for the filled track */
+input[type="range"].slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+input[type="range"].slider::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-accent) var(--pct, 0%),
+    var(--color-raise) var(--pct, 0%)
+  );
+}
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 32px;
+  width: 32px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  border: 4px solid var(--color-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+input[type="range"].slider::-moz-range-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-raise);
+}
+input[type="range"].slider::-moz-range-progress {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+input[type="range"].slider::-moz-range-thumb {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  border: 4px solid var(--color-accent);
+}
+input[type="range"].slider:focus-visible {
+  outline: none;
 }

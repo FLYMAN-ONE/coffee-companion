@@ -1,44 +1,17 @@
+import type { IconName } from "../components/ui/Icon";
+
+export type TabId = "brew" | "recipes" | "timer" | "log";
+
 export interface NavigationItem {
-
-  id:string;
-
-  label:string;
-
-  icon:string;
-
-  available:boolean;
-
+  id: TabId;
+  label: string;
+  short: string;
+  icon: IconName;
 }
 
-
-export const navigationItems:NavigationItem[] = [
-
-  {
-    id:"brew",
-    label:"Brew Calculator",
-    icon:"☕",
-    available:true
-  },
-
-  {
-    id:"recipes",
-    label:"Recipes",
-    icon:"📖",
-    available:false
-  },
-
-  {
-    id:"timer",
-    label:"Timer",
-    icon:"⏱",
-    available:false
-  },
-
-  {
-    id:"log",
-    label:"Brew Log",
-    icon:"📝",
-    available:false
-  }
-
+export const navigationItems: NavigationItem[] = [
+  { id: "brew", label: "Brew Calculator", short: "Brew", icon: "coffee" },
+  { id: "recipes", label: "Recipes", short: "Recipes", icon: "book" },
+  { id: "timer", label: "Timer", short: "Timer", icon: "timer" },
+  { id: "log", label: "Brew Log", short: "Log", icon: "log" },
 ];

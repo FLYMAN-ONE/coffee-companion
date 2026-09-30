@@ -1,40 +1,21 @@
+import type { ReactNode } from "react";
+
 interface GlassCardProps {
-
-children:React.ReactNode;
-
-className?:string;
-
+  children: ReactNode;
+  className?: string;
+  active?: boolean;
 }
 
-
-export function GlassCard({
-
-children,
-className=""
-
-}:GlassCardProps){
-
-
-return (
-
-<div
-
-className={`
-bg-[var(--bg-card)]
-border
-border-[var(--border)]
-rounded-[24px]
-shadow-[var(--shadow)]
-p-8
-${className}
-`}
-
->
-
-{children}
-
-</div>
-
-)
-
+export function GlassCard({ children, className = "", active = false }: GlassCardProps) {
+  return (
+    <div
+      className={`rounded-[28px] border bg-card p-6 transition ${
+        active
+          ? "border-accent/70 shadow-[0_0_30px_rgb(157_187_120_/_0.12)]"
+          : "border-line"
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
 }
