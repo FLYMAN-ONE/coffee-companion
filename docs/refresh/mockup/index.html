@@ -84,6 +84,16 @@ main{flex:1;min-width:0;position:relative}
 .tile.on{background:var(--raised);box-shadow:inset 0 0 0 2px var(--sage)}
 .tile.on .k{color:var(--sage)}
 .tile.water .v .n{color:var(--water)}
+.tw{position:relative;display:grid}
+.lock{position:absolute;top:8px;right:8px;width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:var(--faint);transition:background .25s,color .25s,transform .3s var(--spring)}
+.lock:active{transform:scale(.88)}
+.lock .shackle{transition:transform .35s var(--spring);transform-origin:15.5px 10.5px}
+.lock[aria-pressed="false"] .shackle{transform:translateY(-1.5px) rotate(28deg)}
+.lock[aria-pressed="true"]{color:var(--sage);background:var(--sage-tonal)}
+.tile.locked{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line);cursor:default}
+.tile.locked .k::after{content:" · bloccato";color:var(--sage);letter-spacing:.06em}
+.tile.locked .v{opacity:.75}
+
 
 .rulerwrap{background:var(--surface);border-radius:24px;padding:14px 0 10px;position:relative}
 .ruler{position:relative;height:132px;overflow:hidden;cursor:grab;touch-action:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
@@ -258,9 +268,9 @@ main{flex:1;min-width:0;position:relative}
 @keyframes draw{to{stroke-dashoffset:0}}
 .sheet .meta div{background:var(--raised)}
 
-.toast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:var(--raised-2);color:var(--ink);border-radius:20px;padding:12px 20px;font-weight:600;font-size:14.5px;z-index:60;display:none;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.toast{position:absolute;left:50%;top:28px;transform:translateX(-50%);background:var(--raised-2);color:var(--ink);border-radius:20px;padding:12px 20px;font-weight:600;font-size:14.5px;z-index:60;display:none;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .toast.on{display:block;animation:toast .45s var(--spring)}
-@keyframes toast{from{transform:translate(-50%,20px);opacity:0}}
+@keyframes toast{from{transform:translate(-50%,-20px);opacity:0}}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
@@ -289,9 +299,9 @@ main{flex:1;min-width:0;position:relative}
         </div>
         <div class="facts" id="pFacts"></div>
         <div class="seg" role="radiogroup" aria-label="Valore da regolare">
-          <button class="tile on" data-f="coffee" role="radio" aria-checked="true"><div class="k">Caffè</div><div class="v"><span class="n num" id="vCoffee"></span><small>g</small></div></button>
-          <button class="tile" data-f="ratio" role="radio" aria-checked="false"><div class="k">Rapporto</div><div class="v"><span class="n num" id="vRatio"></span></div></button>
-          <button class="tile water" data-f="water" role="radio" aria-checked="false"><div class="k">Acqua</div><div class="v"><span class="n num" id="vWater"></span><small>ml</small></div></button>
+          <div class="tw"><button class="tile on" data-f="coffee" role="radio" aria-checked="true"><div class="k">Caffè</div><div class="v"><span class="n num" id="vCoffee"></span><small>g</small></div></button><button class="lock" data-l="coffee" aria-label="Blocca caffè" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="3"/><path class="shackle" d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></button></div>
+          <div class="tw"><button class="tile" data-f="ratio" role="radio" aria-checked="false"><div class="k">Rapporto</div><div class="v"><span class="n num" id="vRatio"></span></div></button><button class="lock" data-l="ratio" aria-label="Blocca rapporto" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="3"/><path class="shackle" d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></button></div>
+          <div class="tw"><button class="tile water" data-f="water" role="radio" aria-checked="false"><div class="k">Acqua</div><div class="v"><span class="n num" id="vWater"></span><small>ml</small></div></button><button class="lock" data-l="water" aria-label="Blocca acqua" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="3"/><path class="shackle" d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></button></div>
         </div>
         <div class="rulerwrap"><div class="rhint">trascina</div><div class="ruler" id="mainRuler"></div><div class="pointer"></div></div>
         <div id="pSteps"></div>
@@ -489,7 +499,7 @@ class Ruler{
 }
 
 /* ---------- prepara ---------- */
-const S={id:"v60",method:"v60",coffee:30,ratio:16.7,water:500,field:"coffee"};
+const S={id:"v60",method:"v60",coffee:30,ratio:16.7,water:500,field:"coffee",lock:"ratio"};
 const FIELDS={
  coffee:{min:1,max:70,step:.5,px:12,major:5,label:5},
  ratio:{min:1,max:20,step:.1,px:9,major:1,label:1},
@@ -533,9 +543,19 @@ function updVals(animate){
   if(ruler)ruler.set(S[S.field],false);
   if(r&&r.steps.length){let prev=0;$('#pSteps').querySelectorAll('.sg').forEach((g,i)=>{const s=r.steps[i];const sp=g.querySelector('.lab span');if(sp)sp.textContent=fmt(s.s)+(s.pct>prev?' · '+Math.round(s.pct/100*S.water)+' ml':'');prev=s.pct})}
 }
-function setField(f){S.field=f;document.querySelectorAll('.tile').forEach(t=>{const on=t.dataset.f===f;t.classList.toggle('on',on);t.setAttribute('aria-checked',on)});
-  ruler=new Ruler($('#mainRuler'),{...FIELDS[f],value:S[f],onChange:v=>{S[f]=v;if(f==='water')S.coffee=r1(S.water/S.ratio);else S.water=Math.round(S.coffee*S.ratio);updVals(false)}})}
+/* One value is locked; dragging one of the two free values recomputes the other. */
+function derive(changed){const L=S.lock,other=['coffee','ratio','water'].find(k=>k!==L&&k!==changed);
+  if(other==='water')S.water=Math.round(S.coffee*S.ratio);
+  else if(other==='coffee')S.coffee=Math.round(S.water/S.ratio*10)/10;
+  else S.ratio=r1(S.water/S.coffee)}
+function paintTiles(){document.querySelectorAll('.tile').forEach(t=>{const f=t.dataset.f,on=f===S.field;t.classList.toggle('on',on);t.classList.toggle('locked',f===S.lock);t.setAttribute('aria-checked',on)});
+  document.querySelectorAll('.lock').forEach(b=>{const on=b.dataset.l===S.lock;b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',(on?'Sblocca ':'Blocca ')+b.closest('.tw').querySelector('.k').firstChild.textContent.toLowerCase())})}
+function setField(f){if(f===S.lock){toast('Valore bloccato: tocca il lucchetto per sbloccarlo');return}S.field=f;paintTiles();
+  ruler=new Ruler($('#mainRuler'),{...FIELDS[f],value:S[f],onChange:v=>{S[f]=v;derive(f);updVals(false)}})}
 document.querySelectorAll('.tile').forEach(t=>t.onclick=()=>setField(t.dataset.f));
+document.querySelectorAll('.lock').forEach(b=>b.onclick=()=>{const f=b.dataset.l;if(S.lock===f)return;S.lock=f;
+  if(S.field===f)setField(['coffee','ratio','water'].find(k=>k!==f));else paintTiles();
+  toast({coffee:'Caffè bloccato: regoli rapporto e acqua',ratio:'Rapporto bloccato: regoli caffè e acqua',water:'Acqua bloccata: regoli caffè e rapporto'}[f])});
 $('#pFav').onclick=()=>{const r=cur();if(!r)return;r.fav=!r.fav;renderPrep(false);toast(r.fav?'Aggiunta alle preferite':'Rimossa dalle preferite')};
 
 /* ---------- navigation ---------- */
