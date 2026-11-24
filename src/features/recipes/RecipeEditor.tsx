@@ -192,7 +192,11 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onCancel }: Reci
       </div>
 
       {step ? (
-        <div className="flex flex-col gap-3 rounded-[22px] bg-raised p-4">
+        <div
+          key={step.id}
+          className="motion-fade flex flex-col gap-3 rounded-[22px] bg-raised p-4"
+          style={{ animation: "rise-in 150ms var(--ease-out)" }}
+        >
           <div className="flex items-center gap-2">
             <input
               className="input flex-1 !bg-surface"

@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useNavigation } from "../../app/navigation";
 import { useToast } from "../../app/toast";
 import { Button } from "../../components/ui/Button";
@@ -7,6 +7,7 @@ import { newLogEntry } from "../../data/factories";
 import { getMethod } from "../../data/methods";
 import { useI18n } from "../../i18n";
 import { fmtDec, fmtTime } from "../../lib/format";
+import { usePresence } from "../../lib/usePresence";
 import type { RecipeStep } from "../../types";
 import { useLogs } from "../log/logsStore";
 import { doseFromRatio } from "../prepare/logic/dosing";
@@ -28,6 +29,15 @@ export function FocusScreen() {
   const { recipe } = prep;
   const steps = recipe?.steps ?? [];
   const { status, hasSteps, stepIndex, elapsedMs, totalMs, stepStart, stepEnd, stepRemainingMs } = timer;
+  const pauseSheet = usePresence(status === "paused", 150);
+
+  // Leaving (close or save at the end): play the 200ms exit, then let the timer go idle,
+  // which unmounts this screen. Content stays frozen on the summary meanwhile.
+  const [leaving, setLeaving] = useState(false);
+  const leave = (after: () => void) => {
+    setLeaving(true);
+    window.setTimeout(after, 200);
+  };
 
   const step = hasSteps ? steps[stepIndex] : null;
   const prevPct = stepIndex > 0 ? steps[stepIndex - 1].waterPct : 0;
@@ -52,8 +62,12 @@ export function FocusScreen() {
       role="dialog"
       aria-label={t.focus.label}
       onClick={() => status === "running" && timer.pause()}
-      className="motion-fade fixed inset-0 z-40 flex cursor-pointer flex-col bg-[#0b0a08] px-11 pt-[max(34px,env(safe-area-inset-top))] pb-[max(30px,env(safe-area-inset-bottom))]"
-      style={{ animation: "focus-in 550ms var(--ease-spring)" }}
+      className={`motion-fade fixed inset-0 z-40 flex cursor-pointer flex-col bg-[#0b0a08] px-11 pt-[max(34px,env(safe-area-inset-top))] pb-[max(30px,env(safe-area-inset-bottom))] ${
+        leaving ? "pointer-events-none" : ""
+      }`}
+      style={{
+        animation: leaving ? "focus-out 200ms var(--ease-out) forwards" : "focus-in 550ms var(--ease-spring)",
+      }}
     >
       <div className="flex items-start justify-between">
         <div>
@@ -148,8 +162,8 @@ export function FocusScreen() {
         />
       ) : null}
 
-      {status === "paused" ? <PauseSheet /> : null}
-      {status === "done" ? <DoneSheet /> : null}
+      {pauseSheet.mounted ? <PauseSheet exiting={pauseSheet.exiting} /> : null}
+      {status === "done" ? <DoneSheet onLeave={leave} /> : null}
     </div>
   );
 }
@@ -286,13 +300,13 @@ function Timeline({
   );
 }
 
-function PauseSheet() {
+function PauseSheet({ exiting }: { exiting: boolean }) {
   const timer = useTimerClock();
   const { recipe } = usePrepare();
   const { t } = useI18n();
   const step = timer.hasSteps ? recipe?.steps[timer.stepIndex] : null;
   return (
-    <Sheet label={t.focus.paused} onClose={timer.resume} layer="top">
+    <Sheet label={t.focus.paused} onClose={timer.resume} layer="top" exiting={exiting}>
       <div className="flex items-end justify-between">
         <div>
           <div className="eyebrow">{t.focus.paused}</div>
@@ -325,7 +339,7 @@ function PauseSheet() {
   );
 }
 
-function DoneSheet() {
+function DoneSheet({ onLeave }: { onLeave: (after: () => void) => void }) {
   const timer = useTimerClock();
   const prep = usePrepare();
   const { saveLog, select } = useLogs();
@@ -349,9 +363,9 @@ function DoneSheet() {
     });
     saveLog(entry);
     select(entry.id);
-    timer.reset();
-    go("log");
+    go("log"); // switches underneath while the timer fades out
     toast(t.focus.savedToast);
+    onLeave(timer.reset);
   };
 
   return (
@@ -398,7 +412,7 @@ function DoneSheet() {
         ))}
       </div>
       <div className="flex items-center gap-2.5">
-        <Button variant="text" onClick={timer.reset}>
+        <Button variant="text" onClick={() => onLeave(timer.reset)}>
           {t.common.close}
         </Button>
         <Button variant="primary" size="lg" icon="journal" className="flex-1" onClick={save}>

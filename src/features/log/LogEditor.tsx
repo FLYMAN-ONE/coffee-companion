@@ -14,10 +14,11 @@ interface LogEditorProps {
   isNew: boolean;
   onSave: (e: LogEntry) => void;
   onClose: () => void;
+  exiting?: boolean;
 }
 
 /** Full editor for a log entry (manual entries and corrections). */
-export function LogEditor({ entry, isNew, onSave, onClose }: LogEditorProps) {
+export function LogEditor({ entry, isNew, onSave, onClose, exiting = false }: LogEditorProps) {
   const { t, lang } = useI18n();
   const [e, setE] = useState<LogEntry>(entry);
   const patch = (p: Partial<LogEntry>) => setE((cur) => ({ ...cur, ...p }));
@@ -30,7 +31,12 @@ export function LogEditor({ entry, isNew, onSave, onClose }: LogEditorProps) {
     patch({ tastes: e.tastes.includes(name) ? e.tastes.filter((x) => x !== name) : [...e.tastes, name] });
 
   return (
-    <Sheet label={isNew ? t.log.editorNew : t.log.editorEdit} onClose={onClose} width="w-[980px]">
+    <Sheet
+      label={isNew ? t.log.editorNew : t.log.editorEdit}
+      onClose={onClose}
+      width="w-[980px]"
+      exiting={exiting}
+    >
       <div className="flex items-center gap-2.5">
         <h2 className="flex-1 text-[26px] font-bold">{isNew ? t.log.editorNew : t.log.editorEdit}</h2>
         <Button variant="text" onClick={onClose}>

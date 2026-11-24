@@ -43,35 +43,42 @@ export function RecipesScreen() {
         }
       />
       <section className="no-scrollbar min-w-0 overflow-y-auto rounded-[28px] bg-surface px-8 py-7">
-        {editing ? (
-          <RecipeEditor
-            key={editing.id}
-            recipe={editing}
-            isNew={isNew}
-            onCancel={closeEditor}
-            onSave={(r) => {
-              saveRecipe(r);
-              setSelectedId(r.id);
-              closeEditor();
-              toast(t.recipes.toastSaved);
-            }}
-            onDelete={() => {
-              deleteRecipe(editing.id);
-              setSelectedId(null);
-              closeEditor();
-              toast(t.recipes.toastDeleted);
-            }}
-          />
-        ) : selected ? (
-          <RecipeDetail
-            recipe={selected}
-            onEdit={() => openEditor(selected)}
-            onBrew={() => {
-              pickRecipe(selected);
-              go("prepare");
-            }}
-          />
-        ) : null}
+        {/* New content (detail ↔ editor, another recipe) rises in over 150ms; the old one is not animated out. */}
+        <div
+          key={editing ? `edit-${editing.id}` : `view-${selected?.id ?? "none"}`}
+          className="motion-fade"
+          style={{ animation: "rise-in 150ms var(--ease-out)" }}
+        >
+          {editing ? (
+            <RecipeEditor
+              key={editing.id}
+              recipe={editing}
+              isNew={isNew}
+              onCancel={closeEditor}
+              onSave={(r) => {
+                saveRecipe(r);
+                setSelectedId(r.id);
+                closeEditor();
+                toast(t.recipes.toastSaved);
+              }}
+              onDelete={() => {
+                deleteRecipe(editing.id);
+                setSelectedId(null);
+                closeEditor();
+                toast(t.recipes.toastDeleted);
+              }}
+            />
+          ) : selected ? (
+            <RecipeDetail
+              recipe={selected}
+              onEdit={() => openEditor(selected)}
+              onBrew={() => {
+                pickRecipe(selected);
+                go("prepare");
+              }}
+            />
+          ) : null}
+        </div>
       </section>
     </div>
   );

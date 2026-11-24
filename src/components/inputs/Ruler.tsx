@@ -33,6 +33,9 @@ interface RulerProps extends RulerScale {
 }
 
 const SETTLE = "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)";
+/** Past min/max the track follows the finger with resistance, up to this many pixels. */
+const RUBBER_MAX = 40;
+const RUBBER_FACTOR = 0.3;
 const isMultiple = (v: number, of: number) => Math.abs(v / of - Math.round(v / of)) < 1e-6;
 
 /**
@@ -62,6 +65,8 @@ export function Ruler({
   const drag = useRef<{ x: number; pos: number } | null>(null);
   const pos = useRef(value);
   const emitted = useRef(value);
+  /** Width the track was last placed for; -1 forces the first placement. */
+  const placedWidth = useRef(-1);
 
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
   const snap = (v: number) => +(Math.round(clamp(v) / step) * step).toFixed(3);
@@ -69,15 +74,20 @@ export function Ruler({
   const place = (p: number, settle: boolean) => {
     const el = track.current;
     if (!el) return;
+    // Measure at call time: the observed `width` state can lag right after mount.
+    const w = box.current?.clientWidth || width;
     el.style.transition = settle ? SETTLE : "none";
-    el.style.transform = `translateX(${width / 2 - ((p - min) / step) * px}px)`;
+    el.style.transform = `translateX(${w / 2 - ((p - min) / step) * px}px)`;
   };
 
-  // Follow the value from outside (recipe change, other field) unless the finger is on it.
+  // Follow the value from outside (recipe change, other field) or a resize, unless the finger
+  // is on it. Skip when nothing changed, so the settle transition after a release is not cut short.
   useLayoutEffect(() => {
     if (drag.current) return;
+    if (pos.current === value && placedWidth.current === width) return;
     pos.current = value;
     emitted.current = value;
+    placedWidth.current = width;
     place(value, false);
   });
 
@@ -105,15 +115,23 @@ export function Ruler({
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     drag.current = { x: e.clientX, pos: pos.current };
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // The pointer may already be gone (cancelled touch); dragging still works without capture.
+    }
     onDragStart?.();
   };
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d) return;
-    const p = clamp(d.pos - ((e.clientX - d.x) / px) * step);
+    const raw = d.pos - ((e.clientX - d.x) / px) * step;
+    const p = clamp(raw);
     pos.current = p;
-    place(p, false);
+    // Rubber-band past the ends: the value stays clamped, only the track stretches.
+    const overPx = ((raw - p) / step) * px;
+    const rubberPx = Math.sign(overPx) * Math.min(RUBBER_MAX, Math.abs(overPx) * RUBBER_FACTOR);
+    place(p + (rubberPx / px) * step, false);
     emit(snap(p));
   };
   const onPointerUp = () => {
@@ -153,7 +171,12 @@ export function Ruler({
           WebkitMaskImage: "linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent)",
         }}
       >
-        <div ref={track} className="absolute inset-y-0 left-0 will-change-transform">
+        {/* A new scale (another field) fades in so the change reads as one, without moving. */}
+        <div
+          ref={track}
+          className="motion-fade absolute inset-y-0 left-0 will-change-transform"
+          style={{ animation: "fade-in 120ms var(--ease-out)" }}
+        >
           {ticks.map((t) => {
             const lit = t.v <= value + 1e-6;
             return (

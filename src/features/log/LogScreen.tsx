@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useToast } from "../../app/toast";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
@@ -9,6 +9,7 @@ import { newLogEntry } from "../../data/factories";
 import { tastes } from "../../data/methods";
 import { useI18n } from "../../i18n";
 import { fmtDay, fmtDec, fmtHour, fmtTime } from "../../lib/format";
+import { usePresence } from "../../lib/usePresence";
 import type { LogEntry } from "../../types";
 import { LogEditor } from "./LogEditor";
 import { useLogs } from "./logsStore";
@@ -41,7 +42,13 @@ export function LogScreen() {
     };
   }, [logs, lang, t]);
 
-  const isNew = editing ? !logs.some((l) => l.id === editing.id) : false;
+  // Keep the last entry on screen while the editor plays its exit.
+  const editor = usePresence(editing !== null, 150);
+  const [shown, setShown] = useState<{ entry: LogEntry; isNew: boolean } | null>(null);
+  if (editing && editing !== shown?.entry)
+    setShown({ entry: editing, isNew: !logs.some((l) => l.id === editing.id) });
+  const shownEntry = shown?.entry ?? null;
+  const isNew = shown?.isNew ?? false;
 
   return (
     <div className="grid h-full grid-rows-[auto_minmax(0,1fr)] gap-3.5">
@@ -123,10 +130,11 @@ export function LogScreen() {
         </div>
       )}
 
-      {editing ? (
+      {editor.mounted && shownEntry ? (
         <LogEditor
-          key={editing.id}
-          entry={editing}
+          key={shownEntry.id}
+          entry={shownEntry}
+          exiting={editor.exiting}
           isNew={isNew}
           onClose={closeEditor}
           onSave={(l) => {
