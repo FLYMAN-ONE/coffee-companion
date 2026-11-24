@@ -1,11 +1,11 @@
 {
   "name": "Coffee Companion",
   "short_name": "Coffee",
-  "description": "Brew calculator for coffee lovers",
+  "description": "Brew companion for the coffee corner: doses, recipes and a guided timer",
   "start_url": "/coffee-companion/",
   "scope": "/coffee-companion/",
   "display": "standalone",
-  "orientation": "any",
+  "orientation": "landscape",
   "background_color": "#0f0d0b",
   "theme_color": "#0f0d0b",
   "icons": [
