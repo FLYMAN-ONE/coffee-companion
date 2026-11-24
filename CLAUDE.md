@@ -15,50 +15,56 @@ Pubblicata su GitHub Pages: https://FLYMAN-ONE.github.io/coffee-companion/
 ## Comandi
 
 - `npm run dev` — server di sviluppo Vite
+- `npm run check` — lint + test + build: **eseguirlo dopo ogni modifica**
+- `npm run test` / `npm run test:watch` — Vitest (jsdom)
+- `npm run lint` — ESLint (incluse le regole del React Compiler di `react-hooks`)
+- `npm run format` — Prettier (printWidth 110, doppi apici)
 - `npm run build` — type check (`tsc -b`) + build in `dist/`
-- `npm run preview` — anteprima della build
 - `npm run deploy` — build e pubblicazione su GitHub Pages (`gh-pages -d dist`)
-
-Non ci sono test né linter: `npm run build` è l'unico controllo, va eseguito dopo ogni modifica.
 
 ## Stack
 
-React 19 + TypeScript (strict) + Vite 8 + Tailwind CSS 4 (plugin `@tailwindcss/vite`, nessun `tailwind.config`). Nessuna libreria di routing, stato, icone o animazioni: tutto è fatto a mano.
+React 19 + TypeScript (strict) + Vite 8 + Tailwind CSS 4 (plugin `@tailwindcss/vite`, nessun `tailwind.config`). Test con Vitest + Testing Library. Nessuna libreria di routing, stato, icone o animazioni.
 
 ## Struttura
 
 ```
 src/
-  main.tsx              entry, registra il service worker solo in produzione
-  App.tsx               LanguageProvider > AppProvider > AppShell
+  main.tsx              prepareStorage() (migrazioni) poi render; service worker solo in produzione
+  App.tsx               AppProviders > AppShell
   app/
-    AppShell.tsx        layout: Sidebar (md+) / TabBar (mobile), pagina attiva, toast
-    navigation.ts       elenco tab (brew, recipes, timer, log) e relative icone
-    store.tsx           stato globale in un unico Context (useApp)
-  features/             una cartella per schermata
-    brew-calculator/    calcolatore (hook, logica pura in logic/, tipi)
-    recipes/            lista, card, editor
-    timer/              Timer.tsx + useTimer (passaggi, chime, wake lock)
-    log/                diario e editor delle voci
-  components/
-    ui/                 Button, Chip, GlassCard, Modal, Icon (SVG inline), Stars…
-    inputs/             NumberField (+/- con ripetizione), Slider
-    layout/             Sidebar, TabBar
-  data/                 methods.ts (default per metodo), defaultRecipes.ts (ricette seed)
-  i18n/                 en.ts (definisce il tipo Dict), it.ts, provider useI18n
-  lib/                  storage (useLocalStorage, export JSON), audio, format, useMediaQuery
+    AppProviders.tsx    composizione dei provider (l'ordine conta)
+    AppShell.tsx        layout iPad orizzontale: Sidebar + schermata attiva
+    navigation.ts       tab, icone, useNavigation()
+    toast.ts            useToast() (ToastProvider disegna il toast)
+    useApplyRecipe.ts   carica una ricetta nel calcolatore e nel timer
+  features/<nome>/      una cartella per schermata, ognuna con il proprio store
+    brew-calculator/    useCalculator(); logica pura in logic/
+    recipes/            useRecipes() (lista localizzata, salvataggio, editor aperto)
+    log/                useLogs(), useBackup() (export/import JSON)
+    timer/              useTimerSession() (stato stabile), useTimerClock() (aggiornato a ogni tick)
+  data/
+    schema.ts           sanitize* per tutto ciò che arriva da storage o backup, upsert
+    migrations.ts       SCHEMA_VERSION, migrazioni, mergeSeed, prepareStorage
+    storageKeys.ts      tutte le chiavi localStorage
+    backup.ts           buildBackup / parseBackup
+    factories.ts        newRecipe / newLogEntry
+    methods.ts          default per metodo; defaultRecipes.ts ricette seed
+  components/ui|inputs|layout   componenti riutilizzabili
+  i18n/                 en.ts (definisce il tipo Dict), it.ts, useI18n, localizeRecipe
+  lib/                  createStore, useLocalStorage, audio, format, download
   styles/theme.css      token di design (@theme di Tailwind)
-  index.css             stili globali, .input, .slider
-public/                 manifest, sw.js, icone
 ```
+
+Pattern degli store: `xStore.ts` definisce interfaccia, context e hook con `createStore`; `XProvider.tsx` contiene solo il componente (fast refresh). Gli editor aperti (`editing`, `openEditor`) vivono nello store, così altre schermate possono aprirli prima di cambiare tab.
 
 ## Concetti chiave
 
 - **Dose in g/L**: il calcolatore lavora con dose (g di caffè per litro), acqua (ml) e caffè (g). Cambiando un valore si ricalcola l'altro (`logic/calculations.ts`). Il rapporto 1:N è derivato. Cambiare metodo mantiene i grammi di caffè e adatta l'acqua alla dose tipica del metodo.
 - **Ricette**: `steps[].waterPct` è l'acqua cumulativa a fine passaggio (0–100 % del totale), `seconds` la durata del passaggio. Una ricetta senza passaggi non compare tra quelle selezionabili nel timer.
-- **Ricette seed**: hanno id `builtin-*`. Se si modificano in `defaultRecipes.ts`, incrementare `SEED_VERSION`: all'avvio vengono aggiornate una volta, mantenendo i preferiti e lasciando intatte le ricette dell'utente. Le fonti (The World Atlas of Coffee, video di James Hoffmann) sono citate nelle note.
-- **Persistenza**: solo `localStorage`, chiavi versionate `cc:<nome>:v1` (`recipes`, `logs`, `calc`, `seed`, `lang`). Cambiare la forma dei dati richiede una migrazione o una nuova chiave. Backup/ripristino via file JSON dallo store.
-- **Timer**: basato su `Date.now()` (non su contatori), quindi resta preciso in pausa/background. L'audio va sbloccato da un gesto dell'utente (`unlockAudio` nel tasto Start) per iPadOS.
+- **Ricette seed**: hanno id `builtin-*`. Se si modificano in `defaultRecipes.ts`, incrementare `SEED_VERSION`: `prepareStorage` le aggiorna una volta all'avvio (`mergeSeed`), mantenendo i preferiti e lasciando intatte le ricette dell'utente. Le fonti (The World Atlas of Coffee, video di James Hoffmann) sono citate nelle note.
+- **Persistenza**: solo `localStorage`, chiavi in `data/storageKeys.ts`. Ogni lettura passa da un `sanitize*` (dati corrotti o vecchi non rompono la UI). Per cambiare la forma dei dati: aggiungere una migrazione in `data/migrations.ts` e incrementare `SCHEMA_VERSION`, con un test. I dati dell'utente sul suo iPad non vanno mai persi.
+- **Timer**: basato su `Date.now()` (non su contatori), quindi resta preciso in pausa/background. Le azioni sono stabili; suoni e fine automatica stanno nel callback dell'intervallo. Solo la schermata Timer deve usare `useTimerClock()` (si aggiorna ogni 100 ms): altrove usare `useTimerSession()`. L'audio va sbloccato da un gesto dell'utente (`unlockAudio` nel tasto Start) per iPadOS.
 - **Navigazione**: niente URL/router, il tab attivo è stato in memoria (`store.tab`).
 
 ## Convenzioni
@@ -66,7 +72,7 @@ public/                 manifest, sw.js, icone
 - **i18n**: ogni testo visibile passa da `useI18n().t`. Aggiungere la chiave in `en.ts` (che definisce il tipo) e in `it.ts`. I nomi dei metodi (V60, Chemex, AeroPress…) non si traducono. Le ricette seed sono salvate in inglese e tradotte al volo da `localizeRecipe` finché l'utente non le modifica.
 - **Stile**: classi Tailwind inline; i colori vengono dai token in `styles/theme.css` (`bg-app`, `bg-card`, `bg-soft`, `bg-raise`, `text-ink`, `text-mute`, `accent`, `line`, `danger`). Non usare colori esadecimali sparsi nei componenti.
 - **Touch first**: target minimi 48 px (spesso 64 px), `active:` invece di `hover:`, numeri con `.tabular`. Rispettare le safe area (`env(safe-area-inset-*)`).
-- **Breakpoint**: mobile < `md` (tab bar), `md` iPad verticale (rail di icone), `lg` iPad orizzontale/desktop (sidebar completa, layout a colonne).
+- **Layout**: solo iPad orizzontale (≥ 1024 px, manifest `landscape`). Niente layout telefono: non aggiungere varianti `md:`/mobile.
 - Le icone sono SVG inline in `components/ui/Icon.tsx`: aggiungerne lì, non introdurre librerie.
 - Logica pura (calcoli) separata dai componenti, dentro `features/<x>/logic/`.
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getMethod, grinds, methods } from "../../data/methods";
+import { grinds, methods } from "../../data/methods";
 import { useI18n } from "../../i18n";
 import { fmtTime, uid } from "../../lib/format";
 import { Button } from "../../components/ui/Button";
@@ -244,20 +244,3 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
     </Modal>
   );
 }
-
-export const blankRecipe = (): Recipe => {
-  const m = getMethod("v60");
-  return {
-    id: uid(),
-    name: "",
-    method: m.id,
-    dose: m.dose,
-    water: 250,
-    tempC: m.tempC,
-    grind: m.grind,
-    notes: "",
-    steps: [],
-    favorite: false,
-    createdAt: new Date().toISOString(),
-  };
-};

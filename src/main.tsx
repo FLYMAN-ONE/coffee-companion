@@ -1,7 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { prepareStorage } from "./data/migrations";
 import "./index.css";
+
+// Migrate stored data before anything reads it.
+prepareStorage();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

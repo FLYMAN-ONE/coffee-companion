@@ -1,7 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { MethodId } from "../../../types";
 import { getMethod } from "../../../data/methods";
 import { useLocalStorage } from "../../../lib/storage";
+import { STORAGE_KEYS } from "../../../data/storageKeys";
+import { sanitizeBrewValues } from "../../../data/schema";
 import type { ActiveField, BrewCalculatorReturn, BrewValues } from "../types";
 import { calculateCoffee, calculateRatio, calculateWater } from "../logic/calculations";
 
@@ -13,7 +15,9 @@ const initialValues: BrewValues = {
 };
 
 export function useBrewCalculator(): BrewCalculatorReturn {
-  const [values, setValues] = useLocalStorage<BrewValues>("cc:calc:v1", initialValues);
+  const [values, setValues] = useLocalStorage<BrewValues>(STORAGE_KEYS.calc, initialValues, (raw) =>
+    sanitizeBrewValues(raw, initialValues)
+  );
   const [activeField, setActiveField] = useState<ActiveField>(null);
 
   const setDose = useCallback(
@@ -71,15 +75,18 @@ export function useBrewCalculator(): BrewCalculatorReturn {
     setActiveField(null);
   }, [setValues]);
 
-  return {
-    ...values,
-    activeField,
-    ratio: calculateRatio(values.water, values.coffee),
-    setDose,
-    setWater,
-    setCoffee,
-    setMethod,
-    setAll,
-    reset,
-  };
+  return useMemo(
+    () => ({
+      ...values,
+      activeField,
+      ratio: calculateRatio(values.water, values.coffee),
+      setDose,
+      setWater,
+      setCoffee,
+      setMethod,
+      setAll,
+      reset,
+    }),
+    [values, activeField, setDose, setWater, setCoffee, setMethod, setAll, reset]
+  );
 }

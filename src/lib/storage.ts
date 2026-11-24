@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 
-export function useLocalStorage<T>(key: string, initial: T) {
+/**
+ * State persisted to localStorage as JSON. `sanitize` repairs or replaces
+ * whatever is read back, so a corrupted or outdated value never reaches the UI.
+ */
+export function useLocalStorage<T>(key: string, initial: T, sanitize?: (raw: unknown) => T) {
   const [value, setValue] = useState<T>(() => {
     try {
       const raw = localStorage.getItem(key);
-      return raw ? (JSON.parse(raw) as T) : initial;
+      if (raw === null) return initial;
+      const parsed: unknown = JSON.parse(raw);
+      return sanitize ? sanitize(parsed) : (parsed as T);
     } catch {
       return initial;
     }
@@ -19,16 +25,4 @@ export function useLocalStorage<T>(key: string, initial: T) {
   }, [key, value]);
 
   return [value, setValue] as const;
-}
-
-export function downloadJson(filename: string, data: unknown) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

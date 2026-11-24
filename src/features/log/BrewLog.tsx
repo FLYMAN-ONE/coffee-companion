@@ -1,17 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useApp } from "../../app/store";
-import { getMethod } from "../../data/methods";
-import { fmtDay, fmtHour, fmtTime, uid } from "../../lib/format";
-import { useMediaQuery } from "../../lib/useMediaQuery";
+import { useMemo, useRef, useState } from "react";
+import { useToast } from "../../app/toast";
+import { newLogEntry } from "../../data/factories";
+import { fmtDay, fmtHour, fmtTime } from "../../lib/format";
 import { useI18n } from "../../i18n";
 import { Button } from "../../components/ui/Button";
 import { ConfirmButton } from "../../components/ui/ConfirmButton";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { Icon } from "../../components/ui/Icon";
-import { Modal } from "../../components/ui/Modal";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Stars } from "../../components/ui/Stars";
 import { LogEditor } from "./LogEditor";
+import { useLogs } from "./logsStore";
+import { useBackup } from "./useBackup";
 import type { LogEntry } from "../../types";
 
 function Detail({ log, onEdit, onDelete }: { log: LogEntry; onEdit: () => void; onDelete: () => void }) {
@@ -75,25 +75,26 @@ function Detail({ log, onEdit, onDelete }: { log: LogEntry; onEdit: () => void; 
 }
 
 export function BrewLog() {
-  const { logs, saveLog, deleteLog, logDraft, setLogDraft, exportBackup, importBackup, toast } = useApp();
+  const { logs, saveLog, deleteLog, editing, openEditor, closeEditor } = useLogs();
+  const { exportBackup, importBackup } = useBackup();
+  const toast = useToast();
   const { t, lang } = useI18n();
-  const isWide = useMediaQuery("(min-width: 1024px)");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [editing, setEditing] = useState<LogEntry | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
-
-  // A draft coming from the calculator or timer opens straight in the editor.
-  useEffect(() => {
-    if (logDraft) {
-      setEditing(logDraft);
-      setLogDraft(null);
-    }
-  }, [logDraft, setLogDraft]);
 
   const sorted = useMemo(() => [...logs].sort((a, b) => b.date.localeCompare(a.date)), [logs]);
-  const selected = sorted.find((l) => l.id === selectedId) ?? (isWide ? sorted[0] : undefined);
+  const selected = sorted.find((l) => l.id === selectedId) ?? sorted[0];
+
+  // Entries with the day header to show above them (first entry of each day).
+  const rows = useMemo(
+    () =>
+      sorted.map((l, i) => {
+        const day = fmtDay(l.date, lang);
+        return { log: l, header: i === 0 || day !== fmtDay(sorted[i - 1].date, lang) ? day : null };
+      }),
+    [sorted, lang]
+  );
 
   const stats = useMemo(() => {
     const rated = logs.filter((l) => l.rating > 0);
@@ -108,40 +109,13 @@ export function BrewLog() {
   }, [logs]);
   const topLabel = stats.top ? t.methods[stats.top as LogEntry["method"]] : "—";
 
-  const newEntry = (): LogEntry => {
-    const m = getMethod("v60");
-    return {
-      id: uid(),
-      date: new Date().toISOString(),
-      method: m.id,
-      recipeName: "",
-      beans: "",
-      dose: m.dose,
-      water: 250,
-      coffee: 15,
-      tempC: m.tempC,
-      grind: m.grind,
-      timeSec: 0,
-      rating: 0,
-      tastes: [],
-      notes: "",
-    };
-  };
-
   const remove = (l: LogEntry) => {
     deleteLog(l.id);
     setSelectedId(null);
-    setDetailOpen(false);
     toast(t.log.toastDeleted);
   };
 
   const isNew = editing ? !logs.some((l) => l.id === editing.id) : false;
-  const openDetail = (l: LogEntry) => {
-    setSelectedId(l.id);
-    if (!isWide) setDetailOpen(true);
-  };
-
-  let lastDay = "";
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -175,7 +149,7 @@ export function BrewLog() {
                 e.target.value = "";
               }}
             />
-            <Button variant="primary" icon="plus" onClick={() => setEditing(newEntry())}>
+            <Button variant="primary" icon="plus" onClick={() => openEditor(newLogEntry())}>
               {t.log.logBrew}
             </Button>
           </>
@@ -186,7 +160,7 @@ export function BrewLog() {
         <div className="flex flex-col items-center gap-4 rounded-[28px] border border-dashed border-line py-24 text-center">
           <Icon name="log" className="h-14 w-14 text-mute" />
           <p className="max-w-md text-lg text-mute">{t.log.empty}</p>
-          <Button variant="primary" icon="plus" onClick={() => setEditing(newEntry())}>
+          <Button variant="primary" icon="plus" onClick={() => openEditor(newLogEntry())}>
             {t.log.emptyBtn}
           </Button>
         </div>
@@ -205,12 +179,9 @@ export function BrewLog() {
             ))}
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-5">
-            <div className="flex flex-col gap-2 lg:col-span-2">
-              {sorted.map((l) => {
-                const day = fmtDay(l.date, lang);
-                const header = day !== lastDay ? day : null;
-                lastDay = day;
+          <div className="grid grid-cols-5 gap-5">
+            <div className="col-span-2 flex flex-col gap-2">
+              {rows.map(({ log: l, header }) => {
                 const on = selected?.id === l.id;
                 return (
                   <div key={l.id}>
@@ -218,7 +189,7 @@ export function BrewLog() {
                       <div className="mb-2 mt-3 px-2 text-sm text-mute first:mt-0">{header}</div>
                     ) : null}
                     <button
-                      onClick={() => openDetail(l)}
+                      onClick={() => setSelectedId(l.id)}
                       className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-3 text-left transition active:scale-[0.99] ${
                         on ? "border-accent/60 bg-accent/10" : "border-line bg-card"
                       }`}
@@ -239,12 +210,12 @@ export function BrewLog() {
               })}
             </div>
 
-            <div className="hidden lg:col-span-3 lg:block">
+            <div className="col-span-3">
               {selected ? (
                 <GlassCard className="sticky top-0">
                   <Detail
                     log={selected}
-                    onEdit={() => setEditing(selected)}
+                    onEdit={() => openEditor(selected)}
                     onDelete={() => remove(selected)}
                   />
                 </GlassCard>
@@ -254,34 +225,21 @@ export function BrewLog() {
         </>
       )}
 
-      {detailOpen && !isWide && selected ? (
-        <Modal title={t.log.modalTitle} onClose={() => setDetailOpen(false)}>
-          <Detail
-            log={selected}
-            onEdit={() => {
-              setDetailOpen(false);
-              setEditing(selected);
-            }}
-            onDelete={() => remove(selected)}
-          />
-        </Modal>
-      ) : null}
-
       {editing ? (
         <LogEditor
           key={editing.id}
           entry={editing}
           isNew={isNew}
-          onClose={() => setEditing(null)}
+          onClose={closeEditor}
           onSave={(l) => {
             saveLog(l);
             setSelectedId(l.id);
-            setEditing(null);
+            closeEditor();
             toast(t.log.toastSaved);
           }}
           onDelete={() => {
             remove(editing);
-            setEditing(null);
+            closeEditor();
           }}
         />
       ) : null}

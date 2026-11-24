@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "../ui/Icon";
 
 interface NumberFieldProps {
@@ -16,7 +16,9 @@ interface NumberFieldProps {
 /** Hold a +/- button: fires once, then repeats while held. */
 function useHoldRepeat(action: () => void) {
   const actionRef = useRef(action);
-  actionRef.current = action;
+  useLayoutEffect(() => {
+    actionRef.current = action;
+  });
   const timers = useRef<{ t?: number; i?: number }>({});
 
   const stop = () => {
@@ -52,13 +54,9 @@ export function NumberField({
   onChange,
 }: NumberFieldProps) {
   const fmt = (v: number) => String(Number(v.toFixed(decimals)));
-  const [text, setText] = useState(fmt(value));
-  const [focused, setFocused] = useState(false);
-
-  useEffect(() => {
-    if (!focused) setText(fmt(value));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, focused, decimals]);
+  // What the user is typing; null when the field is not being edited (shows `value`).
+  const [draft, setDraft] = useState<string | null>(null);
+  const text = draft ?? fmt(value);
 
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
   const round = (v: number) => Number(v.toFixed(decimals));
@@ -91,19 +89,18 @@ export function NumberField({
             aria-label={label ?? unit}
             value={text}
             onFocus={(e) => {
-              setFocused(true);
+              setDraft(fmt(value));
               e.target.select();
             }}
             onChange={(e) => {
-              setText(e.target.value);
+              setDraft(e.target.value);
               const v = parse(e.target.value);
               if (!Number.isNaN(v) && v >= min && v <= max) onChange(round(v));
             }}
             onBlur={() => {
-              setFocused(false);
               const v = parse(text);
               if (!Number.isNaN(v)) onChange(round(clamp(v)));
-              else setText(fmt(value));
+              setDraft(null);
             }}
             className={`tabular w-full min-w-0 flex-1 bg-transparent text-center font-semibold text-ink outline-none ${
               big ? "text-4xl" : "text-xl"

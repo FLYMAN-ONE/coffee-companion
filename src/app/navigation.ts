@@ -1,4 +1,5 @@
 import type { IconName } from "../components/ui/Icon";
+import { createStore } from "../lib/createStore";
 
 export type TabId = "brew" | "recipes" | "timer" | "log";
 
@@ -13,3 +14,10 @@ export const navigationItems: NavigationItem[] = [
   { id: "timer", icon: "timer" },
   { id: "log", icon: "log" },
 ];
+
+export interface NavigationStore {
+  tab: TabId;
+  go: (tab: TabId) => void;
+}
+
+export const [NavigationContext, useNavigation] = createStore<NavigationStore>("Navigation");

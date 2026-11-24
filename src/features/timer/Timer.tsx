@@ -1,25 +1,34 @@
-import { useApp } from "../../app/store";
+import { useNavigation } from "../../app/navigation";
+import { useApplyRecipe } from "../../app/useApplyRecipe";
+import { newLogEntry } from "../../data/factories";
 import { getMethod } from "../../data/methods";
 import { useI18n } from "../../i18n";
-import { fmtTime, uid } from "../../lib/format";
+import { fmtTime } from "../../lib/format";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
 import { GlassCard } from "../../components/ui/GlassCard";
 import { Icon } from "../../components/ui/Icon";
 import { PageHeader } from "../../components/ui/PageHeader";
-import type { LogEntry } from "../../types";
+import { useCalculator } from "../brew-calculator/calculatorStore";
+import { useLogs } from "../log/logsStore";
+import { useRecipes } from "../recipes/recipesStore";
+import { useTimerClock, useTimerSession } from "./timerStore";
 
 const R = 88;
 const C = 2 * Math.PI * R;
 
 export function Timer() {
-  const { timer, calc, recipes, timerRecipe, timerRecipeId, setTimerRecipeId, applyRecipe, go, setLogDraft } =
-    useApp();
+  const timer = useTimerClock();
+  const { recipe: timerRecipe, selectRecipe, busy: active } = useTimerSession();
+  const calc = useCalculator();
+  const { recipes } = useRecipes();
+  const { openEditor: openLogEditor } = useLogs();
+  const { go } = useNavigation();
+  const applyRecipe = useApplyRecipe();
 
   const { t } = useI18n();
   const steps = timerRecipe?.steps ?? [];
   const { status, hasSteps, stepIndex, elapsedMs, totalMs } = timer;
-  const active = status === "running" || status === "paused";
   const step = hasSteps && stepIndex >= 0 ? steps[stepIndex] : null;
 
   const target = (pct: number) => Math.round((pct / 100) * calc.water);
@@ -57,23 +66,18 @@ export function Timer() {
 
   const saveToLog = () => {
     const m = getMethod(calc.method);
-    const draft: LogEntry = {
-      id: uid(),
-      date: new Date().toISOString(),
-      method: timerRecipe?.method ?? calc.method,
-      recipeName: timerRecipe?.name ?? "",
-      beans: "",
-      dose: calc.dose,
-      water: calc.water,
-      coffee: calc.coffee,
-      tempC: timerRecipe?.tempC ?? m.tempC,
-      grind: timerRecipe?.grind ?? m.grind,
-      timeSec: Math.round(elapsedMs / 1000),
-      rating: 0,
-      tastes: [],
-      notes: "",
-    };
-    setLogDraft(draft);
+    openLogEditor(
+      newLogEntry({
+        method: timerRecipe?.method ?? calc.method,
+        recipeName: timerRecipe?.name ?? "",
+        dose: calc.dose,
+        water: calc.water,
+        coffee: calc.coffee,
+        tempC: timerRecipe?.tempC ?? m.tempC,
+        grind: timerRecipe?.grind ?? m.grind,
+        timeSec: Math.round(elapsedMs / 1000),
+      })
+    );
     go("log");
   };
 
@@ -89,14 +93,7 @@ export function Timer() {
       />
 
       <div className="no-scrollbar -mx-1 mb-5 flex gap-2 overflow-x-auto px-1 py-1">
-        <Chip
-          disabled={active}
-          selected={timerRecipeId === null}
-          onClick={() => {
-            timer.reset();
-            setTimerRecipeId(null);
-          }}
-        >
+        <Chip disabled={active} selected={timerRecipe === null} onClick={() => selectRecipe(null)}>
           {t.timer.stopwatch}
         </Chip>
         {recipes
@@ -105,11 +102,8 @@ export function Timer() {
             <Chip
               key={r.id}
               disabled={active}
-              selected={timerRecipeId === r.id}
-              onClick={() => {
-                timer.reset();
-                applyRecipe(r);
-              }}
+              selected={timerRecipe?.id === r.id}
+              onClick={() => applyRecipe(r)}
             >
               {r.name}
             </Chip>

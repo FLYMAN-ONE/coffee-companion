@@ -1,13 +1,10 @@
-import { LanguageProvider } from "./i18n";
-import { AppProvider } from "./app/store";
+import { AppProviders } from "./app/AppProviders";
 import { AppShell } from "./app/AppShell";
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AppProvider>
-        <AppShell />
-      </AppProvider>
-    </LanguageProvider>
+    <AppProviders>
+      <AppShell />
+    </AppProviders>
   );
 }

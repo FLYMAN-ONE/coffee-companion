@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import { useApp } from "../../app/store";
+import { useState } from "react";
+import { useToast } from "../../app/toast";
+import { useApplyRecipe } from "../../app/useApplyRecipe";
+import { newRecipe } from "../../data/factories";
 import { methods } from "../../data/methods";
 import { useI18n } from "../../i18n";
 import { fmtTime } from "../../lib/format";
@@ -9,33 +11,19 @@ import { Modal } from "../../components/ui/Modal";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { calculateCoffee } from "../brew-calculator/logic/calculations";
 import { RecipeCard } from "./RecipeCard";
-import { RecipeEditor, blankRecipe } from "./RecipeEditor";
+import { RecipeEditor } from "./RecipeEditor";
+import { useRecipes } from "./recipesStore";
 import type { MethodId, Recipe } from "../../types";
 
 export function Recipes() {
-  const {
-    recipes,
-    saveRecipe,
-    deleteRecipe,
-    toggleFavorite,
-    recipeDraft,
-    setRecipeDraft,
-    applyRecipe,
-    toast,
-  } = useApp();
+  const { recipes, saveRecipe, deleteRecipe, toggleFavorite, editing, openEditor, closeEditor } =
+    useRecipes();
+  const applyRecipe = useApplyRecipe();
+  const toast = useToast();
 
   const { t } = useI18n();
-  const [editing, setEditing] = useState<Recipe | null>(null);
   const [viewing, setViewing] = useState<Recipe | null>(null);
   const [filter, setFilter] = useState<MethodId | "fav" | "all">("all");
-
-  // A draft coming from the calculator opens straight in the editor.
-  useEffect(() => {
-    if (recipeDraft) {
-      setEditing(recipeDraft);
-      setRecipeDraft(null);
-    }
-  }, [recipeDraft, setRecipeDraft]);
 
   const usedMethods = methods.filter((m) => recipes.some((r) => r.method === m.id));
   const visible = recipes
@@ -50,7 +38,7 @@ export function Recipes() {
         title={t.recipes.title}
         subtitle={t.recipes.saved(recipes.length)}
         actions={
-          <Button variant="primary" icon="plus" onClick={() => setEditing(blankRecipe())}>
+          <Button variant="primary" icon="plus" onClick={() => openEditor(newRecipe())}>
             {t.recipes.newRecipe}
           </Button>
         }
@@ -84,7 +72,7 @@ export function Recipes() {
                 applyRecipe(r, "timer");
               }}
               onOpen={() => setViewing(r)}
-              onEdit={() => setEditing(r)}
+              onEdit={() => openEditor(r)}
               onFavorite={() => toggleFavorite(r.id)}
             />
           ))}
@@ -160,15 +148,15 @@ export function Recipes() {
           key={editing.id}
           recipe={editing}
           isNew={isNew}
-          onClose={() => setEditing(null)}
+          onClose={closeEditor}
           onSave={(r) => {
             saveRecipe(r);
-            setEditing(null);
+            closeEditor();
             toast(t.recipes.toastSaved);
           }}
           onDelete={() => {
             deleteRecipe(editing.id);
-            setEditing(null);
+            closeEditor();
             toast(t.recipes.toastDeleted);
           }}
         />

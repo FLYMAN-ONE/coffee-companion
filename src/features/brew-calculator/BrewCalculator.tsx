@@ -1,8 +1,12 @@
 import type { ReactNode } from "react";
-import { useApp } from "../../app/store";
+import { useNavigation } from "../../app/navigation";
+import { newLogEntry, newRecipe } from "../../data/factories";
+import { useLogs } from "../log/logsStore";
+import { useRecipes } from "../recipes/recipesStore";
+import { useTimerSession } from "../timer/timerStore";
+import { useCalculator } from "./calculatorStore";
 import { methods, getMethod } from "../../data/methods";
 import { useI18n } from "../../i18n";
-import { uid } from "../../lib/format";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
 import { GlassCard } from "../../components/ui/GlassCard";
@@ -10,7 +14,6 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { NumberField } from "../../components/inputs/NumberField";
 import { Slider } from "../../components/inputs/Slider";
 import { describeStrength, rangeMax } from "./logic/calculations";
-import type { LogEntry, Recipe } from "../../types";
 
 const quickWater = [200, 250, 350, 500, 1000];
 
@@ -37,46 +40,38 @@ function FieldCard({
 }
 
 export function BrewCalculator() {
-  const { calc, go, setRecipeDraft, setLogDraft, timer } = useApp();
+  const calc = useCalculator();
+  const { go } = useNavigation();
+  const { openEditor: openRecipeEditor } = useRecipes();
+  const { openEditor: openLogEditor } = useLogs();
+  const { busy } = useTimerSession();
   const { t } = useI18n();
   const method = getMethod(calc.method);
 
   const saveAsRecipe = () => {
-    const draft: Recipe = {
-      id: uid(),
-      name: "",
-      method: calc.method,
-      dose: calc.dose,
-      water: calc.water,
-      tempC: method.tempC,
-      grind: method.grind,
-      notes: "",
-      steps: [],
-      favorite: false,
-      createdAt: new Date().toISOString(),
-    };
-    setRecipeDraft(draft);
+    openRecipeEditor(
+      newRecipe({
+        method: calc.method,
+        dose: calc.dose,
+        water: calc.water,
+        tempC: method.tempC,
+        grind: method.grind,
+      })
+    );
     go("recipes");
   };
 
   const logBrew = () => {
-    const draft: LogEntry = {
-      id: uid(),
-      date: new Date().toISOString(),
-      method: calc.method,
-      recipeName: "",
-      beans: "",
-      dose: calc.dose,
-      water: calc.water,
-      coffee: calc.coffee,
-      tempC: method.tempC,
-      grind: method.grind,
-      timeSec: 0,
-      rating: 0,
-      tastes: [],
-      notes: "",
-    };
-    setLogDraft(draft);
+    openLogEditor(
+      newLogEntry({
+        method: calc.method,
+        dose: calc.dose,
+        water: calc.water,
+        coffee: calc.coffee,
+        tempC: method.tempC,
+        grind: method.grind,
+      })
+    );
     go("log");
   };
 
@@ -201,7 +196,7 @@ export function BrewCalculator() {
 
           <div className="mt-auto flex flex-col gap-3">
             <Button variant="primary" size="lg" icon="play" onClick={() => go("timer")}>
-              {timer.status === "running" || timer.status === "paused" ? t.calc.openTimer : t.calc.start}
+              {busy ? t.calc.openTimer : t.calc.start}
             </Button>
             <div className="grid grid-cols-2 gap-3">
               <Button icon="book" onClick={saveAsRecipe}>

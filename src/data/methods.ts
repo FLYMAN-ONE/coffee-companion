@@ -1,5 +1,4 @@
 import type { Grind, MethodId } from "../types";
-import type { IconName } from "../components/ui/Icon";
 
 export interface Method {
   id: MethodId;
@@ -38,5 +37,3 @@ export const tastes = [
 
 export const getMethod = (id: MethodId): Method =>
   methods.find((m) => m.id === id) ?? methods[methods.length - 1];
-
-export const methodIcon: IconName = "coffee";

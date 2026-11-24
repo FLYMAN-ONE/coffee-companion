@@ -1,7 +1,7 @@
 import { languages, useI18n } from "../../i18n";
 
-/** Segmented EN | IT toggle. `compact` shows short codes only. */
-export function LanguageSwitch({ compact = false }: { compact?: boolean }) {
+/** Segmented English | Italiano toggle. */
+export function LanguageSwitch() {
   const { lang, setLang, t } = useI18n();
   return (
     <div
@@ -19,7 +19,7 @@ export function LanguageSwitch({ compact = false }: { compact?: boolean }) {
             lang === l.id ? "bg-accent text-accent-ink" : "text-mute active:text-ink"
           }`}
         >
-          {compact ? l.short : l.label}
+          {l.label}
         </button>
       ))}
     </div>

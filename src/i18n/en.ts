@@ -3,11 +3,11 @@ import type { TabId } from "../app/navigation";
 
 export const en = {
   nav: {
-    brew: { label: "Brew Calculator", short: "Brew" },
-    recipes: { label: "Recipes", short: "Recipes" },
-    timer: { label: "Timer", short: "Timer" },
-    log: { label: "Brew Log", short: "Log" },
-  } as Record<TabId, { label: string; short: string }>,
+    brew: "Brew Calculator",
+    recipes: "Recipes",
+    timer: "Timer",
+    log: "Brew Log",
+  } as Record<TabId, string>,
 
   common: {
     save: "Save",
@@ -178,7 +178,6 @@ export const en = {
     temp: "temp",
     grind: "grind",
     time: "time",
-    modalTitle: "Brew",
     toastSaved: "Brew saved",
     toastDeleted: "Brew deleted",
     editorNew: "Log a brew",

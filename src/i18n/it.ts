@@ -2,10 +2,10 @@ import type { Dict } from "./en";
 
 export const it: Dict = {
   nav: {
-    brew: { label: "Calcolatore", short: "Calcolo" },
-    recipes: { label: "Ricette", short: "Ricette" },
-    timer: { label: "Timer", short: "Timer" },
-    log: { label: "Diario", short: "Diario" },
+    brew: "Calcolatore",
+    recipes: "Ricette",
+    timer: "Timer",
+    log: "Diario",
   },
 
   common: {
@@ -177,7 +177,6 @@ export const it: Dict = {
     temp: "temp.",
     grind: "macinatura",
     time: "tempo",
-    modalTitle: "Estrazione",
     toastSaved: "Estrazione salvata",
     toastDeleted: "Estrazione eliminata",
     editorNew: "Registra un'estrazione",
