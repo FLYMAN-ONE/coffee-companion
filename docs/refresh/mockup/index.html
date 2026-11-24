@@ -483,10 +483,14 @@ function roll(el,text,animate){
 
 /* ---------- ruler ---------- */
 class Ruler{
+  /* One set of listeners per element, always driving the ruler created last on it:
+     re-creating a ruler on the same element must not leave the old one listening. */
   constructor(el,o){this.el=el;this.o=o;this.el.innerHTML='<div class="track"></div>';this.tr=el.firstChild;this.v=o.value;this.build();
+    el._ruler=this;
+    if(el._bound)return;el._bound=true;
     let sx=null,sv=0;
-    el.addEventListener('pointerdown',e=>{sx=e.clientX;sv=this.v;el.setPointerCapture(e.pointerId)});
-    el.addEventListener('pointermove',e=>{if(sx===null)return;const sc=this.scale();this.set(sv-(e.clientX-sx)/sc/this.o.px*this.o.step,true)});
+    el.addEventListener('pointerdown',e=>{sx=e.clientX;sv=el._ruler.v;el.setPointerCapture(e.pointerId)});
+    el.addEventListener('pointermove',e=>{if(sx===null)return;const r=el._ruler;r.set(sv-(e.clientX-sx)/r.scale()/r.o.px*r.o.step,true)});
     const end=()=>{sx=null};el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);}
   scale(){return $('#device').getBoundingClientRect().width/1180}
   build(){const o=this.o;let h='';const n=Math.round((o.max-o.min)/o.step);
