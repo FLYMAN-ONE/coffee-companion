@@ -1,0 +1,685 @@
+<title>Coffee Companion Mockup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap">
+<style>
+/* Layout: an iPad landscape stage (1180×820) scaled to fit; rail + screen, focus timer overlays everything. */
+:root{
+  color-scheme:dark;
+  --bg:#0f0d0b; --surface:#171411; --raised:#221e19; --raised-2:#2c2721; --line:rgba(245,240,232,.07);
+  --ink:#f5f0e8; --mute:#aaa18f; --faint:#6f6758;
+  --sage:#a9c788; --sage-ink:#18200f; --sage-tonal:rgba(169,199,136,.14); --sage-dim:#323b29;
+  --water:#d98a5f; --water-tonal:rgba(217,138,95,.16); --danger:#e5806f; --danger-tonal:rgba(229,128,111,.13);
+  --f-text:"Manrope",-apple-system,system-ui,sans-serif; --f-num:"Space Grotesk","Manrope",system-ui,sans-serif;
+  --spring:cubic-bezier(.34,1.36,.64,1); --out:cubic-bezier(.22,1,.36,1);
+  --r-panel:28px; --r-ctl:18px;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-text);overflow:hidden;padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+#viewport{height:100%;display:grid;place-items:center}
+#device{width:1180px;height:820px;flex:none;position:relative;background:var(--bg);border-radius:36px;overflow:hidden;display:flex;transform-origin:center;box-shadow:0 0 0 1px var(--line),0 40px 120px rgba(0,0,0,.5)}
+
+/* rail */
+.rail{width:88px;flex:none;display:flex;flex-direction:column;align-items:center;padding:24px 0 20px;gap:6px;border-right:1px solid var(--line)}
+.logo{width:48px;height:48px;border-radius:16px;background:var(--sage);color:var(--sage-ink);display:grid;place-items:center;margin-bottom:22px}
+.logo svg{width:28px;height:28px}
+.nav{width:72px;padding:10px 0 8px;border-radius:20px;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--mute);font-size:11.5px;font-weight:600;transition:background .2s,color .2s,transform .3s var(--spring)}
+.nav:active{transform:scale(.94)}
+.nav .pill{width:52px;height:32px;border-radius:16px;display:grid;place-items:center;transition:background .25s var(--out)}
+.nav[aria-current="page"]{color:var(--ink)}
+.nav[aria-current="page"] .pill{background:var(--sage-tonal);color:var(--sage)}
+.rail .spacer{flex:1}
+.speed{font-size:10.5px;color:var(--faint);text-align:center;line-height:1.3}
+.speed b{display:block;font-family:var(--f-num);font-size:13px;color:var(--water)}
+
+/* screens */
+main{flex:1;min-width:0;position:relative}
+.screen{position:absolute;inset:0;padding:28px;display:none}
+.screen.on{display:grid;animation:enter .35s var(--out)}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}}
+.panel{background:var(--surface);border-radius:var(--r-panel)}
+.split{grid-template-columns:300px minmax(0,1fr);gap:24px}
+
+/* recipe list */
+.list{display:flex;flex-direction:column;padding:18px 12px;overflow-y:auto;scrollbar-width:none}
+.list h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:700;margin:6px 10px 8px}
+.list h3:not(:first-child){margin-top:18px}
+.item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:20px;text-align:left;transition:background .2s,transform .3s var(--spring)}
+.item:active{transform:scale(.98)}
+.item .ic{width:42px;height:42px;border-radius:14px;background:var(--raised);display:grid;place-items:center;color:var(--mute);flex:none;transition:all .25s}
+.item .t{display:block;font-weight:600;font-size:15.5px;line-height:1.25}
+.item .s{display:block;font-size:12.5px;color:var(--mute);margin-top:3px}
+.item.sel{background:var(--raised)}
+.item.sel .ic{background:var(--sage-tonal);color:var(--sage)}
+.item .tx{min-width:0;flex:1}
+
+/* prepara */
+.prep{display:flex;flex-direction:column;gap:18px;min-width:0}
+.head{display:flex;align-items:center;gap:16px}
+.head .ic{width:56px;height:56px;border-radius:18px;background:var(--sage-tonal);color:var(--sage);display:grid;place-items:center}
+.head .ic svg{width:30px;height:30px}
+.head h1{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.head p{color:var(--mute);font-size:14px;margin-top:4px}
+.head .grow{flex:1;min-width:0}
+.iconbtn{width:52px;height:52px;border-radius:18px;background:var(--raised);display:grid;place-items:center;color:var(--mute);transition:transform .3s var(--spring),color .2s}
+.iconbtn:active{transform:scale(.9)}
+.iconbtn.on{color:var(--sage);background:var(--sage-tonal)}
+.iconbtn.on svg{fill:currentColor}
+.facts{display:flex;gap:8px;flex-wrap:wrap}
+.fact{background:var(--surface);border-radius:14px;padding:8px 14px;font-size:13.5px;color:var(--mute);display:flex;gap:8px;align-items:center}
+.fact b{color:var(--ink);font-weight:600}
+
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tile{background:var(--surface);border-radius:22px;padding:14px 18px 12px;text-align:left;transition:background .25s,box-shadow .25s,transform .3s var(--spring)}
+.tile:active{transform:scale(.97)}
+.tile .k{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.tile .v{font-size:50px;font-weight:500;line-height:1.15;display:flex;align-items:baseline;gap:6px;margin-top:2px}
+.tile .v small{font-family:var(--f-text);font-size:16px;color:var(--mute);font-weight:500;letter-spacing:0}
+.tile.on{background:var(--raised);box-shadow:inset 0 0 0 2px var(--sage)}
+.tile.on .k{color:var(--sage)}
+.tile.water .v .n{color:var(--water)}
+
+.rulerwrap{background:var(--surface);border-radius:24px;padding:14px 0 10px;position:relative}
+.ruler{position:relative;height:132px;overflow:hidden;cursor:grab;touch-action:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
+.ruler:active{cursor:grabbing}
+.track{position:absolute;inset:0 auto 0 0;will-change:transform}
+.tk{position:absolute;bottom:16px;width:4px;margin-left:-2px;border-radius:2px;background:var(--sage-dim)}
+.tk.lit{background:var(--sage)}
+.lb{position:absolute;top:4px;transform:translateX(-50%);font-family:var(--f-num);font-size:22px;font-weight:500;color:var(--faint);font-variant-numeric:tabular-nums}
+.lb.lit{color:var(--sage)}
+.pointer{width:0;height:0;margin:2px auto 0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:12px solid var(--sage)}
+.rhint{position:absolute;right:20px;top:12px;font-size:12px;color:var(--faint)}
+
+.mini{display:flex;gap:6px}
+.mini .sg{min-width:0;display:flex;flex-direction:column;gap:6px}
+.mini .bar{height:14px;border-radius:7px;background:var(--raised-2)}
+.mini .sg.pour .bar{background:var(--water-tonal);box-shadow:inset 0 0 0 1px rgba(217,138,95,.35)}
+.mini .lab{font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .lab b{display:block;color:var(--ink);font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis}
+.methods{display:flex;gap:8px;flex-wrap:wrap}
+.chip{height:44px;padding:0 16px 0 12px;border-radius:22px;background:var(--surface);color:var(--mute);display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;transition:all .25s,transform .3s var(--spring)}
+.chip:active{transform:scale(.95)}
+.detail .chip{background:var(--raised)}
+.chip.on,.detail .chip.on{background:var(--sage-tonal);color:var(--sage)}
+.chip svg{width:20px;height:20px}
+
+.go{margin-top:auto;display:flex;align-items:center;gap:20px}
+.btn{height:52px;padding:0 22px;border-radius:26px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:15.5px;transition:transform .3s var(--spring),filter .2s,background .2s;white-space:nowrap}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:var(--sage);color:var(--sage-ink)}
+.btn.primary:active{filter:brightness(.92)}
+.btn.tonal{background:var(--sage-tonal);color:var(--sage)}
+.btn.text{color:var(--mute);padding:0 14px}
+.btn.danger{background:var(--danger-tonal);color:var(--danger)}
+.btn.xl{height:72px;padding:0 40px;border-radius:36px;font-size:20px}
+.btn.xl svg{width:26px;height:26px;fill:currentColor;stroke:none}
+.go .sum{color:var(--mute);font-size:14px;line-height:1.5}
+.go .sum b{color:var(--ink);font-family:var(--f-num);font-size:17px;font-weight:500}
+
+/* roll */
+.roll{display:inline-flex;overflow:hidden;vertical-align:bottom}
+.roll>span{display:inline-block;position:relative}
+.roll .old,.roll .new{display:inline-block}
+.roll .anim-in{animation:rollIn .42s var(--spring) both}
+.roll .anim-out{position:absolute;left:0;top:0;animation:rollOut .3s var(--out) both}
+@keyframes rollIn{from{transform:translateY(70%);opacity:0}}
+@keyframes rollOut{to{transform:translateY(-70%);opacity:0}}
+
+/* detail (recipes, log) */
+.detail{padding:28px 32px;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:20px}
+.detail h2{font-size:28px;font-weight:700;letter-spacing:-.02em}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.meta div{background:var(--raised);border-radius:18px;padding:12px 14px}
+.meta b{display:block;font-family:var(--f-num);font-size:22px;font-weight:500}
+.meta span{font-size:12.5px;color:var(--mute)}
+.notes{padding:0;margin:0;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.55;color:#ddd5c8;max-width:62ch}
+.notes li{list-style:none;display:flex;gap:10px}
+.notes li::before{content:"";width:6px;height:6px;border-radius:3px;background:var(--sage);margin-top:9px;flex:none}
+.notes .src{font-size:12.5px;color:var(--faint)}
+.steps{display:flex;flex-direction:column;gap:6px}
+.steps .row{display:flex;align-items:center;gap:14px;background:var(--raised);border-radius:16px;padding:10px 14px}
+.steps .n{width:28px;height:28px;border-radius:14px;background:var(--sage-tonal);color:var(--sage);display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.steps .row .l{flex:1;font-weight:600}
+.steps .row .ml{color:var(--water);font-family:var(--f-num)}
+.steps .row .d{color:var(--mute);font-family:var(--f-num);width:52px;text-align:right}
+.toolbar{display:flex;gap:10px;align-items:center}
+.toolbar .grow{flex:1}
+.sec{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:700}
+
+/* editor */
+.field{display:flex;flex-direction:column;gap:8px}
+.input{height:52px;border-radius:16px;background:var(--raised);border:0;color:var(--ink);font:600 17px var(--f-text);padding:0 16px;outline:none;user-select:text;-webkit-user-select:text}
+.input:focus{box-shadow:inset 0 0 0 2px var(--sage)}
+.tl{display:flex;gap:4px;height:74px}
+.tl button{min-width:0;border-radius:14px;background:var(--raised);padding:8px 10px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;transition:all .25s}
+.tl button.pour{background:var(--water-tonal)}
+.tl button.on{box-shadow:inset 0 0 0 2px var(--sage)}
+.tl b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl span{font-size:12px;color:var(--mute);font-family:var(--f-num)}
+.tl .add{flex:0 0 52px;display:grid;place-items:center;color:var(--sage);background:var(--sage-tonal)}
+.edstep{background:var(--raised);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.edstep .rulerwrap,.edstep .input{background:var(--surface)}
+.edstep .ruler{height:92px}.edstep .tk{bottom:8px;transform:scaleY(.62);transform-origin:bottom}
+.edstep .lb{font-size:15px}
+.edrow{display:flex;align-items:center;gap:12px}
+.edrow .k{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);width:84px}
+.edrow .v{font-family:var(--f-num);font-size:22px}
+
+/* log */
+.stats{display:flex;gap:28px;align-items:baseline;padding:2px 4px 14px;color:var(--mute);font-size:13.5px}
+.stats b{font-family:var(--f-num);font-size:24px;color:var(--ink);font-weight:500;margin-right:6px}
+.logcol{display:flex;flex-direction:column;min-height:0}
+.day{font-size:12px;color:var(--faint);font-weight:700;margin:14px 10px 6px}
+.stars{display:flex;gap:2px;color:var(--sage)}
+.stars svg{width:16px;height:16px}
+.stars svg.f{fill:currentColor}
+.stars svg.e{color:#5f6b52}
+.stars.lg svg{width:30px;height:30px}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{background:var(--sage-tonal);color:var(--sage);border-radius:14px;padding:6px 12px;font-size:13.5px;font-weight:600}
+.example{font-size:11px;color:var(--water);background:var(--water-tonal);border-radius:8px;padding:3px 8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+/* settings */
+.settings{display:flex;flex-direction:column;gap:16px;max-width:640px}
+.srow{background:var(--surface);border-radius:22px;padding:18px 20px;display:flex;align-items:center;gap:16px}
+.srow .tx{flex:1}
+.srow .tx b{display:block;font-size:16px}
+.srow .tx span{font-size:13px;color:var(--mute)}
+.segctl{display:flex;background:var(--raised);border-radius:16px;padding:4px}
+.segctl button{height:40px;padding:0 16px;border-radius:12px;font-weight:600;font-size:14px;color:var(--mute);transition:all .25s}
+.segctl button.on{background:var(--sage);color:var(--sage-ink)}
+
+/* focus */
+#focus{position:absolute;inset:0;background:#0b0a08;z-index:20;display:none;flex-direction:column;padding:34px 44px 30px;cursor:pointer}
+#focus.on{display:flex;animation:focusIn .55s var(--spring)}
+@keyframes focusIn{from{opacity:0;transform:scale(.965)}}
+.ftop{display:flex;align-items:flex-start;justify-content:space-between}
+.fstep{font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sage)}
+.fstep span{color:var(--faint);margin-left:10px;letter-spacing:.04em}
+.frec{color:var(--mute);font-size:14px;margin-top:6px}
+.ftot{text-align:right;color:var(--mute);font-size:13px}
+.ftot b{display:block;font-family:var(--f-num);font-size:26px;color:var(--ink);font-weight:500}
+.fmid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 320px;align-items:center;gap:20px;min-height:0}
+.fnums{display:flex;flex-direction:column;gap:6px}
+.ftime{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:232px;line-height:.92;font-weight:500;letter-spacing:-.05em;transition:color .4s}
+.fsub{color:var(--faint);font-size:15px;font-weight:600;margin-left:8px}
+.fwater{display:flex;align-items:baseline;gap:18px;margin-top:26px}
+.fwater .ml{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:104px;line-height:1;font-weight:500;color:var(--water);letter-spacing:-.04em}
+.fwater .ml small{font-size:40px;margin-left:6px}
+.fwater .delta{font-family:var(--f-num);font-size:30px;color:var(--water);opacity:.7}
+.fwater .wait{font-size:30px;color:var(--mute);font-weight:600}
+.carafe{width:320px;height:100%;max-height:470px}
+.carafe .glass{fill:none;stroke:#4a443b;stroke-width:3}
+.carafe .tick{stroke:#4a443b;stroke-width:2}
+.carafe .tick.cur{stroke:var(--water);stroke-width:3}
+.carafe .tlab{fill:#6f6758;font:500 15px var(--f-num)}
+.carafe .tlab.cur{fill:var(--water)}
+.wave{animation:wave 2.6s linear infinite}
+@keyframes wave{to{transform:translateX(160px)}}
+.ftl{display:flex;gap:6px;margin-top:10px}
+.ftl .sg{min-width:0;display:flex;flex-direction:column;gap:8px}
+.ftl .bar{height:12px;border-radius:6px;background:var(--raised);overflow:hidden}
+.ftl .bar i{display:block;height:100%;width:0;background:var(--sage);border-radius:6px}
+.ftl .lab{font-size:14px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.ftl .lab span{display:block;font-family:var(--f-num);font-weight:400;font-size:13px}
+.ftl .sg.cur .lab{color:var(--ink)}
+.ftl .sg.cur .lab span{color:var(--water)}
+.ftl .sg.done .lab{color:var(--mute)}
+.fhint{text-align:center;color:var(--faint);font-size:13px;margin-top:16px}
+#focus.warn .ftime{color:var(--sage)}
+#focus.warn .glass{animation:pulse 1s ease-in-out infinite;stroke:var(--sage)}
+#focus.warn .ftl .sg.cur .bar{animation:pulseb 1s ease-in-out infinite}
+@keyframes pulse{50%{stroke-width:7;stroke:#cfe3b6}}
+@keyframes pulseb{50%{box-shadow:0 0 0 4px rgba(169,199,136,.35)}}
+.flash{position:absolute;inset:0;background:var(--sage);opacity:0;pointer-events:none;z-index:30}
+.flash.go{animation:flash .8s var(--out)}
+@keyframes flash{12%{opacity:.32}to{opacity:0}}
+
+/* pause + done sheets */
+.scrim{position:absolute;inset:0;z-index:40;background:rgba(11,10,8,.62);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);display:none;place-items:center;cursor:default}
+.scrim.on{display:grid;animation:fade .3s var(--out)}
+@keyframes fade{from{opacity:0}}
+.sheet{width:560px;background:var(--surface);border-radius:32px;padding:30px;display:flex;flex-direction:column;gap:22px;animation:sheet .5s var(--spring)}
+@keyframes sheet{from{transform:translateY(30px) scale(.97);opacity:0}}
+.sheet h2{font-size:26px;font-weight:700}
+.sheet .big{font-family:var(--f-num);font-size:56px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1}
+.sheet .row{display:flex;gap:10px}
+.sheet .row .btn{flex:1}
+.sheet .sep{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:16px}
+.donehead{display:flex;align-items:center;gap:18px}
+.check{width:64px;height:64px;border-radius:32px;background:var(--sage);color:var(--sage-ink);display:grid;place-items:center}
+.check svg{width:34px;height:34px;stroke-width:3;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .5s .25s var(--out) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.sheet .meta div{background:var(--raised)}
+
+.toast{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:var(--raised-2);color:var(--ink);border-radius:20px;padding:12px 20px;font-weight:600;font-size:14.5px;z-index:60;display:none;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.toast.on{display:block;animation:toast .45s var(--spring)}
+@keyframes toast{from{transform:translate(-50%,20px);opacity:0}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+
+<div id="viewport">
+<div id="device">
+  <nav class="rail" aria-label="Navigazione">
+    <div class="logo" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16l-6 8v1h-4v-1z"/><path d="M12 17.5c-.9 1.2-1.3 1.9-1.3 2.4a1.3 1.3 0 0 0 2.6 0c0-.5-.4-1.2-1.3-2.4z"/></svg></div>
+    <button class="nav" data-go="prepara" aria-current="page"><span class="pill" data-icon="drop"></span>Prepara</button>
+    <button class="nav" data-go="ricette"><span class="pill" data-icon="book"></span>Ricette</button>
+    <button class="nav" data-go="diario"><span class="pill" data-icon="journal"></span>Diario</button>
+    <div class="spacer"></div>
+    <div class="speed" id="speedBadge" title="Solo nel mockup">demo<b>1×</b></div>
+    <button class="nav" data-go="impostazioni"><span class="pill" data-icon="gear"></span>Impost.</button>
+  </nav>
+
+  <main>
+    <!-- PREPARA -->
+    <section class="screen split on" id="s-prepara" aria-label="Prepara">
+      <div class="panel list" id="prepList"></div>
+      <div class="prep">
+        <div class="head">
+          <div class="ic" id="pIcon"></div>
+          <div class="grow"><h1 id="pName"></h1><p id="pSub"></p></div>
+          <button class="iconbtn" id="pFav" aria-label="Preferita"></button>
+        </div>
+        <div class="facts" id="pFacts"></div>
+        <div class="seg" role="radiogroup" aria-label="Valore da regolare">
+          <button class="tile on" data-f="coffee" role="radio" aria-checked="true"><div class="k">Caffè</div><div class="v"><span class="n num" id="vCoffee"></span><small>g</small></div></button>
+          <button class="tile" data-f="ratio" role="radio" aria-checked="false"><div class="k">Rapporto</div><div class="v"><span class="n num" id="vRatio"></span></div></button>
+          <button class="tile water" data-f="water" role="radio" aria-checked="false"><div class="k">Acqua</div><div class="v"><span class="n num" id="vWater"></span><small>ml</small></div></button>
+        </div>
+        <div class="rulerwrap"><div class="rhint">trascina</div><div class="ruler" id="mainRuler"></div><div class="pointer"></div></div>
+        <div id="pSteps"></div>
+        <div class="go">
+          <button class="btn primary xl" id="play"><svg class="i" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>Play</button>
+          <div class="sum" id="pSum"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RICETTE -->
+    <section class="screen split" id="s-ricette" aria-label="Ricette">
+      <div class="panel list" id="recList"></div>
+      <div class="panel detail" id="recDetail"></div>
+    </section>
+
+    <!-- DIARIO -->
+    <section class="screen" id="s-diario" aria-label="Diario" style="grid-template-rows:auto minmax(0,1fr)">
+      <div class="stats" id="logStats"></div>
+      <div class="split" style="display:grid;min-height:0">
+        <div class="panel list" id="logList"></div>
+        <div class="panel detail" id="logDetail"></div>
+      </div>
+    </section>
+
+    <!-- IMPOSTAZIONI -->
+    <section class="screen" id="s-impostazioni" aria-label="Impostazioni" style="align-content:start">
+      <div class="settings">
+        <h1 style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px">Impostazioni</h1>
+        <div class="srow"><div class="tx"><b>Lingua</b><span>Testi dell'app</span></div><div class="segctl" data-seg="lang"><button class="on">Italiano</button><button>English</button></div></div>
+        <div class="srow"><div class="tx"><b>Suoni</b><span>Bip negli ultimi 3 secondi e al cambio step</span></div><div class="segctl" data-seg="sound"><button class="on">Attivi</button><button>Spenti</button></div></div>
+        <div class="srow"><div class="tx"><b>Backup</b><span>Ricette e diario in un file JSON</span></div><button class="btn tonal" data-toast="Nel mockup il backup non scarica nulla">Esporta</button><button class="btn tonal" data-toast="Nel mockup il backup non importa nulla">Importa</button></div>
+        <div class="srow" style="background:var(--water-tonal)"><div class="tx"><b>Velocità demo</b><span>Solo nel mockup: accelera il timer per vedere i cambi di step</span></div><div class="segctl" data-seg="speed"><button class="on">1×</button><button>5×</button><button>20×</button></div></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOCUS -->
+  <div id="focus" role="dialog" aria-label="Estrazione in corso">
+    <div class="ftop">
+      <div><div class="fstep" id="fStep"></div><div class="frec" id="fRec"></div></div>
+      <div class="ftot">totale<b id="fTot"></b></div>
+    </div>
+    <div class="fmid">
+      <div class="fnums">
+        <div><span class="ftime" id="fTime">0:00</span></div>
+        <div class="fsub" id="fTimeSub">rimanenti in questo step</div>
+        <div class="fwater" id="fWater"></div>
+      </div>
+      <svg class="carafe" id="carafe" viewBox="-80 0 340 380" aria-hidden="true"></svg>
+    </div>
+    <div class="ftl" id="fTl"></div>
+    <div class="fhint">Tocca ovunque per mettere in pausa</div>
+    <div class="flash" id="flash"></div>
+  </div>
+
+  <div class="scrim" id="pause">
+    <div class="sheet" role="dialog" aria-label="In pausa">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div><div class="sec">In pausa</div><h2 id="pzStep" style="margin-top:6px"></h2></div>
+        <div style="text-align:right"><div class="big" id="pzTime"></div><div style="color:var(--faint);font-size:12.5px;margin-top:6px">trascorsi</div></div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="pzResume" style="height:64px;font-size:18px"><svg class="i" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="M7 4.5v15l13-7.5z"/></svg>Riprendi</button>
+        <button class="btn tonal" id="pzSkip" style="height:64px;font-size:16px"><span data-icon="skip"></span>Prossimo step</button>
+      </div>
+      <div class="sep">
+        <button class="btn text" id="pzReset"><span data-icon="reset"></span>Ricomincia</button>
+        <button class="btn danger" id="pzEnd"><span data-icon="stop"></span>Termina estrazione</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scrim" id="done">
+    <div class="sheet" role="dialog" aria-label="Estrazione completata">
+      <div class="donehead">
+        <div class="check"><svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <div><h2>Estrazione completata</h2><div style="color:var(--mute);margin-top:4px" id="dnSub"></div></div>
+      </div>
+      <div class="meta" id="dnMeta"></div>
+      <div class="row">
+        <button class="btn text" id="dnClose" style="flex:0 0 auto">Chiudi</button>
+        <button class="btn primary" id="dnSave"><span data-icon="journal"></span>Salva nel diario</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+</div>
+</div>
+
+<script>
+/* ---------- icons ---------- */
+const P={
+ drop:'<path d="M12 3.5C8.5 8 6.5 11 6.5 14a5.5 5.5 0 0 0 11 0c0-3-2-6-5.5-10.5z"/>',
+ book:'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/>',
+ journal:'<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.2 6.5l2.6 1.5M17.2 16l2.6 1.5M4.2 17.5l2.6-1.5M17.2 8l2.6-1.5"/>',
+ heart:'<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+ star:'<path d="M12 3.8l2.5 5.2 5.6.8-4 4 1 5.6L12 16.8l-5.1 2.6 1-5.6-4-4 5.6-.8z"/>',
+ skip:'<path d="M6 5l9 7-9 7z"/><path d="M18 5v14"/>',
+ reset:'<path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ stop:'<rect x="6" y="6" width="12" height="12" rx="3"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ trash:'<path d="M5 7h14M10 11v6M14 11v6M7 7l1 12h8l1-12M9.5 7V4.5h5V7"/>',
+ thermo:'<path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/>',
+ grind:'<circle cx="8" cy="9" r="1.2"/><circle cx="14" cy="7" r="1.2"/><circle cx="11" cy="14" r="1.2"/><circle cx="17" cy="13" r="1.2"/><circle cx="8" cy="18" r="1.2"/><circle cx="15" cy="18.5" r="1.2"/>',
+ clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+ /* methods */
+ v60:'<path d="M3.5 6h17l-6.5 9h-4z"/><path d="M8 18.5h8"/><path d="M10 15v3.5M14 15v3.5"/>',
+ chemex:'<path d="M6 3.5h12l-4.5 8 4.5 8.5H6l4.5-8.5z"/><path d="M10.5 11.5h3"/><path d="M9 3.5l1.5 4"/>',
+ aeropress:'<rect x="7.5" y="7" width="9" height="13" rx="1.5"/><path d="M6 7h12M9 3.5h6V7M9.5 20.5h5"/>',
+ "french-press":'<rect x="6" y="7.5" width="11" height="12.5" rx="2"/><path d="M11.5 3.5v9M8.5 12.5h6M9 3.5h5M17 10h2v6h-2"/>',
+ moka:'<path d="M7 20.5h10l-1.5-7h-7z"/><path d="M8.5 13.5l1-2.5h5l1 2.5"/><path d="M9.5 11l-1-6.5h7l-1 6.5M15.5 5.5l3 1.5"/>',
+ espresso:'<path d="M5 9h11v4.5a5.5 5.5 0 0 1-11 0z"/><path d="M16 10.5h1.5a2 2 0 0 1 0 4H16M4 20.5h13"/><path d="M9 3.5c-.8 1.2.8 2 0 3.2M12 3.5c-.8 1.2.8 2 0 3.2"/>',
+ "cold-brew":'<path d="M7 6.5h10v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M8.5 3.5h7v3h-7z"/><rect x="9.5" y="11" width="3" height="3" rx=".6"/><rect x="12.5" y="14.5" width="2.5" height="2.5" rx=".6"/>',
+ other:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/>',
+};
+const ico=(n,cls='')=>`<svg class="i ${cls}" viewBox="0 0 24 24">${P[n]||''}</svg>`;
+document.querySelectorAll('[data-icon]').forEach(e=>e.innerHTML=ico(e.dataset.icon));
+
+/* ---------- data (from the app's seeded recipes) ---------- */
+const GR={"Extra fine":"Extra fine",Fine:"Fine","Medium-fine":"Medio-fine",Medium:"Media","Medium-coarse":"Medio-grossa",Coarse:"Grossa"};
+const MN={v60:"V60",chemex:"Chemex",aeropress:"AeroPress","french-press":"French Press",moka:"Moka",espresso:"Espresso","cold-brew":"Cold Brew",other:"Altro"};
+const st=a=>a.map(([label,s,pct])=>({label,s,pct}));
+let R=[
+ {id:"v60",name:"V60",method:"v60",dose:60,water:500,temp:95,grind:"Medium-fine",fav:true,steps:st([["Pre-infusione",45,12],["Prima versata",30,60],["Seconda versata",30,100],["Mescola e ruota",15,100],["Drenaggio",75,100]]),
+  notes:["Macinatura appena più fine della media; sciacqua il filtro e fai una piccola conca nel caffè.","Pre-infusione con 2 volte il peso del caffè, ruota finché l'impasto è uniforme e riposa 30–45 s.","Versa fino al 60% entro 1:15 tenendo il cono pieno, poi lentamente fino al 100% in altri 30 s.","Mescola una volta per direzione e ruota ancora prima che il letto si svuoti.","Vuoto o acido: macina più fine. Amaro o duro: macina più grosso."],src:"The World Atlas of Coffee · video V60 di James Hoffmann"},
+ {id:"chemex",name:"Chemex",method:"chemex",dose:60,water:500,temp:95,grind:"Medium",fav:true,steps:st([["Pre-infusione",45,18],["Prima versata",30,60],["Seconda versata",30,100],["Mescola e ruota",15,100],["Drenaggio",150,100]]),
+  notes:["Tieni il lato spesso del filtro sopra il beccuccio, così non aderisce al vetro.","Non macinare molto più grosso che per il V60: 4–5 minuti per 500 ml sono normali.","Pre-infusione con 2–3 volte il peso del caffè per almeno 45 s.","Due versate (60%, poi 100%), poi mescola delicatamente e ruota."],src:"The World Atlas of Coffee · video Chemex di James Hoffmann"},
+ {id:"fp",name:"French Press (senza premere)",method:"french-press",dose:75,water:500,temp:95,grind:"Medium",fav:false,steps:st([["Versa l'acqua",15,100],["Infusione",240,100],["Rompi la crosta e schiuma",30,100],["Riposo",300,100],["Versa lentamente",30,100]]),
+  notes:["Versa in fretta e lascia in infusione 4 minuti.","Rompi la crosta, togli la schiuma e aspetta altri 5 minuti.","Appoggia lo stantuffo senza premere e versa lentamente."],src:"The World Atlas of Coffee"},
+ {id:"aer",name:"AeroPress tradizionale",method:"aeropress",dose:75,water:200,temp:94,grind:"Medium-fine",fav:false,steps:st([["Versa e mescola",15,100],["Infusione",45,100],["Premi lentamente",30,100]]),
+  notes:["Sciacqua il filtro e aspetta 10–20 s dopo l'ebollizione.","Mescola, inserisci il pistone, infusione di 1 minuto, poi premi lentamente.","Per un caffè corto e forte usa 100 g/L."],src:"The World Atlas of Coffee"},
+ {id:"aei",name:"AeroPress invertita",method:"aeropress",dose:75,water:200,temp:94,grind:"Medium-fine",fav:false,steps:st([["Versa e mescola",15,100],["Infusione",45,100],["Monta il filtro e capovolgi",30,100],["Premi lentamente",30,100]]),
+  notes:["Pistone inserito di 2 cm, capovolgi, aggiungi caffè e acqua.","Dopo 1 minuto monta il filtro sciacquato, capovolgi sulla tazza e premi lentamente."],src:"The World Atlas of Coffee"},
+ {id:"moka",name:"Moka delicata",method:"moka",dose:200,water:80,temp:95,grind:"Medium-fine",fav:false,steps:st([["Riempi con acqua calda",30,100],["Riscalda dolcemente",150,100],["Ferma e raffredda la base",20,100]]),
+  notes:["Filtro pieno a livello senza pressare, base con acqua calda appena sotto la valvola.","Fuoco medio-basso con il coperchio aperto; al primo gorgoglio spegni e raffredda la base."],src:"The World Atlas of Coffee"},
+ {id:"esp",name:"Espresso 1:2",method:"espresso",dose:500,water:36,temp:93,grind:"Fine",fav:false,steps:st([["Estrazione",28,100]]),
+  notes:["18 g in ingresso, 36 g in uscita in 27–29 s.","Troppo liquido: macina più fine. Troppo poco: più grosso."],src:"The World Atlas of Coffee"},
+ {id:"cold",name:"Cold Brew concentrato",method:"cold-brew",dose:125,water:1000,temp:4,grind:"Coarse",fav:false,steps:[],
+  notes:["Infusione in frigo per 12–18 ore, filtra e diluisci 1:1 per servire."],src:"Non trattato nel libro"},
+];
+const day=(d,h,m)=>{const x=new Date();x.setDate(x.getDate()-d);x.setHours(h,m,0,0);return x};
+let LOGS=[
+ {id:1,date:day(0,7,40),beans:"Etiopia Guji",recipe:"V60",method:"v60",coffee:30,water:500,time:195,rating:4,tastes:["Fruttato","Floreale"],notes:"Ottima. La prossima volta macinatura appena più fine.",ex:true},
+ {id:2,date:day(1,15,0),beans:"Colombia Huila",recipe:"Chemex",method:"chemex",coffee:30,water:500,time:270,rating:5,tastes:["Dolce","Cioccolato"],notes:"Perfetta, corpo pieno.",ex:true},
+ {id:3,date:day(1,8,10),beans:"Kenya Nyeri",recipe:"AeroPress tradizionale",method:"aeropress",coffee:15,water:200,time:90,rating:3,tastes:["Acido"],notes:"",ex:true},
+ {id:4,date:day(3,7,30),beans:"Brasile Cerrado",recipe:"Moka delicata",method:"moka",coffee:16,water:80,time:200,rating:2,tastes:["Amaro"],notes:"Fuoco troppo alto.",ex:true},
+];
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const r1=v=>Math.round(v*10)/10;
+const nf=v=>String(r1(v)).replace('.',',');
+const total=r=>r.steps.reduce((a,s)=>a+s.s,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.remove('on');void t.offsetWidth;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2400)}
+document.querySelectorAll('[data-toast]').forEach(b=>b.onclick=()=>toast(b.dataset.toast));
+
+/* stage scaling */
+function fit(){const d=$('#device'),vw=document.documentElement.clientWidth-32,vh=window.innerHeight-24;const s=Math.min(vw/1180,vh/820,1.4);d.style.transform=`scale(${s})`;d.parentElement.style.height=window.innerHeight+'px'}
+addEventListener('resize',fit);fit();
+
+/* rolling digits */
+function roll(el,text,animate){
+  const old=el.dataset.v||'';el.dataset.v=text;
+  if(!animate||!old||old===text){el.textContent=text;return}
+  const L=Math.max(old.length,text.length),o=old.padStart(L,' '),n=text.padStart(L,' ');
+  el.innerHTML='';const w=document.createElement('span');w.className='roll';
+  for(let i=0;i<L;i++){const c=document.createElement('span');
+    if(o[i]===n[i]){c.textContent=n[i]===' '?'':n[i]}
+    else{c.innerHTML=(n[i]===' '?'':`<span class="new anim-in" style="animation-delay:${(L-i)*35}ms">${n[i]}</span>`)+(o[i]===' '?'':`<span class="old anim-out">${o[i]}</span>`)}
+    w.appendChild(c)}
+  el.appendChild(w)}
+
+/* ---------- ruler ---------- */
+class Ruler{
+  constructor(el,o){this.el=el;this.o=o;this.el.innerHTML='<div class="track"></div>';this.tr=el.firstChild;this.v=o.value;this.build();
+    let sx=null,sv=0;
+    el.addEventListener('pointerdown',e=>{sx=e.clientX;sv=this.v;el.setPointerCapture(e.pointerId)});
+    el.addEventListener('pointermove',e=>{if(sx===null)return;const sc=this.scale();this.set(sv-(e.clientX-sx)/sc/this.o.px*this.o.step,true)});
+    const end=()=>{sx=null};el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);}
+  scale(){return $('#device').getBoundingClientRect().width/1180}
+  build(){const o=this.o;let h='';const n=Math.round((o.max-o.min)/o.step);
+    for(let i=0;i<=n;i++){const v=o.min+i*o.step,x=i*o.px,maj=Math.abs(v/o.major-Math.round(v/o.major))<1e-6,lab=o.label&&Math.abs(v/o.label-Math.round(v/o.label))<1e-6;
+      h+=`<i class="tk" data-v="${v}" style="left:${x}px;height:${maj?64:40}px"></i>`;if(lab)h+=`<span class="lb" data-v="${v}" style="left:${x}px">${o.fmtLabel?o.fmtLabel(v):r1(v)}</span>`}
+    this.tr.innerHTML=h;this.ticks=[...this.tr.children];this.paint()}
+  set(v,user){const o=this.o;v=Math.min(o.max,Math.max(o.min,Math.round(v/o.step)*o.step));v=+v.toFixed(3);if(v===this.v&&user)return;this.v=v;this.paint();if(user&&o.onChange)o.onChange(v)}
+  paint(){const o=this.o,w=this.el.clientWidth||700;this.tr.style.transform=`translateX(${w/2-((this.v-o.min)/o.step)*o.px}px)`;
+    for(const t of this.ticks)t.classList.toggle('lit',+t.dataset.v<=this.v+1e-6)}
+}
+
+/* ---------- prepara ---------- */
+const S={id:"v60",method:"v60",coffee:30,ratio:16.7,water:500,field:"coffee"};
+const FIELDS={
+ coffee:{min:1,max:70,step:.5,px:12,major:5,label:5},
+ ratio:{min:1,max:20,step:.1,px:9,major:1,label:1},
+ water:{min:20,max:1000,step:5,px:10,major:50,label:100},
+};
+const cur=()=>S.id==='free'?null:R.find(r=>r.id===S.id);
+let ruler;
+function renderList(el,selId,onPick,withFree){
+  const fav=R.filter(r=>r.fav),rest=R.filter(r=>!r.fav);
+  const item=r=>`<button class="item ${r.id===selId?'sel':''}" data-id="${r.id}"><span class="ic">${ico(r.method)}</span><span class="tx"><span class="t">${esc(r.name)}</span><span class="s num">${r.steps.length?fmt(total(r)):'senza timer'} · ${r.water} ml</span></span></button>`;
+  el.innerHTML=(fav.length?`<h3>Preferite</h3>${fav.map(item).join('')}`:'')+`<h3>Tutte</h3>${rest.map(item).join('')}`+
+   (withFree?`<h3>Senza ricetta</h3><button class="item ${selId==='free'?'sel':''}" data-id="free"><span class="ic">${ico('other')}</span><span class="tx"><span class="t">Libero</span><span class="s">dosi e cronometro</span></span></button>`:`<div style="padding:14px 4px 4px"><button class="btn tonal" style="width:100%" id="newRec">${ico('plus')}Nuova ricetta</button></div>`);
+  el.querySelectorAll('.item').forEach(b=>b.onclick=()=>onPick(b.dataset.id));
+}
+function pick(id){
+  S.id=id;const r=cur();
+  if(r){S.method=r.method;S.water=r.water;S.ratio=r1(1000/r.dose);S.coffee=Math.round(r.water*r.dose/100)/10}
+  renderPrep(true);
+}
+function renderPrep(animate){
+  const r=cur(),m=r?r.method:S.method;
+  renderList($('#prepList'),S.id,pick,true);
+  $('#pIcon').innerHTML=ico(m);
+  $('#pName').textContent=r?r.name:'Libero';
+  $('#pSub').textContent=r?(MN[m]+' · '+(r.steps.length?r.steps.length+' step':'nessun timer')):'Scegli il metodo, regola le dosi e usa il cronometro';
+  $('#pFav').innerHTML=ico('heart');$('#pFav').classList.toggle('on',!!(r&&r.fav));$('#pFav').style.visibility=r?'visible':'hidden';
+  const temp=r?r.temp:({espresso:93,"cold-brew":4}[m]||94),grind=GR[r?r.grind:({espresso:"Fine",moka:"Medium-fine","cold-brew":"Coarse","french-press":"Medium"}[m]||"Medium-fine")];
+  $('#pFacts').innerHTML=`<span class="fact">${ico('thermo')}<b class="num">${temp} °C</b></span><span class="fact">${ico('grind')}<b>${grind}</b></span>`+(r&&r.steps.length?`<span class="fact">${ico('clock')}<b class="num">${fmt(total(r))}</b></span>`:'');
+  updVals(animate);
+  if(r&&r.steps.length){
+    const tot=total(r);let prev=0;
+    $('#pSteps').innerHTML=`<div class="sec" style="margin-bottom:10px">Sequenza</div><div class="mini">${r.steps.map(s=>{const pour=s.pct>prev,ml=Math.round(s.pct/100*S.water);const h=`<div class="sg ${pour?'pour':''}" style="flex:${s.s/tot}"><div class="bar"></div><div class="lab"><b>${esc(s.label)}</b><span class="num">${fmt(s.s)}${pour?' · '+ml+' ml':''}</span></div></div>`;prev=s.pct;return h}).join('')}</div>`;
+  }else if(!r){
+    $('#pSteps').innerHTML=`<div class="methods">${Object.keys(MN).map(k=>`<button class="chip ${k===S.method?'on':''}" data-m="${k}">${ico(k)}${MN[k]}</button>`).join('')}</div>`;
+    $('#pSteps').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{S.method=b.dataset.m;renderPrep(false)});
+  }else $('#pSteps').innerHTML=`<div class="fact" style="align-self:flex-start">Questa ricetta non ha step: Play avvia il cronometro</div>`;
+}
+function updVals(animate){
+  roll($('#vCoffee'),nf(S.coffee),animate);roll($('#vRatio'),'1:'+nf(S.ratio),animate);roll($('#vWater'),String(Math.round(S.water)),animate);
+  const r=cur();$('#pSum').innerHTML=r&&r.steps.length?`Durata<br><b>${fmt(total(r))}</b>`:'Cronometro<br><b>libero</b>';
+  if(ruler)ruler.set(S[S.field],false);
+  if(r&&r.steps.length){let prev=0;$('#pSteps').querySelectorAll('.sg').forEach((g,i)=>{const s=r.steps[i];const sp=g.querySelector('.lab span');if(sp)sp.textContent=fmt(s.s)+(s.pct>prev?' · '+Math.round(s.pct/100*S.water)+' ml':'');prev=s.pct})}
+}
+function setField(f){S.field=f;document.querySelectorAll('.tile').forEach(t=>{const on=t.dataset.f===f;t.classList.toggle('on',on);t.setAttribute('aria-checked',on)});
+  ruler=new Ruler($('#mainRuler'),{...FIELDS[f],value:S[f],onChange:v=>{S[f]=v;if(f==='water')S.coffee=r1(S.water/S.ratio);else S.water=Math.round(S.coffee*S.ratio);updVals(false)}})}
+document.querySelectorAll('.tile').forEach(t=>t.onclick=()=>setField(t.dataset.f));
+$('#pFav').onclick=()=>{const r=cur();if(!r)return;r.fav=!r.fav;renderPrep(false);toast(r.fav?'Aggiunta alle preferite':'Rimossa dalle preferite')};
+
+/* ---------- navigation ---------- */
+function go(name){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id==='s-'+name));
+  document.querySelectorAll('.nav').forEach(n=>n.toggleAttribute('aria-current',n.dataset.go===name));
+  document.querySelectorAll('.nav[aria-current]').forEach(n=>n.setAttribute('aria-current','page'));
+  if(name==='prepara'){renderPrep(false);ruler&&ruler.paint()}if(name==='ricette')renderRec();if(name==='diario')renderLog()}
+document.querySelectorAll('.nav').forEach(n=>n.onclick=()=>go(n.dataset.go));
+
+/* ---------- settings ---------- */
+let SPEED=1,SOUND=true;
+document.querySelectorAll('.segctl').forEach(g=>g.querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  if(g.dataset.seg==='speed'){SPEED=[1,5,20][i];$('#speedBadge').innerHTML='demo<b>'+SPEED+'×</b>'}
+  if(g.dataset.seg==='sound')SOUND=i===0;
+  if(g.dataset.seg==='lang'&&i===1){toast('Nel mockup i testi sono solo in italiano');g.querySelectorAll('button').forEach((x,j)=>x.classList.toggle('on',j===0))}}));
+
+/* ---------- audio ---------- */
+let ac;function unlock(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.state==='suspended'&&ac.resume()}catch(e){}}
+function beep(f=880,d=150,delay=0){if(!ac||!SOUND)return;const t=ac.currentTime+delay/1000,o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.3,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d/1000);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d/1000+.05)}
+
+/* ---------- focus timer ---------- */
+const T={status:'idle',base:0,startedAt:0,steps:[],bounds:[],cueStep:-1,cueSec:-1,raf:0,warn:false};
+const elapsed=()=>T.status==='running'?T.base+(performance.now()-T.startedAt)*SPEED:T.base;
+const stepAt=e=>{if(!T.bounds.length)return -1;const i=T.bounds.findIndex(b=>e<b);return i<0?T.bounds.length-1:i};
+function buildCarafe(){
+  const r=cur(),svg=$('#carafe'),body='M40 28 H200 Q208 28 208 38 V310 Q208 350 168 350 H72 Q32 350 32 310 V38 Q32 28 40 28 Z';
+  let ticks='';
+  if(r&&r.steps.length){const seen=new Set();r.steps.forEach(s=>{if(seen.has(s.pct)||!s.pct)return;seen.add(s.pct);const y=yOf(s.pct);ticks+=`<line class="tick" data-p="${s.pct}" x1="10" x2="30" y1="${y}" y2="${y}"/><text class="tlab" data-p="${s.pct}" x="2" y="${y+5}" text-anchor="end">${Math.round(s.pct/100*S.water)}</text>`})}
+  svg.innerHTML=`<defs><clipPath id="inside"><path d="${body}"/></clipPath></defs>
+   <g clip-path="url(#inside)"><g id="lvl" transform="translate(0,350)"><g class="wave"><path d="M-160 0 ${Array.from({length:6},(_,i)=>`q40 ${i%2?8:-8} 80 0`).join(' ')} V400 H-160 Z" fill="#d98a5f" opacity=".9"/></g><path d="M-160 6 ${Array.from({length:6},(_,i)=>`q40 ${i%2?-6:6} 80 0`).join(' ')} V400 H-160 Z" fill="#b86d45" opacity=".55" class="wave" style="animation-duration:3.8s;animation-direction:reverse"/></g></g>
+   <path class="glass" d="${body}"/><path class="glass" d="M208 92 Q250 96 248 160 Q246 226 208 232"/>${ticks}`;
+}
+const yOf=p=>350-(p/100)*290;
+function startBrew(){
+  unlock();const r=cur();T.steps=r?r.steps:[];let a=0;T.bounds=T.steps.map(s=>a+=s.s*1000);
+  T.base=0;T.startedAt=performance.now();T.status='running';T.cueStep=-1;T.cueSec=-1;
+  $('#fRec').textContent=(r?r.name:'Libero')+' · '+nf(S.coffee)+' g · '+Math.round(S.water)+' ml';
+  buildCarafe();buildTl();$('#focus').classList.add('on');loop();
+}
+function buildTl(){const tot=T.bounds.at(-1)||1;let prev=0;
+  $('#fTl').innerHTML=T.steps.map((s,i)=>{const pour=s.pct>prev,h=`<div class="sg" data-i="${i}" style="flex:${s.s*1000/tot}"><div class="bar"><i></i></div><div class="lab">${esc(s.label)}<span>${fmt(s.s)}${pour?' · '+Math.round(s.pct/100*S.water)+' ml':''}</span></div></div>`;prev=s.pct;return h}).join('');
+  $('#fTl').style.display=T.steps.length?'flex':'none'}
+function loop(){cancelAnimationFrame(T.raf);const tick=()=>{frame();if(T.status==='running')T.raf=requestAnimationFrame(tick)};tick()}
+function frame(){
+  let e=elapsed();const has=T.steps.length>0,tot=has?T.bounds.at(-1):0;
+  if(has&&e>=tot&&T.status==='running'){T.base=tot;T.status='done';beep(880,180);beep(880,180,260);beep(1175,420,520);finish();return}
+  const i=stepAt(e),s=has?T.steps[i]:null,start=i>0?T.bounds[i-1]:0,end=has?T.bounds[i]:0,rem=has?end-e:0;
+  if(has&&T.status==='running'){
+    if(T.cueStep!==-1&&i>T.cueStep){beep(880,220);const f=$('#flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}
+    T.cueStep=i;const sec=Math.ceil(rem/1000);if(sec>=1&&sec<=3&&sec!==T.cueSec)beep(660,90);T.cueSec=sec}
+  const warn=has&&rem<=5000&&T.status==='running';if(warn!==T.warn){T.warn=warn;$('#focus').classList.toggle('warn',warn)}
+  $('#fStep').innerHTML=has?`${esc(s.label)}<span>${i+1} / ${T.steps.length}</span>`:'Cronometro';
+  $('#fTime').textContent=has?fmt(Math.ceil(rem/1000)):fmt(Math.floor(e/1000));
+  $('#fTimeSub').textContent=has?'rimanenti in questo step':'trascorsi';
+  $('#fTot').textContent=has?fmt(e/1000)+' / '+fmt(tot/1000):fmt(e/1000);
+  let pct;
+  if(has){const prev=i>0?T.steps[i-1].pct:0,target=s.pct,ml=Math.round(target/100*S.water),d=ml-Math.round(prev/100*S.water);
+    $('#fWater').innerHTML=d>0?`<span class="ml">${ml}<small>ml</small></span><span class="delta">+${d}</span>`:`<span class="ml" style="opacity:.45">${ml}<small>ml</small></span><span class="wait">attendi</span>`;
+    pct=prev+(target-prev)*Math.min(1,(e-start)/(end-start||1));
+    document.querySelectorAll('#carafe .tick,#carafe .tlab').forEach(t=>t.classList.toggle('cur',+t.dataset.p===target));
+    document.querySelectorAll('#fTl .sg').forEach((g,j)=>{g.classList.toggle('cur',j===i);g.classList.toggle('done',j<i);g.querySelector('i').style.width=(j<i?100:j>i?0:Math.min(100,(e-start)/(end-start)*100))+'%'});
+  }else{$('#fWater').innerHTML=`<span class="ml">${Math.round(S.water)}<small>ml</small></span><span class="wait">in totale</span>`;pct=Math.min(100,e/1000/180*100)}
+  $('#lvl').setAttribute('transform',`translate(0,${yOf(pct)})`);
+}
+function pause(){if(T.status!=='running')return;T.base=elapsed();T.status='paused';cancelAnimationFrame(T.raf);T.warn=false;$('#focus').classList.remove('warn');
+  const e=T.base,i=stepAt(e);$('#pzStep').textContent=T.steps.length?T.steps[i].label:'Cronometro';$('#pzTime').textContent=fmt(e/1000);
+  $('#pzSkip').style.display=T.steps.length?'':'none';$('#pause').classList.add('on')}
+function resume(){unlock();$('#pause').classList.remove('on');T.startedAt=performance.now();T.status='running';loop()}
+$('#focus').onclick=e=>{if(T.status==='running')pause()};
+$('#pzResume').onclick=resume;
+$('#pzSkip').onclick=()=>{const i=stepAt(T.base);T.base=T.bounds[i];$('#pause').classList.remove('on');if(T.base>=T.bounds.at(-1)){T.status='done';beep(880,180);beep(1175,420,260);finish()}else{T.startedAt=performance.now();T.status='running';loop()}};
+$('#pzReset').onclick=()=>{$('#pause').classList.remove('on');T.base=0;T.cueStep=-1;T.startedAt=performance.now();T.status='running';loop()};
+$('#pzEnd').onclick=()=>{T.status='done';$('#pause').classList.remove('on');finish()};
+function finish(){cancelAnimationFrame(T.raf);T.warn=false;$('#focus').classList.remove('warn');
+  $('#lvl').style.transition='transform .9s cubic-bezier(.34,1.36,.64,1)';$('#lvl').setAttribute('transform',`translate(0,${yOf(100)})`);
+  const r=cur(),secs=T.base/1000;
+  $('#dnSub').textContent=(r?r.name:'Libero')+' · '+fmt(secs);
+  $('#dnMeta').innerHTML=[[nf(S.coffee)+' g','caffè'],[Math.round(S.water)+' ml','acqua'],['1:'+nf(S.ratio),'rapporto'],[fmt(secs),'tempo']].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join('');
+  setTimeout(()=>$('#done').classList.add('on'),700)}
+function closeFocus(){$('#done').classList.remove('on');$('#focus').classList.remove('on');$('#lvl')&&($('#lvl').style.transition='');T.status='idle'}
+$('#dnClose').onclick=closeFocus;
+$('#dnSave').onclick=()=>{const r=cur();LOGS.unshift({id:Date.now(),date:new Date(),beans:'',recipe:r?r.name:'Libero',method:r?r.method:S.method,coffee:S.coffee,water:Math.round(S.water),time:Math.round(T.base/1000),rating:0,tastes:[],notes:''});LOGSEL=LOGS[0].id;closeFocus();go('diario');toast('Estrazione salvata nel diario')};
+$('#play').onclick=startBrew;
+
+/* ---------- ricette ---------- */
+let RECSEL='v60',EDIT=null,EDSTEP=0;
+function renderRec(){renderList($('#recList'),RECSEL,id=>{RECSEL=id;EDIT=null;renderRec()},false);
+  $('#newRec').onclick=()=>{const r={id:'r'+Date.now(),name:'Nuova ricetta',method:'v60',dose:60,water:300,temp:94,grind:'Medium-fine',fav:false,steps:st([["Pre-infusione",40,15],["Versata",60,100],["Drenaggio",60,100]]),notes:[],src:''};R.push(r);RECSEL=r.id;EDIT=JSON.parse(JSON.stringify(r));EDSTEP=0;renderRec()};
+  EDIT?renderEditor():renderRecDetail()}
+function renderRecDetail(){const r=R.find(x=>x.id===RECSEL),el=$('#recDetail');let prev=0;
+  el.innerHTML=`<div class="toolbar"><div class="head grow"><div class="ic">${ico(r.method)}</div><div><h2>${esc(r.name)}</h2><p>${MN[r.method]} · ${GR[r.grind]} · <span class="num">${r.temp} °C</span></p></div></div>
+   <button class="btn tonal" id="rEdit">${ico('edit')}Modifica</button><button class="btn primary" id="rBrew"><svg class="i" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="M7 4.5v15l13-7.5z"/></svg>Prepara</button></div>
+   <div class="meta"><div><b>${nf(r.water*r.dose/1000)} g</b><span>caffè</span></div><div><b>1:${nf(1000/r.dose)}</b><span>rapporto</span></div><div><b>${r.water} ml</b><span>acqua</span></div><div><b>${r.steps.length?fmt(total(r)):'—'}</b><span>durata</span></div></div>
+   ${r.notes.length?`<div class="sec">Punti chiave</div><ul class="notes">${r.notes.map(n=>`<li>${esc(n)}</li>`).join('')}${r.src?`<div class="src">Fonte: ${esc(r.src)}</div>`:''}</ul>`:''}
+   ${r.steps.length?`<div class="sec">Step</div><div class="steps">${r.steps.map((s,i)=>{const pour=s.pct>prev;prev=s.pct;return`<div class="row"><span class="n">${i+1}</span><span class="l">${esc(s.label)}</span><span class="ml">${pour?Math.round(s.pct/100*r.water)+' ml':''}</span><span class="d">${fmt(s.s)}</span></div>`}).join('')}</div>`:''}`;
+  $('#rEdit').onclick=()=>{EDIT=JSON.parse(JSON.stringify(r));EDSTEP=0;renderRec()};
+  $('#rBrew').onclick=()=>{go('prepara');pick(r.id)}}
+function renderEditor(){const r=EDIT,el=$('#recDetail'),tot=total(r)||1;let prev=0;
+  el.innerHTML=`<div class="toolbar"><h2 class="grow">Modifica ricetta</h2><button class="btn text" id="eCancel">Annulla</button><button class="btn primary" id="eSave">${ico('check')}Salva</button></div>
+   <div class="field"><span class="sec">Nome</span><input class="input" id="eName" value="${esc(r.name)}"></div>
+   <div class="field"><span class="sec">Metodo</span><div class="methods">${Object.keys(MN).map(k=>`<button class="chip ${k===r.method?'on':''}" data-m="${k}">${ico(k)}${MN[k]}</button>`).join('')}</div></div>
+   <div class="field"><span class="sec">Step · ${fmt(total(r))} · tocca un blocco per modificarlo</span><div class="tl">${r.steps.map((s,i)=>{const pour=s.pct>prev;prev=s.pct;return`<button class="${pour?'pour':''} ${i===EDSTEP?'on':''}" data-i="${i}" style="flex:${Math.max(s.s/tot,.07)}"><b>${esc(s.label)}</b><span>${fmt(s.s)}${pour?'<br>'+Math.round(s.pct/100*r.water)+' ml':''}</span></button>`}).join('')}<button class="add" id="eAdd" aria-label="Aggiungi step">${ico('plus')}</button></div></div>
+   ${r.steps[EDSTEP]?`<div class="edstep"><div class="edrow"><input class="input" id="eStepName" style="flex:1" value="${esc(r.steps[EDSTEP].label)}"><button class="iconbtn" id="eDel" aria-label="Elimina step">${ico('trash')}</button></div>
+   <div class="edrow"><span class="k">Durata</span><span class="v" id="eDurV">${fmt(r.steps[EDSTEP].s)}</span></div><div class="rulerwrap"><div class="ruler" id="eDur"></div><div class="pointer"></div></div>
+   <div class="edrow"><span class="k">Acqua</span><span class="v" id="eMlV" style="color:var(--water)">${Math.round(r.steps[EDSTEP].pct/100*r.water)} ml</span><span style="color:var(--faint);font-size:13px">a fine step, su ${r.water} ml totali</span></div><div class="rulerwrap"><div class="ruler" id="eMl"></div><div class="pointer"></div></div></div>`:''}`;
+  el.querySelectorAll('.tl button[data-i]').forEach(b=>b.onclick=()=>{EDSTEP=+b.dataset.i;renderEditor()});
+  el.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{r.method=b.dataset.m;renderEditor()});
+  $('#eName').oninput=e=>r.name=e.target.value;
+  $('#eCancel').onclick=()=>{EDIT=null;renderRec()};
+  $('#eSave').onclick=()=>{const i=R.findIndex(x=>x.id===r.id);R[i]=r;EDIT=null;renderRec();toast('Ricetta salvata')};
+  $('#eAdd').onclick=()=>{r.steps.push({label:'Nuovo step',s:30,pct:r.steps.at(-1)?.pct??100});EDSTEP=r.steps.length-1;renderEditor()};
+  const s=r.steps[EDSTEP];if(!s)return;
+  $('#eStepName').oninput=e=>s.label=e.target.value;
+  $('#eDel').onclick=()=>{r.steps.splice(EDSTEP,1);EDSTEP=Math.max(0,EDSTEP-1);renderEditor()};
+  new Ruler($('#eDur'),{min:5,max:600,step:5,px:7,major:30,label:60,fmtLabel:fmt,value:s.s,onChange:v=>{s.s=v;$('#eDurV').textContent=fmt(v)}});
+  new Ruler($('#eMl'),{min:0,max:r.water,step:5,px:7,major:50,label:100,value:Math.round(s.pct/100*r.water),onChange:v=>{s.pct=r1(v/r.water*100);$('#eMlV').textContent=v+' ml'}});
+  el.querySelectorAll('.ruler').forEach(x=>x.addEventListener('pointerup',()=>setTimeout(()=>{const keep=EDSTEP;renderEditor();EDSTEP=keep},0)));
+}
+
+/* ---------- diario ---------- */
+let LOGSEL=1;
+const TASTES=["Dolce","Fruttato","Floreale","Cioccolato","Nocciolato","Equilibrato","Acido","Amaro"];
+const stars=(n,lg)=>`<span class="stars ${lg?'lg':''}" aria-label="${n} stelle su 5">${[1,2,3,4,5].map(i=>`<svg class="i ${i<=n?'f':'e'}" viewBox="0 0 24 24">${P.star}</svg>`).join('')}</span>`;
+function renderLog(){
+  const rated=LOGS.filter(l=>l.rating),avg=rated.length?nf(rated.reduce((a,l)=>a+l.rating,0)/rated.length):'—';
+  const cnt={};LOGS.forEach(l=>cnt[l.method]=(cnt[l.method]||0)+1);const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+  $('#logStats').innerHTML=`<h1 style="font-size:30px;font-weight:700;color:var(--ink);letter-spacing:-.02em;margin-right:auto">Diario</h1><span><b>${LOGS.length}</b>estrazioni</span><span><b>${avg}</b>voto medio</span><span><b>${top?MN[top[0]]:'—'}</b>più usato</span>`;
+  let last='',h='';const df=d=>d.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+  LOGS.forEach(l=>{const d=df(l.date);if(d!==last){h+=`<div class="day">${d}</div>`;last=d}
+    h+=`<button class="item ${l.id===LOGSEL?'sel':''}" data-id="${l.id}"><span class="ic">${ico(l.method)}</span><span class="tx"><span class="t">${esc(l.beans||l.recipe)}</span><span class="s num">${l.recipe} · ${l.time?fmt(l.time):'—'}</span></span>${l.rating?stars(l.rating):''}</button>`});
+  $('#logList').innerHTML=h;$('#logList').querySelectorAll('.item').forEach(b=>b.onclick=()=>{LOGSEL=+b.dataset.id;renderLog()});
+  const l=LOGS.find(x=>x.id===LOGSEL)||LOGS[0];if(!l)return;
+  $('#logDetail').innerHTML=`<div class="toolbar"><div class="head grow"><div class="ic">${ico(l.method)}</div><div><h2>${esc(l.beans||'Caffè senza nome')}</h2><p>${esc(l.recipe)} · ${l.date.toLocaleString('it-IT',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</p></div></div>${l.ex?'<span class="example">esempio</span>':''}</div>
+   <div id="lgStars">${stars(l.rating,true)}</div>
+   <div class="meta"><div><b>${nf(l.coffee)} g</b><span>caffè</span></div><div><b>${l.water} ml</b><span>acqua</span></div><div><b>1:${nf(l.water/l.coffee)}</b><span>rapporto</span></div><div><b>${l.time?fmt(l.time):'—'}</b><span>tempo</span></div></div>
+   <div class="sec">Com'era</div><div class="tags">${TASTES.map(t=>`<button class="chip ${l.tastes.includes(t)?'on':''}" data-t="${t}" style="height:38px;padding:0 14px">${t}</button>`).join('')}</div>
+   ${l.notes?`<p style="font-size:15.5px;line-height:1.55;color:#ddd5c8;max-width:60ch">${esc(l.notes)}</p>`:''}
+   <div class="toolbar"><button class="btn tonal">${ico('edit')}Modifica</button><button class="btn danger" id="lgDel">${ico('trash')}Elimina</button></div>`;
+  $('#lgStars').querySelectorAll('svg').forEach((s,i)=>{s.style.cursor='pointer';s.onclick=()=>{l.rating=l.rating===i+1?0:i+1;renderLog()}});
+  $('#logDetail').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const t=b.dataset.t;l.tastes=l.tastes.includes(t)?l.tastes.filter(x=>x!==t):[...l.tastes,t];renderLog()});
+  let armed=false;$('#lgDel').onclick=e=>{if(!armed){armed=true;e.currentTarget.lastChild.textContent='Tocca di nuovo per eliminare';setTimeout(()=>armed=false,3000);return}LOGS=LOGS.filter(x=>x!==l);LOGSEL=LOGS[0]?.id;renderLog();toast('Estrazione eliminata')};
+}
+
+/* ---------- boot ---------- */
+renderPrep(false);setField('coffee');
+document.fonts&&document.fonts.ready.then(()=>ruler&&ruler.paint());
+</script>
