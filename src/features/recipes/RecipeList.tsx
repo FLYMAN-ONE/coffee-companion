@@ -39,7 +39,7 @@ export function RecipeList({ selectedId, onPick, withFree = false, footer }: Rec
     >
       <span
         className={`grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[14px] transition-colors duration-200 ${
-          selected ? "bg-sage/14 text-sage" : "bg-raised text-mute"
+          selected ? "bg-accent/14 text-accent" : "bg-raised text-mute"
         }`}
       >
         <Icon name={icon} className="h-[22px] w-[22px]" />

@@ -87,8 +87,17 @@ export function sanitizePrepare(x: unknown, fallback: PrepareState): PrepareStat
   };
 }
 
-export function sanitizeSettings(x: unknown): { sound: boolean } {
-  return { sound: !(isObj(x) && x.sound === false) };
+export interface Settings {
+  sound: boolean;
+  palette: "ardesia" | "abisso";
+}
+
+export function sanitizeSettings(x: unknown): Settings {
+  const o = isObj(x) ? x : {};
+  return {
+    sound: o.sound !== false,
+    palette: o.palette === "abisso" ? "abisso" : "ardesia",
+  };
 }
 
 /** Sanitize every item of a list, dropping invalid ones. A non-array gives an empty list. */

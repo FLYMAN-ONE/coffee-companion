@@ -2,12 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { prepareStorage } from "./data/migrations";
+import { applyStoredPalette } from "./features/settings/palettes";
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/space-grotesk";
 import "./index.css";
 
-// Migrate stored data before anything reads it.
+// Migrate stored data before anything reads it, and paint with the chosen palette from the first frame.
 prepareStorage();
+applyStoredPalette();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

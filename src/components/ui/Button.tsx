@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Icon, type IconName } from "./Icon";
 
 /**
- * primary: full sage pill, one per view. tonal: tinted background + sage text.
+ * primary: full accent pill, one per view. tonal: tinted background + accent text.
  * text: label only. danger: tinted red. icon: square icon-only control.
  */
 type Variant = "primary" | "tonal" | "text" | "danger" | "icon";
@@ -17,8 +17,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary: "bg-sage text-sage-ink active:brightness-95",
-  tonal: "bg-sage/14 text-sage",
+  primary: "bg-accent text-accent-ink active:brightness-95",
+  tonal: "bg-accent/14 text-accent",
   text: "text-mute",
   danger: "bg-danger/13 text-danger",
   icon: "bg-raised text-mute",
@@ -42,7 +42,7 @@ export function Button({
 }: ButtonProps) {
   const shape =
     variant === "icon"
-      ? `h-13 w-13 rounded-[18px] ${active ? "bg-sage/14 text-sage" : ""}`
+      ? `h-13 w-13 rounded-[18px] ${active ? "bg-accent/14 text-accent" : ""}`
       : `${sizes[size]} ${variant === "text" ? "px-3.5" : ""}`;
   return (
     <button

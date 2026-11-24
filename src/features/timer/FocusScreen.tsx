@@ -62,7 +62,7 @@ export function FocusScreen() {
       role="dialog"
       aria-label={t.focus.label}
       onClick={() => status === "running" && timer.pause()}
-      className={`motion-fade fixed inset-0 z-40 flex cursor-pointer flex-col bg-[#0b0a08] px-11 pt-[max(34px,env(safe-area-inset-top))] pb-[max(30px,env(safe-area-inset-bottom))] ${
+      className={`motion-fade fixed inset-0 z-40 flex cursor-pointer flex-col bg-focus px-11 pt-[max(34px,env(safe-area-inset-top))] pb-[max(30px,env(safe-area-inset-bottom))] ${
         leaving ? "pointer-events-none" : ""
       }`}
       style={{
@@ -71,7 +71,7 @@ export function FocusScreen() {
     >
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-[15px] font-bold tracking-[0.14em] text-sage uppercase">
+          <div className="text-[15px] font-bold tracking-[0.14em] text-accent uppercase">
             {step ? step.label : t.focus.stopwatch}
             {step ? (
               <span className="ml-2.5 tracking-[0.04em] text-faint">
@@ -96,7 +96,7 @@ export function FocusScreen() {
         <div className="flex flex-col gap-1.5">
           <span
             className={`num text-[232px] leading-[0.92] font-medium tracking-[-0.05em] transition-colors duration-400 ${
-              warn ? "text-sage" : "text-ink"
+              warn ? "text-accent" : "text-ink"
             }`}
           >
             {fmtTime(bigTime)}
@@ -157,7 +157,7 @@ export function FocusScreen() {
         <div
           key={stepIndex}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-sage opacity-0"
+          className="pointer-events-none absolute inset-0 bg-accent opacity-0"
           style={{ animation: "flash 800ms var(--ease-out)" }}
         />
       ) : null}
@@ -189,7 +189,7 @@ function Carafe({
   const marks = [...new Set(steps.map((s) => s.waterPct).filter((p) => p > 0))];
   const wave = (amp: number) =>
     `M-160 0 ${Array.from({ length: 6 }, (_, i) => `q40 ${i % 2 ? amp : -amp} 80 0`).join(" ")} V400 H-160 Z`;
-  const glass = warn ? "#a9c788" : "#4a443b";
+  const glass = warn ? "var(--color-accent)" : "var(--color-glass)";
 
   return (
     <svg viewBox="-80 0 340 380" className="h-full max-h-[470px] w-80" aria-hidden="true">
@@ -206,10 +206,10 @@ function Carafe({
           }}
         >
           <g className="motion-move" style={{ animation: "wave 2.6s linear infinite" }}>
-            <path d={wave(-8)} fill="#d98a5f" opacity={0.9} />
+            <path d={wave(-8)} fill="var(--color-water)" opacity={0.9} />
           </g>
           <g className="motion-move" style={{ animation: "wave 3.8s linear infinite reverse" }}>
-            <path d={wave(6)} transform="translate(0 6)" fill="#b86d45" opacity={0.55} />
+            <path d={wave(6)} transform="translate(0 6)" fill="var(--color-water-deep)" opacity={0.55} />
           </g>
         </g>
       </g>
@@ -231,7 +231,7 @@ function Carafe({
               x2={30}
               y1={y(p)}
               y2={y(p)}
-              stroke={cur ? "#d98a5f" : "#4a443b"}
+              stroke={cur ? "var(--color-water)" : "var(--color-glass)"}
               strokeWidth={cur ? 3 : 2}
             />
             <text
@@ -240,7 +240,7 @@ function Carafe({
               textAnchor="end"
               className="num"
               fontSize={15}
-              fill={cur ? "#d98a5f" : "#6f6758"}
+              fill={cur ? "var(--color-water)" : "var(--color-faint)"}
             >
               {Math.round((p / 100) * water)}
             </text>
@@ -280,7 +280,7 @@ function Timeline({
               className="motion-move h-3 overflow-hidden rounded-md bg-raised"
               style={cur && warn ? { animation: "pulse-bar 1s ease-in-out infinite" } : undefined}
             >
-              <i className="block h-full rounded-md bg-sage" style={{ width: `${fill}%` }} />
+              <i className="block h-full rounded-md bg-accent" style={{ width: `${fill}%` }} />
             </div>
             <div
               className={`truncate text-sm font-semibold ${cur ? "text-ink" : isDone ? "text-mute" : "text-faint"}`}
@@ -371,7 +371,7 @@ function DoneSheet({ onLeave }: { onLeave: (after: () => void) => void }) {
   return (
     <Sheet label={t.focus.doneTitle} layer="top" delayMs={700}>
       <div className="flex items-center gap-[18px]">
-        <div className="grid h-16 w-16 place-items-center rounded-full bg-sage text-sage-ink">
+        <div className="grid h-16 w-16 place-items-center rounded-full bg-accent text-accent-ink">
           <svg
             viewBox="0 0 24 24"
             className="h-[34px] w-[34px]"

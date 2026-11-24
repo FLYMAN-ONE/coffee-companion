@@ -74,11 +74,12 @@ Pattern degli store: `xStore.ts` definisce interfaccia, context e hook con `crea
 
 - **i18n**: ogni testo visibile passa da `useI18n().t`. Aggiungere la chiave in `en.ts` (che definisce il tipo) e in `it.ts`. I nomi dei metodi (V60, Chemex, AeroPress…) non si traducono. Le ricette seed sono salvate in inglese e tradotte al volo da `localizeRecipe` finché l'utente non le modifica.
 - **Design system** (`styles/theme.css`, dettagli in `docs/refresh/02-decisioni.md`):
-  - superfici su 3 livelli: `bg-app` (pagina) → `bg-surface` (pannelli) → `bg-raised` (controlli nei pannelli); niente card tutte uguali;
-  - testo `text-ink` / `text-mute` / `text-faint`; `sage` per azioni, selezione e progresso; `water` (terracotta) solo per quantità d'acqua; `danger` per eliminare;
+  - **palette selezionabili** in Opzioni: `ardesia` (predefinita: ardesia, rame, azzurro ghiaccio) e `abisso` (quasi nero petrolio, corallo, acquamarina). Ogni palette ridefinisce le stesse variabili `--color-*` sotto `:root[data-palette="…"]`; l'elenco è in `features/settings/palettes.ts`. `main.tsx` applica la palette salvata prima del primo render. Per aggiungerne una: blocco in `theme.css` + voce in `PALETTES` + nome in i18n + `sanitizeSettings`;
+  - superfici su 3 livelli: `bg-app` (pagina) → `bg-surface` (pannelli) → `bg-raised` (controlli nei pannelli); `bg-focus` per il timer e lo sfondo dei pannelli a comparsa;
+  - testo `text-ink` / `text-prose` (note) / `text-mute` / `text-faint`; `accent` per azioni, selezione e progresso; `water` solo per quantità d'acqua; `danger` per eliminare; `glass`, `water-deep`, `accent-bright`, `star-empty` per caraffa, preavviso e stelle;
   - numeri sempre con `.num` (Space Grotesk, cifre tabulari); etichette di sezione con `.eyebrow`;
   - bottoni: un solo `primary` per vista, poi `tonal`, `text`, `danger`, `icon`;
-  - non usare colori esadecimali sparsi nei componenti (eccezione: i colori della caraffa SVG).
+  - **nessun colore esadecimale nei componenti**: solo token, anche negli SVG (`var(--color-…)`), altrimenti il cambio palette non li raggiunge.
 - **CSS e Tailwind 4**: reset in `@layer base`, classi nostre in `@layer components`. CSS fuori dai layer batte le utility di Tailwind.
 - **Movimento** (sezione 8 delle decisioni): pressioni con `.press` (scale 0.97, 160 ms); curva `--ease-out` per la UI, `--ease-spring` solo per ingressi rari; niente animazioni sui valori mentre si trascina; niente `transition: all`. Con "riduci movimento" restano solo opacità e colore (`.motion-move`, `.motion-fade`).
 - **Touch first**: target minimi 44–48 px, `active:` invece di `hover:`. Rispettare le safe area (`env(safe-area-inset-*)`).

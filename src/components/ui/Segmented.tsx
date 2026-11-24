@@ -17,7 +17,7 @@ export function Segmented<T extends string>({ label, value, options, onChange }:
           aria-checked={value === o.id}
           onClick={() => onChange(o.id)}
           className={`h-10 rounded-xl px-4 text-sm font-semibold transition-colors duration-200 ${
-            value === o.id ? "bg-sage text-sage-ink" : "text-mute"
+            value === o.id ? "bg-accent text-accent-ink" : "text-mute"
           }`}
         >
           {o.label}

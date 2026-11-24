@@ -54,8 +54,10 @@ describe("sanitizers", () => {
       coffee: 16,
       lock: "ratio",
     });
-    expect(sanitizeSettings(undefined)).toEqual({ sound: true });
-    expect(sanitizeSettings({ sound: false })).toEqual({ sound: false });
+    expect(sanitizeSettings(undefined)).toEqual({ sound: true, palette: "ardesia" });
+    expect(sanitizeSettings({ sound: false })).toEqual({ sound: false, palette: "ardesia" });
+    expect(sanitizeSettings({ palette: "abisso" })).toEqual({ sound: true, palette: "abisso" });
+    expect(sanitizeSettings({ palette: "neon" }).palette).toBe("ardesia");
   });
 
   it("upserts by id, new items first", () => {

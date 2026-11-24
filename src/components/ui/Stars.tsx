@@ -7,7 +7,7 @@ interface StarsProps {
   size?: "sm" | "lg";
 }
 
-/** Rating 0–5. Empty stars use a muted sage with ≥ 3:1 contrast. */
+/** Rating 0–5. Empty stars use a muted accent with ≥ 3:1 contrast. */
 export function Stars({ value, onChange, size = "lg" }: StarsProps) {
   const { t } = useI18n();
   const dim = size === "lg" ? "h-8 w-8" : "h-4 w-4";
@@ -18,7 +18,7 @@ export function Stars({ value, onChange, size = "lg" }: StarsProps) {
           <Icon
             name="star"
             filled={n <= value}
-            className={`${dim} ${n <= value ? "text-sage" : "text-[#5f6b52]"}`}
+            className={`${dim} ${n <= value ? "text-accent" : "text-star-empty"}`}
           />
         );
         return onChange ? (

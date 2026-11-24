@@ -76,3 +76,14 @@ Emerse dal feedback sul mockup ("non mi piace come cambiano i numeri") e dall'au
 | Transizioni                     | Mai `transition: all`: elencare le proprietà.                                                                                                                                                                 |
 | Riduci movimento                | Togliere onda, pulsazioni, spostamenti e scala alla pressione. Tenere opacità e colore, compreso il flash del cambio step.                                                                                    |
 | Token                           | `--ease-out: cubic-bezier(.23,1,.32,1)` per UI. La molla con rimbalzo è riservata a ingressi rari (focus, pannelli, lucchetto).                                                                               |
+
+## 9. Palette selezionabili (24/11, dopo il refresh)
+
+La "salvia evoluta" non convinceva del tutto. Dopo due giri di proposte (`docs/refresh/palette-alternative`, `docs/refresh/palette-finaliste`) sono rimaste due finaliste, entrambe disponibili in Opzioni → Palette:
+
+| Palette                          | Sfondo / pannelli     | Azioni            | Acqua                      | Note                               |
+| -------------------------------- | --------------------- | ----------------- | -------------------------- | ---------------------------------- |
+| **Ardesia e rame** (predefinita) | `#0e1116` / `#161b22` | rame `#dd8c5c`    | azzurro ghiaccio `#8fcbe8` | morbida e sobria                   |
+| **Abisso notte**                 | `#090c0d` / `#111617` | corallo `#ff8f72` | acquamarina `#8ed3cb`      | più profonda, accento più visibile |
+
+Il selettore può restare definitivo. Tutti i colori dei componenti passano dai token; contrasti verificati: testo ≥ 15:1, secondario ≈ 6:1, accenti 6,6–8,2:1, stelle vuote ≥ 3,4:1. Icona dell'app rigenerata in rame su ardesia.

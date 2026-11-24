@@ -166,7 +166,7 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onCancel }: Reci
               style={{ flex: Math.max(s.seconds / total, 0.07) }}
               className={`press flex min-w-0 flex-col justify-between rounded-[14px] px-2.5 py-2 text-left ${
                 pours[i] ? "bg-water/16" : "bg-raised"
-              } ${i === sel ? "shadow-[inset_0_0_0_2px_var(--color-sage)]" : ""}`}
+              } ${i === sel ? "shadow-[inset_0_0_0_2px_var(--color-accent)]" : ""}`}
             >
               <b className="truncate text-[12.5px]">{s.label}</b>
               <span className="num text-xs tracking-normal text-mute">
@@ -184,7 +184,7 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onCancel }: Reci
             type="button"
             onClick={addStep}
             aria-label={t.recipes.addStep}
-            className="press grid w-[52px] shrink-0 place-items-center rounded-[14px] bg-sage/14 text-sage"
+            className="press grid w-[52px] shrink-0 place-items-center rounded-[14px] bg-accent/14 text-accent"
           >
             +
           </button>

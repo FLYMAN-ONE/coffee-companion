@@ -182,7 +182,7 @@ export function Ruler({
             return (
               <div key={t.v}>
                 <i
-                  className={`absolute -ml-0.5 w-1 rounded-sm ${lit ? "bg-sage" : "bg-sage-dim"}`}
+                  className={`absolute -ml-0.5 w-1 rounded-sm ${lit ? "bg-accent" : "bg-accent-dim"}`}
                   style={{
                     left: t.x,
                     bottom: big ? 16 : 8,
@@ -192,7 +192,7 @@ export function Ruler({
                 {t.label ? (
                   <span
                     className={`num absolute -translate-x-1/2 font-medium ${big ? "top-1 text-[22px]" : "top-0.5 text-[15px]"} ${
-                      lit ? "text-sage" : "text-faint"
+                      lit ? "text-accent" : "text-faint"
                     }`}
                     style={{ left: t.x }}
                   >
@@ -204,7 +204,7 @@ export function Ruler({
           })}
         </div>
       </div>
-      <div className="mx-auto mt-0.5 h-0 w-0 border-x-[9px] border-b-[12px] border-x-transparent border-b-sage" />
+      <div className="mx-auto mt-0.5 h-0 w-0 border-x-[9px] border-b-[12px] border-x-transparent border-b-accent" />
     </div>
   );
 }

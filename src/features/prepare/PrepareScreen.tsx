@@ -57,7 +57,7 @@ export function PrepareScreen() {
 
       <div className="flex min-w-0 flex-col gap-[18px]">
         <header className="flex items-center gap-4">
-          <span className="grid h-14 w-14 place-items-center rounded-[18px] bg-sage/14 text-sage">
+          <span className="grid h-14 w-14 place-items-center rounded-[18px] bg-accent/14 text-accent">
             <Icon name={m.id} className="h-[30px] w-[30px]" />
           </span>
           <div className="min-w-0 flex-1">
@@ -107,16 +107,16 @@ export function PrepareScreen() {
                     locked
                       ? "shadow-[inset_0_0_0_1.5px_var(--color-line)]"
                       : on
-                        ? "bg-raised shadow-[inset_0_0_0_2px_var(--color-sage)]"
+                        ? "bg-raised shadow-[inset_0_0_0_2px_var(--color-accent)]"
                         : derived
-                          ? "bg-sage/7"
+                          ? "bg-accent/7"
                           : "bg-surface"
                   }`}
                 >
-                  <div className={`eyebrow text-xs ${on || derived ? "text-sage" : ""}`}>
+                  <div className={`eyebrow text-xs ${on || derived ? "text-accent" : ""}`}>
                     {t.prepare.fields[f]}
                     {locked ? (
-                      <span className="tracking-[0.06em] text-sage"> · {t.prepare.locked}</span>
+                      <span className="tracking-[0.06em] text-accent"> · {t.prepare.locked}</span>
                     ) : null}
                   </div>
                   <div
@@ -141,7 +141,7 @@ export function PrepareScreen() {
                       : t.prepare.lockAria(t.prepare.fields[f])
                   }
                   className={`press absolute top-2 right-2 grid h-[46px] w-[46px] place-items-center rounded-[15px] ${
-                    locked ? "bg-sage/14 text-sage" : "text-faint"
+                    locked ? "bg-accent/14 text-accent" : "text-faint"
                   }`}
                 >
                   <LockIcon locked={locked} />
@@ -258,7 +258,7 @@ function Sequence({ recipe, water }: { recipe: Recipe; water: number }) {
           return (
             <div key={s.id} className="flex min-w-0 flex-col gap-1.5" style={{ flex: s.seconds / total }}>
               <div
-                className={`h-3.5 rounded-[7px] ${pour ? "bg-water/16 shadow-[inset_0_0_0_1px_rgb(217_138_95/0.35)]" : "bg-raised-2"}`}
+                className={`h-3.5 rounded-[7px] ${pour ? "bg-water/16 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-water)_35%,transparent)]" : "bg-raised-2"}`}
               />
               <div className="truncate text-[13px] text-mute">
                 <b className="block truncate text-sm font-semibold text-ink">{s.label}</b>

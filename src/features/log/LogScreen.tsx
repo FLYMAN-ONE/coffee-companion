@@ -96,7 +96,7 @@ export function LogScreen() {
                   className={`press flex items-center gap-3 rounded-[20px] p-2.5 text-left ${l.id === selected?.id ? "bg-raised" : ""}`}
                 >
                   <span
-                    className={`grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[14px] ${l.id === selected?.id ? "bg-sage/14 text-sage" : "bg-raised text-mute"}`}
+                    className={`grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[14px] ${l.id === selected?.id ? "bg-accent/14 text-accent" : "bg-raised text-mute"}`}
                   >
                     <Icon name={l.method} className="h-[22px] w-[22px]" />
                   </span>
@@ -180,7 +180,7 @@ function LogDetail({
   return (
     <section className="no-scrollbar flex min-w-0 flex-col gap-5 overflow-y-auto rounded-[28px] bg-surface px-8 py-7">
       <div className="flex items-center gap-4">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[18px] bg-sage/14 text-sage">
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[18px] bg-accent/14 text-accent">
           <Icon name={l.method} className="h-[30px] w-[30px]" />
         </span>
         <div className="min-w-0">
@@ -224,9 +224,7 @@ function LogDetail({
       </div>
 
       {l.notes ? (
-        <p className="max-w-[60ch] text-[15.5px] leading-relaxed whitespace-pre-wrap text-[#ddd5c8]">
-          {l.notes}
-        </p>
+        <p className="max-w-[60ch] text-[15.5px] leading-relaxed whitespace-pre-wrap text-prose">{l.notes}</p>
       ) : null}
 
       <div className="flex gap-2.5">

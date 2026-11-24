@@ -1,0 +1,207 @@
+<title>Palette alternative</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500&display=swap">
+<style>
+/* Layout: a single dark gallery; each palette = header + swatches + the Prepare screen (1180×820) scaled to fit. */
+:root{
+  color-scheme:dark;
+  --page:#0a0a0b; --page-ink:#ececec; --page-mute:#9a9a9f; --page-line:rgba(255,255,255,.08);
+  --f-text:"Manrope",-apple-system,system-ui,sans-serif;
+  --f-num:"Space Grotesk","Manrope",system-ui,sans-serif;
+}
+html,body{background:var(--page);color:var(--page-ink)}
+h1,h2,p{margin:0}
+body{font-family:var(--f-text);padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:72px}
+.intro h1{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.intro p{color:var(--page-mute);font-size:16px;line-height:1.6;max-width:62ch;margin-top:10px}
+.pal{display:flex;flex-direction:column;gap:18px}
+.pal header{display:flex;flex-direction:column;gap:8px}
+.pal .n{font-family:var(--f-num);font-size:15px;color:var(--page-mute)}
+.pal h2{font-size:26px;font-weight:700;letter-spacing:-.01em}
+.pal .d{color:var(--page-mute);font-size:15px;line-height:1.55;max-width:70ch;flex-basis:100%}
+.sw{display:flex;flex-wrap:wrap;gap:8px}
+.sw div{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--page-mute);background:#141416;border-radius:12px;padding:6px 10px 6px 6px}
+.sw i{width:22px;height:22px;border-radius:7px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.sw code{font-family:var(--f-num);color:var(--page-ink)}
+.frame{width:100%;aspect-ratio:1180/820;max-width:100%;position:relative;overflow:hidden;border-radius:clamp(14px,2.4vw,30px);box-shadow:0 0 0 1px var(--page-line),0 30px 80px rgba(0,0,0,.5)}
+.ref{opacity:.92}
+.fam{display:flex;flex-direction:column;gap:56px}
+.famh{border-top:1px solid var(--page-line);padding-top:28px}
+.famh h2{font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:-.02em}
+.famh p{color:var(--page-mute);font-size:15px;margin-top:6px}
+.pal h2{font-size:22px}
+
+/* ---- the app screen, driven by per-palette custom properties ---- */
+.dev{position:absolute;top:0;left:0;width:1180px;height:820px;transform-origin:0 0;display:flex;background:var(--bg);color:var(--ink);font-family:var(--f-text)}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.rail{width:88px;flex:none;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:6px;padding:24px 0 20px}
+.logo{width:48px;height:48px;border-radius:16px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;margin-bottom:22px}
+.logo svg{width:28px;height:28px}
+.nav{width:72px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0 8px;font-size:11.5px;font-weight:600;color:var(--mute)}
+.nav span{width:52px;height:32px;border-radius:16px;display:grid;place-items:center}
+.nav.on{color:var(--ink)}.nav.on span{background:var(--accent-tonal);color:var(--accent)}
+.sp{flex:1}
+.main{flex:1;min-width:0;padding:28px;display:grid;grid-template-columns:300px minmax(0,1fr);gap:24px}
+.list{background:var(--surface);border-radius:28px;padding:18px 12px;display:flex;flex-direction:column;overflow:hidden}
+.list .ey{margin:6px 10px 8px}.list .ey.m{margin-top:18px}
+.it{display:flex;align-items:center;gap:12px;padding:10px;border-radius:20px}
+.it .ic{width:42px;height:42px;border-radius:14px;background:var(--raised);color:var(--mute);display:grid;place-items:center;flex:none}
+.it.sel{background:var(--raised)}.it.sel .ic{background:var(--accent-tonal);color:var(--accent)}
+.it b{display:block;font-size:15.5px;font-weight:600;line-height:1.25}
+.it small{display:block;font-family:var(--f-num);font-size:12.5px;color:var(--mute);margin-top:3px}
+.prep{display:flex;flex-direction:column;gap:18px;min-width:0}
+.hd{display:flex;align-items:center;gap:16px}
+.hd .ic{width:56px;height:56px;border-radius:18px;background:var(--accent-tonal);color:var(--accent);display:grid;place-items:center}
+.hd .ic svg{width:30px;height:30px}
+.hd h1{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.hd p{color:var(--mute);font-size:14px;margin-top:4px}
+.hd .g{flex:1}
+.fav{width:52px;height:52px;border-radius:18px;background:var(--accent-tonal);color:var(--accent);display:grid;place-items:center}
+.fav svg{fill:currentColor}
+.facts{display:flex;gap:8px}
+.fact{background:var(--surface);border-radius:14px;padding:8px 14px;font-size:13.5px;color:var(--mute);display:flex;gap:8px;align-items:center}
+.fact b{color:var(--ink);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tile{position:relative;background:var(--surface);border-radius:22px;padding:14px 18px 12px}
+.tile.on{background:var(--raised);box-shadow:inset 0 0 0 2px var(--accent)}
+.tile.on .ey{color:var(--accent)}
+.tile.lk{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
+.tile.lk .ey em{font-style:normal;color:var(--accent);letter-spacing:.06em}
+.tile .v{display:flex;align-items:baseline;gap:6px;font-size:50px;font-weight:500;line-height:1.15;margin-top:2px}
+.tile.lk .v{opacity:.75}
+.tile .v small{font-family:var(--f-text);font-size:16px;color:var(--mute);font-weight:500;letter-spacing:0}
+.tile .w{color:var(--water)}
+.lock{position:absolute;top:8px;right:8px;width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:var(--faint)}
+.lock.on{background:var(--accent-tonal);color:var(--accent)}
+.ruler{background:var(--surface);border-radius:24px;padding:14px 0 10px}
+.rt{position:relative;height:132px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
+.tk{position:absolute;bottom:16px;width:4px;margin-left:-2px;border-radius:2px;background:var(--dim)}
+.tk.l{background:var(--accent)}
+.lb{position:absolute;top:4px;transform:translateX(-50%);font-family:var(--f-num);font-size:22px;font-weight:500;color:var(--faint)}
+.lb.l{color:var(--accent)}
+.ptr{width:0;height:0;margin:2px auto 0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:12px solid var(--accent)}
+.seq{display:flex;gap:6px}
+.seq div{min-width:0;display:flex;flex-direction:column;gap:6px}
+.seq i{height:14px;border-radius:7px;background:var(--raised)}
+.seq i.p{background:var(--water-tonal);box-shadow:inset 0 0 0 1px var(--water-line)}
+.seq b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seq span{font-family:var(--f-num);font-size:13px;color:var(--mute);white-space:nowrap}
+.go{margin-top:auto;display:flex;align-items:center;gap:20px}
+.play{height:72px;padding:0 40px;border-radius:36px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;gap:12px;font-size:20px;font-weight:700}
+.play svg{width:26px;height:26px;fill:currentColor;stroke:none}
+.go .s{color:var(--mute);font-size:14px;line-height:1.5}
+.go .s b{display:block;color:var(--ink);font-family:var(--f-num);font-size:17px;font-weight:500}
+</style>
+
+<div class="wrap">
+  <section class="intro">
+    <h1>Varianti di tre palette scure</h1>
+    <p>Le famiglie rimaste dopo il primo giro: Inchiostro e rame, Abisso e corallo, Nero OLED. Per ognuna l'originale (dove ha senso) e due o tre varianti, tutte sulla schermata Prepara con gli stessi font. In Abisso il verde è molto più spento: la saturazione dello sfondo scende circa della metà. In fondo trovi la palette attuale per confronto.</p>
+  </section>
+  <div id="list" class="wrap" style="gap:72px"></div>
+</div>
+
+<script>
+const FAMILIES=[
+ {name:"Inchiostro e rame",note:"Blu notte con azioni calde e acqua fredda.",items:[
+  {label:"1",name:"Originale",desc:"Blu notte deciso, rame per le azioni, azzurro ghiaccio per l'acqua.",
+   bg:"#0b0f17",surface:"#121926",raised:"#1b2433",ink:"#edf1f7",mute:"#93a0b4",faint:"#5d6a7e",accent:"#e0915a",accentInk:"#2a1406",water:"#7cc6ec",dim:"#2a3445"},
+  {label:"1a",name:"Ardesia e rame",desc:"Il blu si fa grigio ardesia: più neutro e discreto, il rame resta l'unico colore caldo.",
+   bg:"#0e1116",surface:"#161b22",raised:"#1f262f",ink:"#eef1f5",mute:"#97a1ae",faint:"#606a77",accent:"#dd8c5c",accentInk:"#2a1406",water:"#8fcbe8",dim:"#2b333e"},
+  {label:"1b",name:"Inchiostro e ambra",desc:"Stesso blu notte, ma le azioni passano all'ambra color crema dell'espresso: più luminosa e più \"caffè\".",
+   bg:"#0a0e16",surface:"#111826",raised:"#1a2334",ink:"#eef2f8",mute:"#94a1b6",faint:"#5e6b80",accent:"#f2ab4b",accentInk:"#2e1a02",water:"#86bdff",dim:"#2a3447"},
+ ]},
+ {name:"Abisso e corallo",note:"Verde petrolio molto più spento, quasi grigio. Il corallo resta protagonista.",items:[
+  {label:"3a",name:"Abisso spento",desc:"Petrolio desaturato tendente al grigio: il verde si intuisce appena. Corallo e acquamarina come prima.",
+   bg:"#0c1213",surface:"#141c1d",raised:"#1d2829",ink:"#edf3f2",mute:"#95a6a4",faint:"#5e6e6c",accent:"#ff8a6b",accentInk:"#3a1206",water:"#9ad9cf",dim:"#263334"},
+  {label:"3b",name:"Abisso notte",desc:"Ancora più scuro, quasi nero con un filo di petrolio. Il corallo spicca di più.",
+   bg:"#090c0d",surface:"#111617",raised:"#1a2122",ink:"#eef2f2",mute:"#929c9c",faint:"#5b6566",accent:"#ff8f72",accentInk:"#3a1206",water:"#8ed3cb",dim:"#223031"},
+  {label:"3c",name:"Abisso e pesca",desc:"Petrolio spento un po' più chiaro, accento pesca più morbido del corallo e acqua che vira verso l'azzurro.",
+   bg:"#0d1314",surface:"#152022",raised:"#1f2c2e",ink:"#eef4f3",mute:"#97aaa9",faint:"#607271",accent:"#ffb08a",accentInk:"#3d1a08",water:"#8ccfd8",dim:"#2a3a3c"},
+ ]},
+ {name:"Nero OLED",note:"Nero puro e grafite neutra: cambiano solo i due accenti.",items:[
+  {label:"5",name:"OLED e ciano",desc:"L'originale: ciano per le azioni, arancio per l'acqua.",
+   bg:"#000000",surface:"#0f1012",raised:"#1a1c1f",ink:"#f5f6f7",mute:"#9a9fa6",faint:"#62666d",accent:"#4fd6ff",accentInk:"#00262f",water:"#ffa24c",dim:"#1f3a44"},
+  {label:"5a",name:"OLED e giallo segnale",desc:"Giallo segnale per le azioni (il contrasto più alto, 13:1) e azzurro per l'acqua: da strumento, molto leggibile da lontano.",
+   bg:"#000000",surface:"#0f1012",raised:"#1a1c1f",ink:"#f5f6f7",mute:"#9a9fa6",faint:"#62666d",accent:"#ffd43f",accentInk:"#2b2300",water:"#5cc8ff",dim:"#3a3418"},
+  {label:"5b",name:"OLED invertito",desc:"I ruoli dell'originale scambiati: arancio caldo per le azioni, ciano per l'acqua. Più vicino al mondo del caffè.",
+   bg:"#000000",surface:"#0f1012",raised:"#1a1c1f",ink:"#f5f6f7",mute:"#9a9fa6",faint:"#62666d",accent:"#ff9f43",accentInk:"#2e1500",water:"#4fd6ff",dim:"#3d2a16"},
+ ]},
+];
+const CURRENT={name:"Attuale: salvia evoluta",desc:"Per confronto: scuro caldo con accento salvia e acqua in terracotta.",ref:true,
+  bg:"#0f0d0b",surface:"#171411",raised:"#221e19",ink:"#f5f0e8",mute:"#aaa18f",faint:"#6f6758",accent:"#a9c788",accentInk:"#18200f",water:"#d98a5f",dim:"#323b29"};
+
+const P={
+ drop:'<path d="M12 3.5C8.5 8 6.5 11 6.5 14a5.5 5.5 0 0 0 11 0c0-3-2-6-5.5-10.5z"/>',
+ book:'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/>',
+ journal:'<path d="M8 3h8a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+ gear:'<path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M12 2.5v3M12 18.5v3M4.2 6.5l2.6 1.5M17.2 16l2.6 1.5M4.2 17.5l2.6-1.5M17.2 8l2.6-1.5"/>',
+ dripper:'<path d="M4 5h16l-6 8v1h-4v-1z"/><path d="M12 17.5c-.9 1.2-1.3 1.9-1.3 2.4a1.3 1.3 0 0 0 2.6 0c0-.5-.4-1.2-1.3-2.4z"/>',
+ heart:'<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
+ play:'<path d="M7 4.5v15l13-7.5z"/>',
+ thermo:'<path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/>',
+ clock:'<path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17z"/><path d="M12 7.5V12l3 2"/>',
+ grind:'<circle cx="8" cy="9" r="1.2"/><circle cx="14" cy="7" r="1.2"/><circle cx="11" cy="14" r="1.2"/><circle cx="17" cy="13" r="1.2"/><circle cx="8" cy="18" r="1.2"/><circle cx="15" cy="18.5" r="1.2"/>',
+ lockC:'<rect x="5" y="10.5" width="14" height="10" rx="3"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/>',
+ lockO:'<rect x="5" y="10.5" width="14" height="10" rx="3"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" transform="rotate(28 15.5 10.5) translate(0 -1.5)"/>',
+ v60:'<path d="M3.5 6h17l-6.5 9h-4z"/><path d="M8 18.5h8"/><path d="M10 15v3.5M14 15v3.5"/>',
+ chemex:'<path d="M6 3.5h12l-4.5 8 4.5 8.5H6l4.5-8.5z"/><path d="M10.5 11.5h3"/><path d="M9 3.5l1.5 4"/>',
+ aeropress:'<path d="M9 7h6a1.5 1.5 0 0 1 1.5 1.5v10A1.5 1.5 0 0 1 15 20H9a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 9 7z"/><path d="M6 7h12M9 3.5h6V7M9.5 20.5h5"/>',
+ fp:'<path d="M8 7.5h7a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9.5a2 2 0 0 1 2-2z"/><path d="M11.5 3.5v9M8.5 12.5h6M9 3.5h5M17 10h2v6h-2"/>',
+ moka:'<path d="M7 20.5h10l-1.5-7h-7z"/><path d="M8.5 13.5l1-2.5h5l1 2.5"/><path d="M9.5 11l-1-6.5h7l-1 6.5M15.5 5.5l3 1.5"/>',
+ espresso:'<path d="M5 9h11v4.5a5.5 5.5 0 0 1-11 0z"/><path d="M16 10.5h1.5a2 2 0 0 1 0 4H16M4 20.5h13"/><path d="M9 3.5c-.8 1.2.8 2 0 3.2M12 3.5c-.8 1.2.8 2 0 3.2"/>',
+};
+const ic=n=>`<svg class="i" viewBox="0 0 24 24">${P[n]}</svg>`;
+const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`};
+
+/* Static ruler: coffee scale, 0.5 g per tick, 12 px apart, centred on 30 g (half of the track visible). */
+function ruler(){let h='';const w=712,center=30,step=.5,px=12;
+  for(let v=1;v<=70;v+=step){const x=w/2+(v-center)/step*px;if(x<-20||x>w+20)continue;const maj=v%5===0,lit=v<=center;
+    h+=`<i class="tk${lit?' l':''}" style="left:${x}px;height:${maj?64:40}px"></i>`;if(maj)h+=`<span class="lb${lit?' l':''}" style="left:${x}px">${v}</span>`}
+  return h}
+
+function screen(){
+  const item=(i,t,s,sel)=>`<div class="it${sel?' sel':''}"><span class="ic">${ic(i)}</span><span><b>${t}</b><small>${s}</small></span></div>`;
+  const steps=[["Pre-infusione","0:45 · 60 ml",45,1],["Prima versata","0:30 · 300 ml",30,1],["Seconda versata","0:30 · 500 ml",30,1],["Mescola e ruota","0:15",15,0],["Drenaggio","1:15",75,0]];
+  return `<div class="dev">
+  <div class="rail"><div class="logo">${ic('dripper')}</div>
+    <div class="nav on"><span>${ic('drop')}</span>Prepara</div><div class="nav"><span>${ic('book')}</span>Ricette</div><div class="nav"><span>${ic('journal')}</span>Diario</div>
+    <div class="sp"></div><div class="nav"><span>${ic('gear')}</span>Opzioni</div></div>
+  <div class="main">
+    <div class="list"><div class="ey">Preferite</div>${item('v60','V60','3:15 · 500 ml',1)}${item('chemex','Chemex','4:30 · 500 ml')}
+      <div class="ey m">Tutte</div>${item('fp','French Press (senza premere)','10:15 · 500 ml')}${item('aeropress','AeroPress tradizionale','1:30 · 200 ml')}${item('aeropress','AeroPress invertita','2:00 · 200 ml')}${item('moka','Moka delicata','3:20 · 80 ml')}${item('espresso','Espresso 1:2','0:28 · 36 ml')}</div>
+    <div class="prep">
+      <div class="hd"><span class="ic">${ic('v60')}</span><div class="g"><h1>V60</h1><p>V60 · 5 step</p></div><span class="fav">${ic('heart')}</span></div>
+      <div class="facts"><span class="fact">${ic('thermo')}<b class="num">95 °C</b></span><span class="fact">${ic('grind')}<b>Medio-fine</b></span><span class="fact">${ic('clock')}<b class="num">3:15</b></span></div>
+      <div class="tiles">
+        <div class="tile on"><div class="ey">Caffè</div><div class="v"><span class="num">30,0</span><small>g</small></div><span class="lock">${ic('lockO')}</span></div>
+        <div class="tile lk"><div class="ey">Rapporto <em>· bloccato</em></div><div class="v"><span class="num">1:16,7</span></div><span class="lock on">${ic('lockC')}</span></div>
+        <div class="tile"><div class="ey">Acqua</div><div class="v"><span class="num w">500</span><small>ml</small></div><span class="lock">${ic('lockO')}</span></div>
+      </div>
+      <div class="ruler"><div class="rt">${ruler()}</div><div class="ptr"></div></div>
+      <div><div class="ey" style="margin-bottom:10px">Sequenza</div><div class="seq">${steps.map(([l,s,d,p])=>`<div style="flex:${d}"><i class="${p?'p':''}"></i><b>${l}</b><span>${s}</span></div>`).join('')}</div></div>
+      <div class="go"><span class="play">${ic('play')}Play</span><span class="s">Durata<b>3:15</b></span></div>
+    </div>
+  </div></div>`;
+}
+
+function section(p,i){
+  const vars=`--bg:${p.bg};--surface:${p.surface};--raised:${p.raised};--line:${hexA(p.ink,.07)};--ink:${p.ink};--mute:${p.mute};--faint:${p.faint};--accent:${p.accent};--accent-ink:${p.accentInk};--accent-tonal:${hexA(p.accent,.15)};--water:${p.water};--water-tonal:${hexA(p.water,.16)};--water-line:${hexA(p.water,.35)};--dim:${p.dim}`;
+  const sw=[["sfondo",p.bg],["pannelli",p.surface],["controlli",p.raised],["testo",p.ink],["azioni",p.accent],["acqua",p.water]];
+  return `<section class="pal${p.ref?' ref':''}" id="${p.ref?'attuale':'palette-'+p.label}">
+    <header><div style="display:flex;align-items:baseline;gap:14px">${p.ref?'':`<span class="n">${p.label}</span>`}<h2>${p.name}</h2></div><p class="d">${p.desc}</p></header>
+    <div class="sw">${sw.map(([n,c])=>`<div><i style="background:${c}"></i>${n} <code>${c}</code></div>`).join('')}</div>
+    <div class="frame" style="${vars}">${screen()}</div>
+  </section>`;
+}
+
+document.getElementById('list').innerHTML=FAMILIES.map(f=>`<div class="fam"><div class="famh"><h2>${f.name}</h2><p>${f.note}</p></div>${f.items.map(section).join('')}</div>`).join('')+section(CURRENT,0);
+function fit(){document.querySelectorAll('.frame').forEach(f=>{f.firstElementChild.style.transform=`scale(${f.clientWidth/1180})`})}
+fit();addEventListener('resize',fit);
+document.fonts&&document.fonts.ready.then(fit);
+</script>

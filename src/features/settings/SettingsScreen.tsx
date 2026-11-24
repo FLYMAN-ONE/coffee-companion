@@ -3,11 +3,12 @@ import { Button } from "../../components/ui/Button";
 import { Segmented } from "../../components/ui/Segmented";
 import { languages, useI18n } from "../../i18n";
 import { useBackup } from "../log/useBackup";
+import { PALETTES } from "./palettes";
 import { useSettings } from "./settingsStore";
 
 export function SettingsScreen() {
   const { t, lang, setLang } = useI18n();
-  const { sound, setSound } = useSettings();
+  const { sound, setSound, palette, setPalette } = useSettings();
   const { exportBackup, importBackup } = useBackup();
   const file = useRef<HTMLInputElement>(null);
 
@@ -16,6 +17,38 @@ export function SettingsScreen() {
       <h1 className="mb-1.5 text-[30px] font-bold tracking-tight">{t.settings.title}</h1>
       <Row title={t.settings.language} hint={t.settings.languageHint}>
         <Segmented label={t.settings.language} value={lang} options={languages} onChange={setLang} />
+      </Row>
+      <Row title={t.settings.palette} hint={t.settings.paletteHint}>
+        <div role="radiogroup" aria-label={t.settings.palette} className="flex gap-2">
+          {PALETTES.map((p) => {
+            const on = p.id === palette;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => setPalette(p.id)}
+                className={`press flex h-14 items-center gap-3 rounded-2xl px-4 text-sm font-semibold ${
+                  on
+                    ? "bg-raised text-ink shadow-[inset_0_0_0_2px_var(--color-accent)]"
+                    : "bg-raised text-mute"
+                }`}
+              >
+                <span className="flex -space-x-1.5" aria-hidden="true">
+                  {p.swatches.map((c) => (
+                    <i
+                      key={c}
+                      className="h-5 w-5 rounded-full shadow-[0_0_0_2px_var(--color-raised)]"
+                      style={{ background: c }}
+                    />
+                  ))}
+                </span>
+                {t.settings.palettes[p.id]}
+              </button>
+            );
+          })}
+        </div>
       </Row>
       <Row title={t.settings.sound} hint={t.settings.soundHint}>
         <Segmented

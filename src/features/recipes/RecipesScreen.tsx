@@ -100,7 +100,7 @@ function RecipeDetail({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-2.5">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[18px] bg-sage/14 text-sage">
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[18px] bg-accent/14 text-accent">
           <Icon name={r.method} className="h-[30px] w-[30px]" />
         </span>
         <div className="min-w-0 flex-1 pl-1.5">
@@ -134,10 +134,10 @@ function RecipeDetail({
       {points.length ? (
         <div className="flex flex-col gap-2">
           <div className="eyebrow">{t.recipes.keyPoints}</div>
-          <ul className="flex max-w-[62ch] flex-col gap-2 text-[15px] leading-relaxed text-[#ddd5c8]">
+          <ul className="flex max-w-[62ch] flex-col gap-2 text-[15px] leading-relaxed text-prose">
             {points.map((p, i) => (
               <li key={i} className="flex gap-2.5">
-                <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-sage" aria-hidden="true" />
+                <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
                 {p}
               </li>
             ))}
@@ -152,7 +152,7 @@ function RecipeDetail({
           <ol className="flex flex-col gap-1.5">
             {r.steps.map((s, i) => (
               <li key={s.id} className="flex items-center gap-3.5 rounded-2xl bg-raised px-3.5 py-2.5">
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-sage/14 text-[13px] font-bold text-sage">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent/14 text-[13px] font-bold text-accent">
                   {i + 1}
                 </span>
                 <span className="flex-1 font-semibold">{s.label}</span>

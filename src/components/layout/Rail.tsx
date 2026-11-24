@@ -21,7 +21,7 @@ export function Rail() {
       >
         <span
           className={`grid h-8 w-[52px] place-items-center rounded-2xl transition-colors duration-200 ${
-            on ? "bg-sage/14 text-sage" : ""
+            on ? "bg-accent/14 text-accent" : ""
           }`}
         >
           <Icon name={icon} className="h-[22px] w-[22px]" />
@@ -37,7 +37,7 @@ export function Rail() {
       className="flex w-[88px] shrink-0 flex-col items-center gap-1.5 border-r border-line pt-[max(24px,env(safe-area-inset-top))] pb-[max(20px,env(safe-area-inset-bottom))]"
     >
       <div
-        className="mb-[22px] grid h-12 w-12 place-items-center rounded-2xl bg-sage text-sage-ink"
+        className="mb-[22px] grid h-12 w-12 place-items-center rounded-2xl bg-accent text-accent-ink"
         aria-hidden="true"
       >
         <Icon name="dripper" className="h-7 w-7" />

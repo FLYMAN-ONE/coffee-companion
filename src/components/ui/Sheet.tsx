@@ -32,7 +32,7 @@ export function Sheet({
 
   return (
     <div
-      className={`motion-fade fixed inset-0 grid place-items-center bg-[#0b0a08]/62 p-6 backdrop-blur-[18px] ${
+      className={`motion-fade fixed inset-0 grid place-items-center bg-focus/62 p-6 backdrop-blur-[18px] ${
         layer === "top" ? "z-[70]" : "z-50"
       } ${exiting ? "pointer-events-none" : ""}`}
       style={{

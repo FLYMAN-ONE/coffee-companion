@@ -79,7 +79,7 @@ export function NumberField({
         </button>
 
         <div
-          className={`flex min-w-0 flex-1 items-baseline justify-center gap-2 rounded-2xl bg-raised px-3 focus-within:shadow-[inset_0_0_0_2px_var(--color-sage)] ${
+          className={`flex min-w-0 flex-1 items-baseline justify-center gap-2 rounded-2xl bg-raised px-3 focus-within:shadow-[inset_0_0_0_2px_var(--color-accent)] ${
             big ? "h-16 items-center" : "h-12 items-center"
           }`}
         >
