@@ -1,23 +1,27 @@
 import type { ReactNode } from "react";
+import type { MethodId } from "../../types";
+import { Icon, type IconName } from "./Icon";
 
 interface ChipProps {
   selected?: boolean;
-  disabled?: boolean;
   onClick: () => void;
+  icon?: IconName | MethodId;
+  /** Background for unselected chips: `surface` on the page, `raised` inside panels. */
+  tone?: "surface" | "raised";
   children: ReactNode;
 }
 
-export function Chip({ selected = false, disabled = false, onClick, children }: ChipProps) {
+export function Chip({ selected = false, onClick, icon, tone = "surface", children }: ChipProps) {
   return (
     <button
       type="button"
-      disabled={disabled}
       onClick={onClick}
       aria-pressed={selected}
-      className={`h-11 shrink-0 rounded-full border px-5 text-base font-medium transition active:scale-95 disabled:opacity-40 ${
-        selected ? "border-accent bg-accent/15 text-accent" : "border-line bg-soft text-mute active:text-ink"
-      }`}
+      className={`press flex h-11 shrink-0 items-center gap-2 rounded-full text-sm font-semibold ${
+        icon ? "pr-4 pl-3" : "px-4"
+      } ${selected ? "bg-sage/14 text-sage" : `${tone === "raised" ? "bg-raised" : "bg-surface"} text-mute`}`}
     >
+      {icon ? <Icon name={icon} className="h-5 w-5" /> : null}
       {children}
     </button>
   );

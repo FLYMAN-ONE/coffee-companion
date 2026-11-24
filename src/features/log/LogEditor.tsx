@@ -1,89 +1,80 @@
 import { useState } from "react";
-import { grinds, methods, tastes } from "../../data/methods";
-import { useI18n } from "../../i18n";
-import { fromInputValue, toInputValue } from "../../lib/format";
+import { NumberField } from "../../components/inputs/NumberField";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
-import { ConfirmButton } from "../../components/ui/ConfirmButton";
-import { Modal } from "../../components/ui/Modal";
+import { Sheet } from "../../components/ui/Sheet";
 import { Stars } from "../../components/ui/Stars";
-import { NumberField } from "../../components/inputs/NumberField";
-import { calculateCoffee, calculateWater } from "../brew-calculator/logic/calculations";
+import { grinds, methods, tastes } from "../../data/methods";
+import { useI18n } from "../../i18n";
+import { fmtDec, fromInputValue, toInputValue } from "../../lib/format";
 import type { LogEntry } from "../../types";
 
 interface LogEditorProps {
   entry: LogEntry;
   isNew: boolean;
   onSave: (e: LogEntry) => void;
-  onDelete: () => void;
   onClose: () => void;
 }
 
-const label = "mb-2 block text-sm text-mute";
-
-export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditorProps) {
-  const { t } = useI18n();
+/** Full editor for a log entry (manual entries and corrections). */
+export function LogEditor({ entry, isNew, onSave, onClose }: LogEditorProps) {
+  const { t, lang } = useI18n();
   const [e, setE] = useState<LogEntry>(entry);
   const patch = (p: Partial<LogEntry>) => setE((cur) => ({ ...cur, ...p }));
-
+  const withDose = (coffee: number, water: number) => ({
+    coffee,
+    water,
+    dose: water > 0 ? Math.round((coffee / water) * 1000) : e.dose,
+  });
   const toggleTaste = (name: string) =>
-    setE((cur) => ({
-      ...cur,
-      tastes: cur.tastes.includes(name) ? cur.tastes.filter((x) => x !== name) : [...cur.tastes, name],
-    }));
+    patch({ tastes: e.tastes.includes(name) ? e.tastes.filter((x) => x !== name) : [...e.tastes, name] });
 
   return (
-    <Modal
-      wide
-      title={isNew ? t.log.editorNew : t.log.editorEdit}
-      onClose={onClose}
-      footer={
-        <>
-          {!isNew && <ConfirmButton label={t.common.delete} onConfirm={onDelete} />}
-          <div className="flex-1" />
-          <Button variant="ghost" onClick={onClose}>
-            {t.common.cancel}
-          </Button>
-          <Button variant="primary" icon="check" onClick={() => onSave(e)}>
-            {t.common.save}
-          </Button>
-        </>
-      }
-    >
-      <div className="grid gap-8 lg:grid-cols-2">
+    <Sheet label={isNew ? t.log.editorNew : t.log.editorEdit} onClose={onClose} width="w-[980px]">
+      <div className="flex items-center gap-2.5">
+        <h2 className="flex-1 text-[26px] font-bold">{isNew ? t.log.editorNew : t.log.editorEdit}</h2>
+        <Button variant="text" onClick={onClose}>
+          {t.common.cancel}
+        </Button>
+        <Button variant="primary" icon="check" onClick={() => onSave(e)}>
+          {t.common.save}
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-8">
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={label} htmlFor="l-beans">
-                {t.log.beans}
-              </label>
+            <label className="flex flex-col gap-2">
+              <span className="eyebrow">{t.log.beans}</span>
               <input
-                id="l-beans"
                 className="input"
                 placeholder={t.log.beansPh}
                 value={e.beans}
                 onChange={(ev) => patch({ beans: ev.target.value })}
               />
-            </div>
-            <div>
-              <label className={label} htmlFor="l-date">
-                {t.log.date}
-              </label>
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="eyebrow">{t.log.date}</span>
               <input
-                id="l-date"
                 type="datetime-local"
                 className="input"
                 value={toInputValue(e.date)}
                 onChange={(ev) => ev.target.value && patch({ date: fromInputValue(ev.target.value) })}
               />
-            </div>
+            </label>
           </div>
 
-          <div>
-            <span className={label}>{t.log.method}</span>
+          <div className="flex flex-col gap-2">
+            <span className="eyebrow">{t.log.method}</span>
             <div className="flex flex-wrap gap-2">
               {methods.map((m) => (
-                <Chip key={m.id} selected={e.method === m.id} onClick={() => patch({ method: m.id })}>
+                <Chip
+                  key={m.id}
+                  icon={m.id}
+                  tone="raised"
+                  selected={e.method === m.id}
+                  onClick={() => patch({ method: m.id })}
+                >
                   {t.methods[m.id]}
                 </Chip>
               ))}
@@ -92,13 +83,14 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
 
           <div className="grid grid-cols-2 gap-4">
             <NumberField
-              label={t.log.dose}
-              unit="g/L"
-              value={e.dose}
-              step={1}
-              min={10}
-              max={1000}
-              onChange={(dose) => patch({ dose, coffee: calculateCoffee(e.water, dose) })}
+              label={t.log.coffeeLabel}
+              unit="g"
+              value={e.coffee}
+              step={0.5}
+              min={1}
+              max={500}
+              decimals={1}
+              onChange={(c) => patch(withDose(c, e.water))}
             />
             <NumberField
               label={t.log.waterLabel}
@@ -107,17 +99,7 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
               step={e.water < 100 ? 1 : 10}
               min={10}
               max={5000}
-              onChange={(water) => patch({ water, coffee: calculateCoffee(water, e.dose) })}
-            />
-            <NumberField
-              label={t.log.coffeeLabel}
-              unit="g"
-              value={e.coffee}
-              step={0.5}
-              min={1}
-              max={500}
-              decimals={1}
-              onChange={(coffee) => patch({ coffee, water: calculateWater(coffee, e.dose) })}
+              onChange={(w) => patch(withDose(e.coffee, w))}
             />
             <NumberField
               label={t.log.waterTemp}
@@ -128,6 +110,12 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
               max={100}
               onChange={(tempC) => patch({ tempC })}
             />
+            <div className="flex flex-col justify-end pb-3 text-mute">
+              {t.log.ratio}{" "}
+              <b className="num text-xl font-medium text-ink">
+                1:{fmtDec(e.coffee ? e.water / e.coffee : 0, 1, lang)}
+              </b>
+            </div>
             <NumberField
               label={t.log.timeMin}
               value={Math.floor(e.timeSec / 60)}
@@ -146,11 +134,11 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
             />
           </div>
 
-          <div>
-            <span className={label}>{t.log.grindLabel}</span>
+          <div className="flex flex-col gap-2">
+            <span className="eyebrow">{t.log.grindLabel}</span>
             <div className="flex flex-wrap gap-2">
               {grinds.map((g) => (
-                <Chip key={g} selected={e.grind === g} onClick={() => patch({ grind: g })}>
+                <Chip key={g} tone="raised" selected={e.grind === g} onClick={() => patch({ grind: g })}>
                   {t.grinds[g]}
                 </Chip>
               ))}
@@ -159,37 +147,37 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
         </div>
 
         <div className="flex flex-col gap-5">
-          <div>
-            <span className={label}>{t.log.rating}</span>
+          <div className="flex flex-col gap-1">
+            <span className="eyebrow">{t.log.rating}</span>
             <Stars value={e.rating} onChange={(rating) => patch({ rating })} />
           </div>
-
-          <div>
-            <span className={label}>{t.log.taste}</span>
+          <div className="flex flex-col gap-2">
+            <span className="eyebrow">{t.log.howWasIt}</span>
             <div className="flex flex-wrap gap-2">
               {tastes.map((name) => (
-                <Chip key={name} selected={e.tastes.includes(name)} onClick={() => toggleTaste(name)}>
+                <Chip
+                  key={name}
+                  tone="raised"
+                  selected={e.tastes.includes(name)}
+                  onClick={() => toggleTaste(name)}
+                >
                   {t.tastes[name] ?? name}
                 </Chip>
               ))}
             </div>
           </div>
-
-          <div>
-            <label className={label} htmlFor="l-notes">
-              {t.log.notes}
-            </label>
+          <label className="flex flex-col gap-2">
+            <span className="eyebrow">{t.log.notes}</span>
             <textarea
-              id="l-notes"
-              rows={5}
               className="input"
+              rows={5}
               placeholder={t.log.notesPh}
               value={e.notes}
               onChange={(ev) => patch({ notes: ev.target.value })}
             />
-          </div>
+          </label>
         </div>
       </div>
-    </Modal>
+    </Sheet>
   );
 }

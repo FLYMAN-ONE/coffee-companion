@@ -1,5 +1,4 @@
 import { createStore } from "../../lib/createStore";
-import type { Recipe } from "../../types";
 import type { TimerApi, TimerStatus } from "./useTimer";
 
 /**
@@ -8,14 +7,13 @@ import type { TimerApi, TimerStatus } from "./useTimer";
  */
 export interface TimerSession {
   status: TimerStatus;
-  /** Recipe followed by the timer; null for the plain stopwatch. */
-  recipe: Recipe | null;
-  selectRecipe: (id: string | null) => void;
-  /** True while running or paused: the recipe cannot change. */
+  /** True while running or paused. */
   busy: boolean;
+  /** Stable actions (they do not change on every tick). */
+  actions: Pick<TimerApi, "start" | "pause" | "resume" | "reset" | "finish" | "skip">;
 }
 
 export const [TimerSessionContext, useTimerSession] = createStore<TimerSession>("TimerSession");
 
-/** Live timer, updated every tick. Only the timer screen should use it. */
+/** Live timer, updated every tick. Only the focus screen should use it. */
 export const [TimerClockContext, useTimerClock] = createStore<TimerApi>("TimerClock");

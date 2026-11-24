@@ -10,6 +10,7 @@ const sanitize = (raw: unknown) => sanitizeList(raw, sanitizeLog);
 export function LogsProvider({ children }: { children: ReactNode }) {
   const [logs, setLogs] = useLocalStorage<LogEntry[]>(STORAGE_KEYS.logs, [], sanitize);
   const [editing, setEditing] = useState<LogEntry | null>(null);
+  const [selectedId, select] = useState<string | null>(null);
 
   const saveLog = useCallback((l: LogEntry) => setLogs((list) => upsert(list, l)), [setLogs]);
   const deleteLog = useCallback(
@@ -23,8 +24,18 @@ export function LogsProvider({ children }: { children: ReactNode }) {
   const closeEditor = useCallback(() => setEditing(null), []);
 
   const value = useMemo(
-    () => ({ logs, saveLog, deleteLog, importLogs, editing, openEditor: setEditing, closeEditor }),
-    [logs, saveLog, deleteLog, importLogs, editing, closeEditor]
+    () => ({
+      logs,
+      saveLog,
+      deleteLog,
+      importLogs,
+      selectedId,
+      select,
+      editing,
+      openEditor: setEditing,
+      closeEditor,
+    }),
+    [logs, saveLog, deleteLog, importLogs, selectedId, editing, closeEditor]
   );
 
   return <LogsContext value={value}>{children}</LogsContext>;

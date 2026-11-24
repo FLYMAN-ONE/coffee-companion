@@ -34,3 +34,9 @@ export const fmtHour = (iso: string, locale?: string): string =>
     hour: "2-digit",
     minute: "2-digit",
   });
+
+/** Fixed decimals with the language's decimal separator (30,0 in Italian, 30.0 in English). */
+export const fmtDec = (v: number, decimals: number, lang: string): string => {
+  const s = (Math.round(v * 10 ** decimals) / 10 ** decimals).toFixed(decimals);
+  return lang === "it" ? s.replace(".", ",") : s;
+};

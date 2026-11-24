@@ -76,6 +76,21 @@ describe("useTimer", () => {
     expect(result.current.elapsedMs).toBe(30_000);
   });
 
+  it("skips and resumes in the same event (pause sheet: next step)", () => {
+    const { result } = renderHook(() => useTimer(steps));
+    act(() => result.current.start());
+    advance(5_000);
+    act(() => result.current.pause());
+    act(() => {
+      result.current.skip();
+      result.current.resume();
+    });
+    advance(1_000);
+    expect(result.current.status).toBe("running");
+    expect(result.current.stepIndex).toBe(1);
+    expect(result.current.elapsedMs).toBeGreaterThanOrEqual(30_000);
+  });
+
   it("keeps its actions stable while ticking", () => {
     const { result } = renderHook(() => useTimer(steps));
     const { pause, skip, finish } = result.current;

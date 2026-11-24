@@ -1,13 +1,31 @@
+/*
+ * Design tokens (docs/refresh/02-decisioni.md). Single dark theme, "salvia evoluta":
+ * three surface levels, sage for actions and progress, terracotta for water.
+ */
 @theme {
-  --color-app: #0f0d0b;
-  --color-card: #1c1915;
-  --color-soft: #26221b;
-  --color-raise: #322d24;
+  --color-app: #0f0d0b; /* page */
+  --color-surface: #171411; /* panels */
+  --color-raised: #221e19; /* controls inside panels */
+  --color-raised-2: #2c2721;
+  --color-line: rgb(245 240 232 / 0.07);
+
   --color-ink: #f5f0e8;
   --color-mute: #aaa18f;
-  --color-accent: #9dbb78;
-  --color-accent-ink: #11160b;
-  --color-line: rgb(255 255 255 / 0.08);
+  --color-faint: #6f6758;
+
+  --color-sage: #a9c788; /* actions, progress, selection */
+  --color-sage-ink: #18200f; /* text on sage */
+  --color-sage-dim: #323b29; /* unlit ruler ticks */
+  --color-water: #d98a5f; /* water amounts */
   --color-danger: #e5806f;
-  --shadow-card: 0 20px 50px rgba(0, 0, 0, 0.35);
+
+  --font-sans: "Manrope Variable", -apple-system, system-ui, sans-serif;
+  --font-num: "Space Grotesk Variable", "Manrope Variable", system-ui, sans-serif;
+
+  --radius-panel: 28px;
+  --radius-ctl: 18px;
+
+  /* Motion: strong ease-out for UI; the overshoot spring only for rare entrances. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
 }

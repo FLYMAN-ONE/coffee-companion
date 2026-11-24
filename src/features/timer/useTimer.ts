@@ -118,10 +118,12 @@ export function useTimer(steps: RecipeStep[]) {
     setClock({ ...c, status: "paused", base: elapsedAt(c, Date.now()) });
   }, []);
 
+  // Functional update so a skip queued in the same event (pause sheet: "next step") is kept.
   const resume = useCallback(() => {
-    if (latest.current.clock.status !== "paused") return;
     unlockAudio();
-    run(latest.current.clock.base);
+    const t = Date.now();
+    setClock((c) => (c.status === "paused" ? { status: "running", base: c.base, startedAt: t } : c));
+    setNow(t);
   }, []);
 
   const reset = useCallback(() => setClock(IDLE), []);

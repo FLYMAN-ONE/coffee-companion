@@ -6,10 +6,12 @@ const DURATION_MS = 2600;
 /** Provides `useToast()` and renders the current toast. */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState<string | null>(null);
+  const [stamp, setStamp] = useState(0);
   const timer = useRef(0);
 
   const toast = useCallback((text: string) => {
     setMessage(text);
+    setStamp((n) => n + 1);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setMessage(null), DURATION_MS);
   }, []);
@@ -20,10 +22,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       {message ? (
         <div
+          key={message + stamp}
           role="status"
-          className="pointer-events-none fixed inset-x-0 bottom-8 z-[60] flex justify-center px-4"
+          className="motion-fade pointer-events-none fixed inset-x-0 top-[max(28px,env(safe-area-inset-top))] z-[90] flex justify-center px-4"
+          style={{ animation: "toast-in 400ms var(--ease-out)" }}
         >
-          <div className="rounded-full border border-line bg-raise px-6 py-3 text-base shadow-card">
+          <div className="rounded-[20px] bg-raised-2 px-5 py-3 text-[14.5px] font-semibold shadow-[0_10px_30px_rgb(0_0_0/0.4)]">
             {message}
           </div>
         </div>

@@ -68,18 +68,18 @@ export function NumberField({
 
   const big = size === "lg";
   const btn = big ? "h-16 w-16" : "h-12 w-12";
-  const btnClass = `${btn} flex shrink-0 items-center justify-center rounded-2xl border border-line bg-soft text-ink active:bg-raise`;
+  const btnClass = `${btn} press flex shrink-0 items-center justify-center rounded-2xl bg-raised text-ink`;
 
   return (
     <div className="flex flex-col gap-2">
-      {label ? <span className="text-sm text-mute">{label}</span> : null}
-      <div className="flex items-center gap-3">
+      {label ? <span className="eyebrow">{label}</span> : null}
+      <div className="flex items-center gap-2">
         <button type="button" aria-label={`Decrease ${label ?? ""}`} className={btnClass} {...dec}>
           <Icon name="minus" className={big ? "h-7 w-7" : "h-5 w-5"} />
         </button>
 
         <div
-          className={`flex min-w-0 flex-1 items-baseline justify-center gap-2 rounded-2xl border border-line bg-soft px-3 focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgb(157_187_120_/_0.16)] ${
+          className={`flex min-w-0 flex-1 items-baseline justify-center gap-2 rounded-2xl bg-raised px-3 focus-within:shadow-[inset_0_0_0_2px_var(--color-sage)] ${
             big ? "h-16 items-center" : "h-12 items-center"
           }`}
         >
@@ -102,7 +102,7 @@ export function NumberField({
               if (!Number.isNaN(v)) onChange(round(clamp(v)));
               setDraft(null);
             }}
-            className={`tabular w-full min-w-0 flex-1 bg-transparent text-center font-semibold text-ink outline-none ${
+            className={`num w-full min-w-0 flex-1 bg-transparent text-center font-semibold text-ink outline-none ${
               big ? "text-4xl" : "text-xl"
             }`}
           />

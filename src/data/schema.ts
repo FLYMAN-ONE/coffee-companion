@@ -1,4 +1,4 @@
-import type { BrewValues } from "../features/brew-calculator/types";
+import type { DoseField, PrepareState } from "../features/prepare/logic/dosing";
 import type { Grind, LogEntry, MethodId, Recipe, RecipeStep } from "../types";
 import { getMethod, grinds, methods } from "./methods";
 
@@ -73,14 +73,22 @@ export function sanitizeLog(x: unknown): LogEntry | null {
   };
 }
 
-export function sanitizeBrewValues(x: unknown, fallback: BrewValues): BrewValues {
+const doseFields: DoseField[] = ["coffee", "ratio", "water"];
+
+export function sanitizePrepare(x: unknown, fallback: PrepareState): PrepareState {
   if (!isObj(x)) return fallback;
   return {
+    recipeId: typeof x.recipeId === "string" ? x.recipeId : null,
     method: method(x.method),
-    dose: num(x.dose, fallback.dose, 1, 1000),
-    water: num(x.water, fallback.water, 1, 5000),
-    coffee: num(x.coffee, fallback.coffee, 0, 500),
+    coffee: num(x.coffee, fallback.coffee, 0.5, 500),
+    ratio: num(x.ratio, fallback.ratio, 1, 30),
+    water: num(x.water, fallback.water, 10, 5000),
+    lock: doseFields.includes(x.lock as DoseField) ? (x.lock as DoseField) : "ratio",
   };
+}
+
+export function sanitizeSettings(x: unknown): { sound: boolean } {
+  return { sound: !(isObj(x) && x.sound === false) };
 }
 
 /** Sanitize every item of a list, dropping invalid ones. A non-array gives an empty list. */

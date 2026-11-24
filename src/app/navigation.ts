@@ -1,18 +1,18 @@
 import type { IconName } from "../components/ui/Icon";
 import { createStore } from "../lib/createStore";
 
-export type TabId = "brew" | "recipes" | "timer" | "log";
+export type TabId = "prepare" | "recipes" | "log" | "settings";
 
 export interface NavigationItem {
   id: TabId;
   icon: IconName;
 }
 
+/** Main sections in the rail; settings sits apart at the bottom. */
 export const navigationItems: NavigationItem[] = [
-  { id: "brew", icon: "coffee" },
+  { id: "prepare", icon: "prepare" },
   { id: "recipes", icon: "book" },
-  { id: "timer", icon: "timer" },
-  { id: "log", icon: "log" },
+  { id: "log", icon: "journal" },
 ];
 
 export interface NavigationStore {

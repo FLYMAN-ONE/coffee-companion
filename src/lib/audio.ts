@@ -1,4 +1,10 @@
 let ctx: AudioContext | null = null;
+let enabled = true;
+
+/** Sounds on/off (Settings). */
+export function setSoundEnabled(on: boolean) {
+  enabled = on;
+}
 
 /** Must be called from a user gesture (e.g. the Start button) so iPadOS allows sound. */
 export function unlockAudio() {
@@ -15,7 +21,7 @@ export function unlockAudio() {
 }
 
 export function beep(freq = 880, durationMs = 150, delayMs = 0) {
-  if (!ctx) return;
+  if (!ctx || !enabled) return;
   const start = ctx.currentTime + delayMs / 1000;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();

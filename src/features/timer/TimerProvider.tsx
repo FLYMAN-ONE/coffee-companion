@@ -1,29 +1,19 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
-import { useRecipes } from "../recipes/recipesStore";
+import { useMemo, type ReactNode } from "react";
+import { usePrepare } from "../prepare/prepareStore";
 import { TimerClockContext, TimerSessionContext } from "./timerStore";
 import { useTimer } from "./useTimer";
 
 const NO_STEPS: never[] = [];
 
+/** The timer follows the recipe selected in Prepare (no steps = stopwatch). */
 export function TimerProvider({ children }: { children: ReactNode }) {
-  const { recipes } = useRecipes();
-  const [recipeId, setRecipeId] = useState<string | null>(null);
-  const recipe = recipes.find((r) => r.id === recipeId) ?? null;
+  const { recipe } = usePrepare();
   const timer = useTimer(recipe?.steps ?? NO_STEPS);
-  const { status, reset } = timer;
+  const { status, start, pause, resume, reset, finish, skip } = timer;
   const busy = status === "running" || status === "paused";
-
-  const selectRecipe = useCallback(
-    (id: string | null) => {
-      reset();
-      setRecipeId(id);
-    },
-    [reset]
-  );
-
   const session = useMemo(
-    () => ({ status, recipe, selectRecipe, busy }),
-    [status, recipe, selectRecipe, busy]
+    () => ({ status, busy, actions: { start, pause, resume, reset, finish, skip } }),
+    [status, busy, start, pause, resume, reset, finish, skip]
   );
 
   return (

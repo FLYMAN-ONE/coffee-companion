@@ -1,126 +1,186 @@
 @import "tailwindcss";
 @import "./styles/theme.css";
 
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+/* Unlayered CSS would beat Tailwind utilities: keep resets in `base` and our classes in `components`. */
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-app);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--color-sage);
+    outline-offset: 2px;
+  }
+
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
 }
 
-html {
-  overscroll-behavior: none;
-  -webkit-text-size-adjust: 100%;
+@layer components {
+  /* Numbers: Space Grotesk with tabular figures so digits never shift. */
+  .num {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Press feedback: subtle scale, 160ms strong ease-out, no overshoot. */
+  .press {
+    transition:
+      transform 160ms var(--ease-out),
+      background-color 200ms,
+      color 200ms,
+      box-shadow 200ms;
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+
+  /* Small uppercase section label */
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+
+  /* Text inputs and textareas */
+  .input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border-radius: 16px;
+    border: 0;
+    background: var(--color-raised);
+    color: var(--color-ink);
+    font: 600 17px var(--font-sans);
+    outline: none;
+  }
+  textarea.input {
+    padding: 14px 16px;
+    resize: none;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .input:focus {
+    box-shadow: inset 0 0 0 2px var(--color-sage);
+  }
+  .input::placeholder {
+    color: var(--color-faint);
+  }
 }
 
-body {
-  background-color: var(--color-app);
-  color: var(--color-ink);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: none;
-  user-select: none;
-  touch-action: manipulation;
+/* Entrances */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+}
+@keyframes focus-in {
+  from {
+    opacity: 0;
+    transform: scale(0.965);
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+.screen-in {
+  animation: fade-in 150ms var(--ease-out);
 }
 
-button {
-  font: inherit;
-  touch-action: manipulation;
+/* Focus timer cues */
+@keyframes wave {
+  to {
+    transform: translateX(160px);
+  }
+}
+@keyframes pulse-glass {
+  50% {
+    stroke-width: 7;
+    stroke: #cfe3b6;
+  }
+}
+@keyframes pulse-bar {
+  50% {
+    box-shadow: 0 0 0 4px rgb(169 199 136 / 0.35);
+  }
+}
+@keyframes flash {
+  12% {
+    opacity: 0.32;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
-input,
-textarea {
-  -webkit-user-select: text;
-  user-select: text;
-}
-
-.tabular {
-  font-variant-numeric: tabular-nums;
-}
-
-.no-scrollbar {
-  scrollbar-width: none;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Text inputs and textareas */
-.input {
-  width: 100%;
-  min-height: 52px;
-  padding: 0 16px;
-  border-radius: 16px;
-  border: 1px solid var(--color-line);
-  background: var(--color-soft);
-  color: var(--color-ink);
-  font-size: 17px;
-  outline: none;
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
-}
-textarea.input {
-  padding: 14px 16px;
-  resize: none;
-}
-.input:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgb(157 187 120 / 0.16);
-}
-.input::placeholder {
-  color: var(--color-mute);
-  opacity: 0.6;
-}
-
-/* Touch-friendly range slider; --pct is set inline for the filled track */
-input[type="range"].slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 44px;
-  background: transparent;
-  cursor: pointer;
-  touch-action: pan-y;
-}
-input[type="range"].slider::-webkit-slider-runnable-track {
-  height: 10px;
-  border-radius: 999px;
-  background: linear-gradient(
-    to right,
-    var(--color-accent) var(--pct, 0%),
-    var(--color-raise) var(--pct, 0%)
-  );
-}
-input[type="range"].slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 32px;
-  width: 32px;
-  margin-top: -11px;
-  border-radius: 50%;
-  background: var(--color-ink);
-  border: 4px solid var(--color-accent);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-}
-input[type="range"].slider::-moz-range-track {
-  height: 10px;
-  border-radius: 999px;
-  background: var(--color-raise);
-}
-input[type="range"].slider::-moz-range-progress {
-  height: 10px;
-  border-radius: 999px;
-  background: var(--color-accent);
-}
-input[type="range"].slider::-moz-range-thumb {
-  height: 24px;
-  width: 24px;
-  border-radius: 50%;
-  background: var(--color-ink);
-  border: 4px solid var(--color-accent);
-}
-input[type="range"].slider:focus-visible {
-  outline: none;
+/* Reduced motion: drop movement (wave, pulses, slides, press scale); keep opacity and colour cues. */
+@media (prefers-reduced-motion: reduce) {
+  .motion-move,
+  .press:active {
+    animation: none !important;
+    transform: none !important;
+  }
+  .motion-fade {
+    animation: fade-in 0.2s ease !important;
+  }
+  .motion-none {
+    transition: none !important;
+  }
 }

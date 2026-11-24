@@ -1,5 +1,5 @@
-import { Icon } from "./Icon";
 import { useI18n } from "../../i18n";
+import { Icon } from "./Icon";
 
 interface StarsProps {
   value: number;
@@ -7,17 +7,18 @@ interface StarsProps {
   size?: "sm" | "lg";
 }
 
+/** Rating 0–5. Empty stars use a muted sage with ≥ 3:1 contrast. */
 export function Stars({ value, onChange, size = "lg" }: StarsProps) {
   const { t } = useI18n();
-  const dim = size === "lg" ? "h-9 w-9" : "h-4 w-4";
+  const dim = size === "lg" ? "h-8 w-8" : "h-4 w-4";
   return (
-    <div className="flex gap-1" role={onChange ? "radiogroup" : "img"} aria-label={t.common.rating(value)}>
+    <div className="flex gap-0.5" role={onChange ? "radiogroup" : "img"} aria-label={t.common.rating(value)}>
       {[1, 2, 3, 4, 5].map((n) => {
         const star = (
           <Icon
             name="star"
             filled={n <= value}
-            className={`${dim} ${n <= value ? "text-accent" : "text-raise"}`}
+            className={`${dim} ${n <= value ? "text-sage" : "text-[#5f6b52]"}`}
           />
         );
         return onChange ? (
@@ -25,7 +26,7 @@ export function Stars({ value, onChange, size = "lg" }: StarsProps) {
             key={n}
             type="button"
             onClick={() => onChange(value === n ? 0 : n)}
-            className="flex h-12 w-12 items-center justify-center rounded-xl active:bg-soft"
+            className="press flex h-12 w-12 items-center justify-center rounded-xl"
             aria-label={t.common.stars(n)}
           >
             {star}

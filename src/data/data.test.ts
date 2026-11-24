@@ -3,7 +3,8 @@ import { buildBackup, parseBackup } from "./backup";
 import { SEED_VERSION, defaultRecipes } from "./defaultRecipes";
 import { newLogEntry, newRecipe } from "./factories";
 import { SCHEMA_VERSION, mergeSeed, prepareStorage } from "./migrations";
-import { sanitizeBrewValues, sanitizeLog, sanitizeRecipe, upsert } from "./schema";
+import { DEFAULT_PREPARE } from "../features/prepare/logic/dosing";
+import { sanitizeLog, sanitizePrepare, sanitizeRecipe, sanitizeSettings, upsert } from "./schema";
 import { STORAGE_KEYS } from "./storageKeys";
 
 const userRecipe = newRecipe({ id: "user-1", name: "Mine", favorite: true });
@@ -42,15 +43,19 @@ describe("sanitizers", () => {
     expect(log).toMatchObject({ rating: 5, tempC: 100 });
   });
 
-  it("repairs calculator values", () => {
-    const fallback = { method: "v60" as const, dose: 60, water: 250, coffee: 15 };
-    expect(sanitizeBrewValues(null, fallback)).toBe(fallback);
-    expect(sanitizeBrewValues({ method: "moka", dose: 200 }, fallback)).toEqual({
+  it("repairs the prepare state and settings", () => {
+    expect(sanitizePrepare(null, DEFAULT_PREPARE)).toBe(DEFAULT_PREPARE);
+    expect(
+      sanitizePrepare({ method: "moka", coffee: 16, lock: "nope", recipeId: 3 }, DEFAULT_PREPARE)
+    ).toEqual({
+      ...DEFAULT_PREPARE,
+      recipeId: null,
       method: "moka",
-      dose: 200,
-      water: 250,
-      coffee: 15,
+      coffee: 16,
+      lock: "ratio",
     });
+    expect(sanitizeSettings(undefined)).toEqual({ sound: true });
+    expect(sanitizeSettings({ sound: false })).toEqual({ sound: false });
   });
 
   it("upserts by id, new items first", () => {
@@ -99,6 +104,30 @@ describe("prepareStorage", () => {
     localStorage.setItem(STORAGE_KEYS.seed, String(SEED_VERSION));
     prepareStorage();
     expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.recipes)!)).toEqual([userRecipe]);
+  });
+
+  it("migrates the old calculator to the prepare state (v2)", () => {
+    localStorage.setItem(
+      "cc:calc:v1",
+      JSON.stringify({ dose: 75, water: 200, coffee: 15, method: "aeropress" })
+    );
+    prepareStorage();
+    expect(localStorage.getItem("cc:calc:v1")).toBeNull();
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.prepare)!)).toEqual({
+      recipeId: null,
+      method: "aeropress",
+      water: 200,
+      ratio: 13.3,
+      coffee: 15,
+      lock: "ratio",
+    });
+  });
+
+  it("does not migrate twice", () => {
+    localStorage.setItem(STORAGE_KEYS.schema, String(SCHEMA_VERSION));
+    localStorage.setItem("cc:calc:v1", JSON.stringify({ dose: 75, water: 200 }));
+    prepareStorage();
+    expect(localStorage.getItem(STORAGE_KEYS.prepare)).toBeNull();
   });
 
   it("survives corrupted stored JSON", () => {
