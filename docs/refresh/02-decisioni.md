@@ -60,3 +60,19 @@ Registro delle scelte prese nel brainstorming. Ogni voce è la base per il mocku
 - **Pannello di pausa:** si apre sopra la modalità focus con Riprendi (primario), Prossimo step, Termina (tonale, distante) e Reimposta.
 - **Impostazioni:** voce in fondo alla rail. Contengono lingua e backup (export/import).
 - **Stelle del diario:** quelle vuote con contrasto ≥ 3:1.
+
+## 8. Regole di movimento (audit `improve-animations`, 24/11)
+
+Emerse dal feedback sul mockup ("non mi piace come cambiano i numeri") e dall'audit con i principi di Emil Kowalski. Valgono anche per l'implementazione.
+
+| Tema                            | Regola                                                                                                                                                                                                        |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Righello                        | La traccia segue il dito 1:1, senza scatti di tacca in tacca. Il valore è la tacca più vicina. Al rilascio la traccia si posa sulla tacca (al massimo mezza tacca) in 200 ms `cubic-bezier(.23,1,.32,1)`.     |
+| Numeri durante il trascinamento | **Nessuna animazione**: cambiano all'istante. Il movimento lo porta il righello. Cifre tabulari, decimali fissi (`30,0`, `1:16,7`) e larghezza riservata, allineati a destra, così l'unità non si sposta mai. |
+| Valore ricalcolato              | Durante il trascinamento il riquadro che si adatta ha una lieve tinta salvia (stato, non movimento).                                                                                                          |
+| Cambio ricetta                  | Un'unica transizione del numero intero: opacità 0→1, `translateY(6px)`→0, sfocatura 2 px→0, 200 ms `cubic-bezier(.23,1,.32,1)`, interrompibile (niente rotolio per cifra).                                    |
+| Feedback alla pressione         | `scale(0.95–0.97)`, 160 ms `cubic-bezier(.23,1,.32,1)`. Nessun rimbalzo sulle pressioni.                                                                                                                      |
+| Cambio schermata                | Solo dissolvenza di 150 ms, senza spostamento.                                                                                                                                                                |
+| Transizioni                     | Mai `transition: all`: elencare le proprietà.                                                                                                                                                                 |
+| Riduci movimento                | Togliere onda, pulsazioni, spostamenti e scala alla pressione. Tenere opacità e colore, compreso il flash del cambio step.                                                                                    |
+| Token                           | `--ease-out: cubic-bezier(.23,1,.32,1)` per UI. La molla con rimbalzo è riservata a ingressi rari (focus, pannelli, lucchetto).                                                                               |

@@ -13,6 +13,7 @@
   --water:#d98a5f; --water-tonal:rgba(217,138,95,.16); --danger:#e5806f; --danger-tonal:rgba(229,128,111,.13);
   --f-text:"Manrope",-apple-system,system-ui,sans-serif; --f-num:"Space Grotesk","Manrope",system-ui,sans-serif;
   --spring:cubic-bezier(.34,1.36,.64,1); --out:cubic-bezier(.22,1,.36,1);
+  --ease-out:cubic-bezier(.23,1,.32,1); /* strong ease-out: press feedback, value swaps, settle */
   --r-panel:28px; --r-ctl:18px;
 }
 html,body{height:100%}
@@ -29,8 +30,8 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .rail{width:88px;flex:none;display:flex;flex-direction:column;align-items:center;padding:24px 0 20px;gap:6px;border-right:1px solid var(--line)}
 .logo{width:48px;height:48px;border-radius:16px;background:var(--sage);color:var(--sage-ink);display:grid;place-items:center;margin-bottom:22px}
 .logo svg{width:28px;height:28px}
-.nav{width:72px;padding:10px 0 8px;border-radius:20px;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--mute);font-size:11.5px;font-weight:600;transition:background .2s,color .2s,transform .3s var(--spring)}
-.nav:active{transform:scale(.94)}
+.nav{width:72px;padding:10px 0 8px;border-radius:20px;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--mute);font-size:11.5px;font-weight:600;transition:background .2s,color .2s,transform 160ms var(--ease-out)}
+.nav:active{transform:scale(.97)}
 .nav .pill{width:52px;height:32px;border-radius:16px;display:grid;place-items:center;transition:background .25s var(--out)}
 .nav[aria-current="page"]{color:var(--ink)}
 .nav[aria-current="page"] .pill{background:var(--sage-tonal);color:var(--sage)}
@@ -41,8 +42,8 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 /* screens */
 main{flex:1;min-width:0;position:relative}
 .screen{position:absolute;inset:0;padding:28px;display:none}
-.screen.on{display:grid;animation:enter .35s var(--out)}
-@keyframes enter{from{opacity:0;transform:translateY(8px)}}
+.screen.on{display:grid;animation:enter 150ms var(--ease-out)}
+@keyframes enter{from{opacity:0}}
 .panel{background:var(--surface);border-radius:var(--r-panel)}
 .split{grid-template-columns:300px minmax(0,1fr);gap:24px}
 
@@ -50,9 +51,9 @@ main{flex:1;min-width:0;position:relative}
 .list{display:flex;flex-direction:column;padding:18px 12px;overflow-y:auto;scrollbar-width:none}
 .list h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:700;margin:6px 10px 8px}
 .list h3:not(:first-child){margin-top:18px}
-.item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:20px;text-align:left;transition:background .2s,transform .3s var(--spring)}
+.item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:20px;text-align:left;transition:background .2s,transform 160ms var(--ease-out)}
 .item:active{transform:scale(.98)}
-.item .ic{width:42px;height:42px;border-radius:14px;background:var(--raised);display:grid;place-items:center;color:var(--mute);flex:none;transition:all .25s}
+.item .ic{width:42px;height:42px;border-radius:14px;background:var(--raised);display:grid;place-items:center;color:var(--mute);flex:none;transition:background .25s,color .25s}
 .item .t{display:block;font-weight:600;font-size:15.5px;line-height:1.25}
 .item .s{display:block;font-size:12.5px;color:var(--mute);margin-top:3px}
 .item.sel{background:var(--raised)}
@@ -67,8 +68,8 @@ main{flex:1;min-width:0;position:relative}
 .head h1{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
 .head p{color:var(--mute);font-size:14px;margin-top:4px}
 .head .grow{flex:1;min-width:0}
-.iconbtn{width:52px;height:52px;border-radius:18px;background:var(--raised);display:grid;place-items:center;color:var(--mute);transition:transform .3s var(--spring),color .2s}
-.iconbtn:active{transform:scale(.9)}
+.iconbtn{width:52px;height:52px;border-radius:18px;background:var(--raised);display:grid;place-items:center;color:var(--mute);transition:transform 160ms var(--ease-out),color .2s}
+.iconbtn:active{transform:scale(.96)}
 .iconbtn.on{color:var(--sage);background:var(--sage-tonal)}
 .iconbtn.on svg{fill:currentColor}
 .facts{display:flex;gap:8px;flex-wrap:wrap}
@@ -76,7 +77,7 @@ main{flex:1;min-width:0;position:relative}
 .fact b{color:var(--ink);font-weight:600}
 
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.tile{background:var(--surface);border-radius:22px;padding:14px 18px 12px;text-align:left;transition:background .25s,box-shadow .25s,transform .3s var(--spring)}
+.tile{background:var(--surface);border-radius:22px;padding:14px 18px 12px;text-align:left;transition:background .25s,box-shadow .25s,transform 160ms var(--ease-out)}
 .tile:active{transform:scale(.97)}
 .tile .k{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 .tile .v{font-size:50px;font-weight:500;line-height:1.15;display:flex;align-items:baseline;gap:6px;margin-top:2px}
@@ -84,9 +85,12 @@ main{flex:1;min-width:0;position:relative}
 .tile.on{background:var(--raised);box-shadow:inset 0 0 0 2px var(--sage)}
 .tile.on .k{color:var(--sage)}
 .tile.water .v .n{color:var(--water)}
+.tile .v .n{display:inline-block;text-align:right}
+.tile.derived{background:rgba(169,199,136,.07);transition:background 200ms var(--ease-out)}
+.tile.derived .k{color:var(--sage)}
 .tw{position:relative;display:grid}
-.lock{position:absolute;top:8px;right:8px;width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:var(--faint);transition:background .25s,color .25s,transform .3s var(--spring)}
-.lock:active{transform:scale(.88)}
+.lock{position:absolute;top:8px;right:8px;width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:var(--faint);transition:background .25s,color .25s,transform 160ms var(--ease-out)}
+.lock:active{transform:scale(.95)}
 .lock .shackle{transition:transform .35s var(--spring);transform-origin:15.5px 10.5px}
 .lock[aria-pressed="false"] .shackle{transform:translateY(-1.5px) rotate(28deg)}
 .lock[aria-pressed="true"]{color:var(--sage);background:var(--sage-tonal)}
@@ -99,6 +103,7 @@ main{flex:1;min-width:0;position:relative}
 .ruler{position:relative;height:132px;overflow:hidden;cursor:grab;touch-action:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
 .ruler:active{cursor:grabbing}
 .track{position:absolute;inset:0 auto 0 0;will-change:transform}
+.track.settle{transition:transform 200ms var(--ease-out)}
 .tk{position:absolute;bottom:16px;width:4px;margin-left:-2px;border-radius:2px;background:var(--sage-dim)}
 .tk.lit{background:var(--sage)}
 .lb{position:absolute;top:4px;transform:translateX(-50%);font-family:var(--f-num);font-size:22px;font-weight:500;color:var(--faint);font-variant-numeric:tabular-nums}
@@ -113,14 +118,14 @@ main{flex:1;min-width:0;position:relative}
 .mini .lab{font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini .lab b{display:block;color:var(--ink);font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis}
 .methods{display:flex;gap:8px;flex-wrap:wrap}
-.chip{height:44px;padding:0 16px 0 12px;border-radius:22px;background:var(--surface);color:var(--mute);display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;transition:all .25s,transform .3s var(--spring)}
+.chip{height:44px;padding:0 16px 0 12px;border-radius:22px;background:var(--surface);color:var(--mute);display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;transition:background .25s,color .25s,transform 160ms var(--ease-out)}
 .chip:active{transform:scale(.95)}
 .detail .chip{background:var(--raised)}
 .chip.on,.detail .chip.on{background:var(--sage-tonal);color:var(--sage)}
 .chip svg{width:20px;height:20px}
 
 .go{margin-top:auto;display:flex;align-items:center;gap:20px}
-.btn{height:52px;padding:0 22px;border-radius:26px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:15.5px;transition:transform .3s var(--spring),filter .2s,background .2s;white-space:nowrap}
+.btn{height:52px;padding:0 22px;border-radius:26px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:15.5px;transition:transform 160ms var(--ease-out),filter .2s,background .2s;white-space:nowrap}
 .btn:active{transform:scale(.96)}
 .btn.primary{background:var(--sage);color:var(--sage-ink)}
 .btn.primary:active{filter:brightness(.92)}
@@ -131,15 +136,6 @@ main{flex:1;min-width:0;position:relative}
 .btn.xl svg{width:26px;height:26px;fill:currentColor;stroke:none}
 .go .sum{color:var(--mute);font-size:14px;line-height:1.5}
 .go .sum b{color:var(--ink);font-family:var(--f-num);font-size:17px;font-weight:500}
-
-/* roll */
-.roll{display:inline-flex;overflow:hidden;vertical-align:bottom}
-.roll>span{display:inline-block;position:relative}
-.roll .old,.roll .new{display:inline-block}
-.roll .anim-in{animation:rollIn .42s var(--spring) both}
-.roll .anim-out{position:absolute;left:0;top:0;animation:rollOut .3s var(--out) both}
-@keyframes rollIn{from{transform:translateY(70%);opacity:0}}
-@keyframes rollOut{to{transform:translateY(-70%);opacity:0}}
 
 /* detail (recipes, log) */
 .detail{padding:28px 32px;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:20px}
@@ -167,7 +163,7 @@ main{flex:1;min-width:0;position:relative}
 .input{height:52px;border-radius:16px;background:var(--raised);border:0;color:var(--ink);font:600 17px var(--f-text);padding:0 16px;outline:none;user-select:text;-webkit-user-select:text}
 .input:focus{box-shadow:inset 0 0 0 2px var(--sage)}
 .tl{display:flex;gap:4px;height:74px}
-.tl button{min-width:0;border-radius:14px;background:var(--raised);padding:8px 10px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;transition:all .25s}
+.tl button{min-width:0;border-radius:14px;background:var(--raised);padding:8px 10px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;transition:background .25s,box-shadow .25s}
 .tl button.pour{background:var(--water-tonal)}
 .tl button.on{box-shadow:inset 0 0 0 2px var(--sage)}
 .tl b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -202,7 +198,7 @@ main{flex:1;min-width:0;position:relative}
 .srow .tx b{display:block;font-size:16px}
 .srow .tx span{font-size:13px;color:var(--mute)}
 .segctl{display:flex;background:var(--raised);border-radius:16px;padding:4px}
-.segctl button{height:40px;padding:0 16px;border-radius:12px;font-weight:600;font-size:14px;color:var(--mute);transition:all .25s}
+.segctl button{height:40px;padding:0 16px;border-radius:12px;font-weight:600;font-size:14px;color:var(--mute);transition:background .25s,color .25s}
 .segctl button.on{background:var(--sage);color:var(--sage-ink)}
 
 /* focus */
@@ -272,7 +268,14 @@ main{flex:1;min-width:0;position:relative}
 .toast.on{display:block;animation:toast .45s var(--spring)}
 @keyframes toast{from{transform:translate(-50%,-20px);opacity:0}}
 
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/* Reduced motion: drop movement (wave, pulses, slides, press scale), keep opacity and colour cues such as the step flash. */
+@media (prefers-reduced-motion:reduce){
+  .wave,#focus.warn .glass,#focus.warn .ftl .sg.cur .bar,.check svg{animation:none}
+  .check svg{stroke-dashoffset:0}
+  #focus.on,.sheet,.toast.on{animation:fade .2s ease}
+  .lock .shackle,.track.settle{transition:none}
+  .nav:active,.item:active,.iconbtn:active,.tile:active,.lock:active,.chip:active,.btn:active{transform:none}
+}
 </style>
 
 <div id="viewport">
@@ -469,37 +472,43 @@ document.querySelectorAll('[data-toast]').forEach(b=>b.onclick=()=>toast(b.datas
 function fit(){const d=$('#device'),vw=document.documentElement.clientWidth-32,vh=window.innerHeight-24;const s=Math.min(vw/1180,vh/820,1.4);d.style.transform=`scale(${s})`;d.parentElement.style.height=window.innerHeight+'px'}
 addEventListener('resize',fit);fit();
 
-/* rolling digits */
+/* Value swap (recipe change only): one 200ms ease-out rise with a light blur mask, interruptible.
+   While dragging, numbers change with no animation at all: the ruler carries the motion. */
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
 function roll(el,text,animate){
-  const old=el.dataset.v||'';el.dataset.v=text;
-  if(!animate||!old||old===text){el.textContent=text;return}
-  const L=Math.max(old.length,text.length),o=old.padStart(L,' '),n=text.padStart(L,' ');
-  el.innerHTML='';const w=document.createElement('span');w.className='roll';
-  for(let i=0;i<L;i++){const c=document.createElement('span');
-    if(o[i]===n[i]){c.textContent=n[i]===' '?'':n[i]}
-    else{c.innerHTML=(n[i]===' '?'':`<span class="new anim-in" style="animation-delay:${(L-i)*35}ms">${n[i]}</span>`)+(o[i]===' '?'':`<span class="old anim-out">${o[i]}</span>`)}
-    w.appendChild(c)}
-  el.appendChild(w)}
+  if(el.textContent===text)return;el.textContent=text;if(!animate)return;
+  el.getAnimations().forEach(a=>a.cancel());
+  el.animate(RM.matches?[{opacity:0},{opacity:1}]:[{opacity:0,transform:'translateY(6px)',filter:'blur(2px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:200,easing:'cubic-bezier(.23,1,.32,1)'})}
+const nf1=v=>(Math.round(v*10)/10).toFixed(1).replace('.',',');
+/* Reserve the width of the longest usual value so the unit never shifts. */
+function lockWidths(){[['#vCoffee','00,0'],['#vRatio','1:00,0'],['#vWater','000']].forEach(([id,tpl])=>{const el=$(id),t=el.textContent;el.style.minWidth='';el.textContent=tpl;const w=el.getBoundingClientRect().width/($('#device').getBoundingClientRect().width/1180);el.textContent=t;el.style.minWidth=Math.ceil(w)+'px'})}
 
 /* ---------- ruler ---------- */
 class Ruler{
-  /* One set of listeners per element, always driving the ruler created last on it:
-     re-creating a ruler on the same element must not leave the old one listening. */
-  constructor(el,o){this.el=el;this.o=o;this.el.innerHTML='<div class="track"></div>';this.tr=el.firstChild;this.v=o.value;this.build();
+  /* The track follows the finger 1:1 (no stepping); the value is the nearest tick.
+     On release the track settles onto that tick (at most half a tick away).
+     One set of listeners per element, always driving the ruler created last on it. */
+  constructor(el,o){this.el=el;this.o=o;this.el.innerHTML='<div class="track"></div>';this.tr=el.firstChild;this.v=this.snap(o.value);this.pos=this.v;this.dragging=false;this.build();
     el._ruler=this;
     if(el._bound)return;el._bound=true;
-    let sx=null,sv=0;
-    el.addEventListener('pointerdown',e=>{sx=e.clientX;sv=el._ruler.v;el.setPointerCapture(e.pointerId)});
-    el.addEventListener('pointermove',e=>{if(sx===null)return;const r=el._ruler;r.set(sv-(e.clientX-sx)/r.scale()/r.o.px*r.o.step,true)});
-    const end=()=>{sx=null};el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);}
+    let sx=null,sp=0;
+    el.addEventListener('pointerdown',e=>{const r=el._ruler;sx=e.clientX;sp=r.pos;r.dragging=true;r.tr.classList.remove('settle');el.setPointerCapture(e.pointerId);r.o.onStart&&r.o.onStart()});
+    el.addEventListener('pointermove',e=>{if(sx===null)return;const r=el._ruler;r.drag(sp-(e.clientX-sx)/r.scale()/r.o.px*r.o.step)});
+    const end=()=>{if(sx===null)return;sx=null;const r=el._ruler;r.dragging=false;r.settle();r.o.onEnd&&r.o.onEnd()};
+    el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);}
   scale(){return $('#device').getBoundingClientRect().width/1180}
+  clamp(v){return Math.min(this.o.max,Math.max(this.o.min,v))}
+  snap(v){const o=this.o;return +(Math.round(this.clamp(v)/o.step)*o.step).toFixed(3)}
   build(){const o=this.o;let h='';const n=Math.round((o.max-o.min)/o.step);
     for(let i=0;i<=n;i++){const v=o.min+i*o.step,x=i*o.px,maj=Math.abs(v/o.major-Math.round(v/o.major))<1e-6,lab=o.label&&Math.abs(v/o.label-Math.round(v/o.label))<1e-6;
       h+=`<i class="tk" data-v="${v}" style="left:${x}px;height:${maj?64:40}px"></i>`;if(lab)h+=`<span class="lb" data-v="${v}" style="left:${x}px">${o.fmtLabel?o.fmtLabel(v):r1(v)}</span>`}
     this.tr.innerHTML=h;this.ticks=[...this.tr.children];this.paint()}
-  set(v,user){const o=this.o;v=Math.min(o.max,Math.max(o.min,Math.round(v/o.step)*o.step));v=+v.toFixed(3);if(v===this.v&&user)return;this.v=v;this.paint();if(user&&o.onChange)o.onChange(v)}
-  paint(){const o=this.o,w=this.el.clientWidth||700;this.tr.style.transform=`translateX(${w/2-((this.v-o.min)/o.step)*o.px}px)`;
-    for(const t of this.ticks)t.classList.toggle('lit',+t.dataset.v<=this.v+1e-6)}
+  drag(p){this.pos=this.clamp(p);this.paintTrack();const v=this.snap(this.pos);if(v!==this.v){this.v=v;this.paintTicks();this.o.onChange&&this.o.onChange(v)}}
+  settle(){this.pos=this.v;this.tr.classList.add('settle');this.paintTrack()}
+  set(v,user){this.v=this.snap(v);if(!this.dragging){this.pos=this.v;this.paintTrack()}this.paintTicks();if(user&&this.o.onChange)this.o.onChange(this.v)}
+  paintTrack(){const o=this.o,w=this.el.clientWidth||700;this.tr.style.transform=`translateX(${w/2-((this.pos-o.min)/o.step)*o.px}px)`}
+  paintTicks(){for(const t of this.ticks)t.classList.toggle('lit',+t.dataset.v<=this.v+1e-6)}
+  paint(){this.paintTrack();this.paintTicks()}
 }
 
 /* ---------- prepara ---------- */
@@ -532,7 +541,6 @@ function renderPrep(animate){
   $('#pFav').innerHTML=ico('heart');$('#pFav').classList.toggle('on',!!(r&&r.fav));$('#pFav').style.visibility=r?'visible':'hidden';
   const temp=r?r.temp:({espresso:93,"cold-brew":4}[m]||94),grind=GR[r?r.grind:({espresso:"Fine",moka:"Medium-fine","cold-brew":"Coarse","french-press":"Medium"}[m]||"Medium-fine")];
   $('#pFacts').innerHTML=`<span class="fact">${ico('thermo')}<b class="num">${temp} °C</b></span><span class="fact">${ico('grind')}<b>${grind}</b></span>`+(r&&r.steps.length?`<span class="fact">${ico('clock')}<b class="num">${fmt(total(r))}</b></span>`:'');
-  updVals(animate);
   if(r&&r.steps.length){
     const tot=total(r);let prev=0;
     $('#pSteps').innerHTML=`<div class="sec" style="margin-bottom:10px">Sequenza</div><div class="mini">${r.steps.map(s=>{const pour=s.pct>prev,ml=Math.round(s.pct/100*S.water);const h=`<div class="sg ${pour?'pour':''}" style="flex:${s.s/tot}"><div class="bar"></div><div class="lab"><b>${esc(s.label)}</b><span class="num">${fmt(s.s)}${pour?' · '+ml+' ml':''}</span></div></div>`;prev=s.pct;return h}).join('')}</div>`;
@@ -540,12 +548,13 @@ function renderPrep(animate){
     $('#pSteps').innerHTML=`<div class="methods">${Object.keys(MN).map(k=>`<button class="chip ${k===S.method?'on':''}" data-m="${k}">${ico(k)}${MN[k]}</button>`).join('')}</div>`;
     $('#pSteps').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{S.method=b.dataset.m;renderPrep(false)});
   }else $('#pSteps').innerHTML=`<div class="fact" style="align-self:flex-start">Questa ricetta non ha step: Play avvia il cronometro</div>`;
+  updVals(animate); // after the sequence is rebuilt for this recipe
 }
 function updVals(animate){
-  roll($('#vCoffee'),nf(S.coffee),animate);roll($('#vRatio'),'1:'+nf(S.ratio),animate);roll($('#vWater'),String(Math.round(S.water)),animate);
+  roll($('#vCoffee'),nf1(S.coffee),animate);roll($('#vRatio'),'1:'+nf1(S.ratio),animate);roll($('#vWater'),String(Math.round(S.water)),animate);
   const r=cur();$('#pSum').innerHTML=r&&r.steps.length?`Durata<br><b>${fmt(total(r))}</b>`:'Cronometro<br><b>libero</b>';
   if(ruler)ruler.set(S[S.field],false);
-  if(r&&r.steps.length){let prev=0;$('#pSteps').querySelectorAll('.sg').forEach((g,i)=>{const s=r.steps[i];const sp=g.querySelector('.lab span');if(sp)sp.textContent=fmt(s.s)+(s.pct>prev?' · '+Math.round(s.pct/100*S.water)+' ml':'');prev=s.pct})}
+  if(r&&r.steps.length){let prev=0;$('#pSteps').querySelectorAll('.sg').forEach((g,i)=>{const s=r.steps[i];const sp=g.querySelector('.lab span');if(s&&sp)sp.textContent=fmt(s.s)+(s.pct>prev?' · '+Math.round(s.pct/100*S.water)+' ml':'');prev=s.pct})}
 }
 /* One value is locked; dragging one of the two free values recomputes the other. */
 function derive(changed){const L=S.lock,other=['coffee','ratio','water'].find(k=>k!==L&&k!==changed);
@@ -555,7 +564,9 @@ function derive(changed){const L=S.lock,other=['coffee','ratio','water'].find(k=
 function paintTiles(){document.querySelectorAll('.tile').forEach(t=>{const f=t.dataset.f,on=f===S.field;t.classList.toggle('on',on);t.classList.toggle('locked',f===S.lock);t.setAttribute('aria-checked',on)});
   document.querySelectorAll('.lock').forEach(b=>{const on=b.dataset.l===S.lock;b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',(on?'Sblocca ':'Blocca ')+b.closest('.tw').querySelector('.k').firstChild.textContent.toLowerCase())})}
 function setField(f){if(f===S.lock){toast('Valore bloccato: tocca il lucchetto per sbloccarlo');return}S.field=f;paintTiles();
-  ruler=new Ruler($('#mainRuler'),{...FIELDS[f],value:S[f],onChange:v=>{S[f]=v;derive(f);updVals(false)}})}
+  const derivedTile=()=>document.querySelector('.tile[data-f="'+['coffee','ratio','water'].find(k=>k!==S.lock&&k!==f)+'"]');
+  ruler=new Ruler($('#mainRuler'),{...FIELDS[f],value:S[f],onChange:v=>{S[f]=v;derive(f);updVals(false)},
+    onStart:()=>derivedTile().classList.add('derived'),onEnd:()=>derivedTile().classList.remove('derived')})}
 document.querySelectorAll('.tile').forEach(t=>t.onclick=()=>setField(t.dataset.f));
 document.querySelectorAll('.lock').forEach(b=>b.onclick=()=>{const f=b.dataset.l;if(S.lock===f)return;S.lock=f;
   if(S.field===f)setField(['coffee','ratio','water'].find(k=>k!==f));else paintTiles();
@@ -705,5 +716,6 @@ function renderLog(){
 
 /* ---------- boot ---------- */
 renderPrep(false);setField('coffee');
-document.fonts&&document.fonts.ready.then(()=>ruler&&ruler.paint());
+lockWidths();addEventListener('resize',lockWidths);
+document.fonts&&document.fonts.ready.then(()=>{ruler&&ruler.paint();lockWidths()});
 </script>
