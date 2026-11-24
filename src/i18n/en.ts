@@ -138,8 +138,7 @@ export const en = {
     title: "Timer",
     subtitleRecipe: (name: string, coffee: number, water: number) =>
       `${name} · ${coffee} g coffee · ${water} ml`,
-    subtitleFree: (coffee: number, water: number) =>
-      `Free stopwatch · ${coffee} g coffee · ${water} ml`,
+    subtitleFree: (coffee: number, water: number) => `Free stopwatch · ${coffee} g coffee · ${water} ml`,
     stopwatch: "Stopwatch",
     done: "Done",
     brewComplete: "Brew complete",
@@ -170,8 +169,7 @@ export const en = {
     statTotal: "brews logged",
     statAvg: "average rating",
     statTop: "most used method",
-    empty:
-      "No brews yet. Log one here, from the calculator, or straight after a timed brew.",
+    empty: "No brews yet. Log one here, from the calculator, or straight after a timed brew.",
     emptyBtn: "Log your first brew",
     notRated: "Not rated",
     coffee: "coffee",

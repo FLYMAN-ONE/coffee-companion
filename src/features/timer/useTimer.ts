@@ -16,8 +16,7 @@ export function useTimer(steps: RecipeStep[]) {
     return () => window.clearInterval(id);
   }, [status]);
 
-  const elapsedMs =
-    status === "running" ? base + Math.max(0, now - startedAt) : base;
+  const elapsedMs = status === "running" ? base + Math.max(0, now - startedAt) : base;
 
   // End of each step in ms since start.
   const bounds: number[] = [];

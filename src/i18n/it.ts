@@ -136,8 +136,7 @@ export const it: Dict = {
   timer: {
     title: "Timer",
     subtitleRecipe: (name, coffee, water) => `${name} · ${coffee} g di caffè · ${water} ml`,
-    subtitleFree: (coffee, water) =>
-      `Cronometro libero · ${coffee} g di caffè · ${water} ml`,
+    subtitleFree: (coffee, water) => `Cronometro libero · ${coffee} g di caffè · ${water} ml`,
     stopwatch: "Cronometro",
     done: "Fatto",
     brewComplete: "Estrazione completata",
@@ -246,7 +245,8 @@ export const builtinIt = {
     },
     "builtin-cold-brew": {
       name: "Cold Brew concentrato",
-      notes: "Lascia in infusione in frigo per 12-18 ore, filtra e diluisci 1:1 per servire. Non trattato nel libro.",
+      notes:
+        "Lascia in infusione in frigo per 12-18 ore, filtra e diluisci 1:1 per servire. Non trattato nel libro.",
     },
   } as Record<string, { name: string; notes: string }>,
   steps: {

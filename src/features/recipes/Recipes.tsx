@@ -14,8 +14,14 @@ import type { MethodId, Recipe } from "../../types";
 
 export function Recipes() {
   const {
-    recipes, saveRecipe, deleteRecipe, toggleFavorite,
-    recipeDraft, setRecipeDraft, applyRecipe, toast,
+    recipes,
+    saveRecipe,
+    deleteRecipe,
+    toggleFavorite,
+    recipeDraft,
+    setRecipeDraft,
+    applyRecipe,
+    toast,
   } = useApp();
 
   const { t } = useI18n();
@@ -51,8 +57,12 @@ export function Recipes() {
       />
 
       <div className="no-scrollbar -mx-1 mb-5 flex gap-2 overflow-x-auto px-1 py-1">
-        <Chip selected={filter === "all"} onClick={() => setFilter("all")}>{t.recipes.all}</Chip>
-        <Chip selected={filter === "fav"} onClick={() => setFilter("fav")}>{t.recipes.favorites}</Chip>
+        <Chip selected={filter === "all"} onClick={() => setFilter("all")}>
+          {t.recipes.all}
+        </Chip>
+        <Chip selected={filter === "fav"} onClick={() => setFilter("fav")}>
+          {t.recipes.favorites}
+        </Chip>
         {usedMethods.map((m) => (
           <Chip key={m.id} selected={filter === m.id} onClick={() => setFilter(m.id)}>
             {t.methods[m.id]}

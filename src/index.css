@@ -57,7 +57,9 @@ textarea {
   color: var(--color-ink);
   font-size: 17px;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 textarea.input {
   padding: 14px 16px;

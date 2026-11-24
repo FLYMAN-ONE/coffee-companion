@@ -39,7 +39,9 @@ export function Button({
       className={`inline-flex shrink-0 items-center whitespace-nowrap justify-center rounded-2xl transition active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 ${variants[variant]} ${sizes[size]} ${className}`}
       {...rest}
     >
-      {icon ? <Icon name={icon} className={size === "lg" ? "h-7 w-7" : "h-5 w-5"} filled={icon === "play"} /> : null}
+      {icon ? (
+        <Icon name={icon} className={size === "lg" ? "h-7 w-7" : "h-5 w-5"} filled={icon === "play"} />
+      ) : null}
       {children}
     </button>
   );

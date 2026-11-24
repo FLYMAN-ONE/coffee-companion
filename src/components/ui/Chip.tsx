@@ -15,9 +15,7 @@ export function Chip({ selected = false, disabled = false, onClick, children }: 
       onClick={onClick}
       aria-pressed={selected}
       className={`h-11 shrink-0 rounded-full border px-5 text-base font-medium transition active:scale-95 disabled:opacity-40 ${
-        selected
-          ? "border-accent bg-accent/15 text-accent"
-          : "border-line bg-soft text-mute active:text-ink"
+        selected ? "border-accent bg-accent/15 text-accent" : "border-line bg-soft text-mute active:text-ink"
       }`}
     >
       {children}

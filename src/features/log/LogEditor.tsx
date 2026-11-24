@@ -41,8 +41,12 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
         <>
           {!isNew && <ConfirmButton label={t.common.delete} onConfirm={onDelete} />}
           <div className="flex-1" />
-          <Button variant="ghost" onClick={onClose}>{t.common.cancel}</Button>
-          <Button variant="primary" icon="check" onClick={() => onSave(e)}>{t.common.save}</Button>
+          <Button variant="ghost" onClick={onClose}>
+            {t.common.cancel}
+          </Button>
+          <Button variant="primary" icon="check" onClick={() => onSave(e)}>
+            {t.common.save}
+          </Button>
         </>
       }
     >
@@ -50,11 +54,21 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={label} htmlFor="l-beans">{t.log.beans}</label>
-              <input id="l-beans" className="input" placeholder={t.log.beansPh} value={e.beans} onChange={(ev) => patch({ beans: ev.target.value })} />
+              <label className={label} htmlFor="l-beans">
+                {t.log.beans}
+              </label>
+              <input
+                id="l-beans"
+                className="input"
+                placeholder={t.log.beansPh}
+                value={e.beans}
+                onChange={(ev) => patch({ beans: ev.target.value })}
+              />
             </div>
             <div>
-              <label className={label} htmlFor="l-date">{t.log.date}</label>
+              <label className={label} htmlFor="l-date">
+                {t.log.date}
+              </label>
               <input
                 id="l-date"
                 type="datetime-local"
@@ -69,31 +83,76 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
             <span className={label}>{t.log.method}</span>
             <div className="flex flex-wrap gap-2">
               {methods.map((m) => (
-                <Chip key={m.id} selected={e.method === m.id} onClick={() => patch({ method: m.id })}>{t.methods[m.id]}</Chip>
+                <Chip key={m.id} selected={e.method === m.id} onClick={() => patch({ method: m.id })}>
+                  {t.methods[m.id]}
+                </Chip>
               ))}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <NumberField label={t.log.dose} unit="g/L" value={e.dose} step={1} min={10} max={1000}
-              onChange={(dose) => patch({ dose, coffee: calculateCoffee(e.water, dose) })} />
-            <NumberField label={t.log.waterLabel} unit="ml" value={e.water} step={e.water < 100 ? 1 : 10} min={10} max={5000}
-              onChange={(water) => patch({ water, coffee: calculateCoffee(water, e.dose) })} />
-            <NumberField label={t.log.coffeeLabel} unit="g" value={e.coffee} step={0.5} min={1} max={500} decimals={1}
-              onChange={(coffee) => patch({ coffee, water: calculateWater(coffee, e.dose) })} />
-            <NumberField label={t.log.waterTemp} unit="°C" value={e.tempC} step={1} min={0} max={100}
-              onChange={(tempC) => patch({ tempC })} />
-            <NumberField label={t.log.timeMin} value={Math.floor(e.timeSec / 60)} step={1} min={0} max={999}
-              onChange={(m) => patch({ timeSec: m * 60 + (e.timeSec % 60) })} />
-            <NumberField label={t.log.timeSec} value={e.timeSec % 60} step={5} min={0} max={59}
-              onChange={(s) => patch({ timeSec: Math.floor(e.timeSec / 60) * 60 + s })} />
+            <NumberField
+              label={t.log.dose}
+              unit="g/L"
+              value={e.dose}
+              step={1}
+              min={10}
+              max={1000}
+              onChange={(dose) => patch({ dose, coffee: calculateCoffee(e.water, dose) })}
+            />
+            <NumberField
+              label={t.log.waterLabel}
+              unit="ml"
+              value={e.water}
+              step={e.water < 100 ? 1 : 10}
+              min={10}
+              max={5000}
+              onChange={(water) => patch({ water, coffee: calculateCoffee(water, e.dose) })}
+            />
+            <NumberField
+              label={t.log.coffeeLabel}
+              unit="g"
+              value={e.coffee}
+              step={0.5}
+              min={1}
+              max={500}
+              decimals={1}
+              onChange={(coffee) => patch({ coffee, water: calculateWater(coffee, e.dose) })}
+            />
+            <NumberField
+              label={t.log.waterTemp}
+              unit="°C"
+              value={e.tempC}
+              step={1}
+              min={0}
+              max={100}
+              onChange={(tempC) => patch({ tempC })}
+            />
+            <NumberField
+              label={t.log.timeMin}
+              value={Math.floor(e.timeSec / 60)}
+              step={1}
+              min={0}
+              max={999}
+              onChange={(m) => patch({ timeSec: m * 60 + (e.timeSec % 60) })}
+            />
+            <NumberField
+              label={t.log.timeSec}
+              value={e.timeSec % 60}
+              step={5}
+              min={0}
+              max={59}
+              onChange={(s) => patch({ timeSec: Math.floor(e.timeSec / 60) * 60 + s })}
+            />
           </div>
 
           <div>
             <span className={label}>{t.log.grindLabel}</span>
             <div className="flex flex-wrap gap-2">
               {grinds.map((g) => (
-                <Chip key={g} selected={e.grind === g} onClick={() => patch({ grind: g })}>{t.grinds[g]}</Chip>
+                <Chip key={g} selected={e.grind === g} onClick={() => patch({ grind: g })}>
+                  {t.grinds[g]}
+                </Chip>
               ))}
             </div>
           </div>
@@ -109,15 +168,25 @@ export function LogEditor({ entry, isNew, onSave, onDelete, onClose }: LogEditor
             <span className={label}>{t.log.taste}</span>
             <div className="flex flex-wrap gap-2">
               {tastes.map((name) => (
-                <Chip key={name} selected={e.tastes.includes(name)} onClick={() => toggleTaste(name)}>{t.tastes[name] ?? name}</Chip>
+                <Chip key={name} selected={e.tastes.includes(name)} onClick={() => toggleTaste(name)}>
+                  {t.tastes[name] ?? name}
+                </Chip>
               ))}
             </div>
           </div>
 
           <div>
-            <label className={label} htmlFor="l-notes">{t.log.notes}</label>
-            <textarea id="l-notes" rows={5} className="input" placeholder={t.log.notesPh}
-              value={e.notes} onChange={(ev) => patch({ notes: ev.target.value })} />
+            <label className={label} htmlFor="l-notes">
+              {t.log.notes}
+            </label>
+            <textarea
+              id="l-notes"
+              rows={5}
+              className="input"
+              placeholder={t.log.notesPh}
+              value={e.notes}
+              onChange={(ev) => patch({ notes: ev.target.value })}
+            />
           </div>
         </div>
       </div>

@@ -3,8 +3,7 @@ const round = (value: number, decimals: number): number => {
   return Math.round(value * factor) / factor;
 };
 
-export const calculateCoffee = (water: number, dose: number): number =>
-  round((water * dose) / 1000, 1);
+export const calculateCoffee = (water: number, dose: number): number => round((water * dose) / 1000, 1);
 
 export const calculateWater = (coffee: number, dose: number): number => {
   if (dose <= 0) return 0;

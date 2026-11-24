@@ -37,9 +37,7 @@ export function Modal({ title, onClose, children, footer, wide = false }: ModalP
         </div>
         <div className="flex-1 overflow-y-auto p-6">{children}</div>
         {footer ? (
-          <div className="flex items-center justify-end gap-3 border-t border-line px-6 py-4">
-            {footer}
-          </div>
+          <div className="flex items-center justify-end gap-3 border-t border-line px-6 py-4">{footer}</div>
         ) : null}
       </div>
     </div>

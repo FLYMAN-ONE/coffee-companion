@@ -3,11 +3,7 @@ import type { MethodId } from "../../../types";
 import { getMethod } from "../../../data/methods";
 import { useLocalStorage } from "../../../lib/storage";
 import type { ActiveField, BrewCalculatorReturn, BrewValues } from "../types";
-import {
-  calculateCoffee,
-  calculateRatio,
-  calculateWater,
-} from "../logic/calculations";
+import { calculateCoffee, calculateRatio, calculateWater } from "../logic/calculations";
 
 const initialValues: BrewValues = {
   dose: 60,

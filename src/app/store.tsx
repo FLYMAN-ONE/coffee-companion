@@ -54,9 +54,7 @@ interface AppStore {
 const Ctx = createContext<AppStore | null>(null);
 
 const upsert = <T extends { id: string }>(list: T[], item: T): T[] =>
-  list.some((x) => x.id === item.id)
-    ? list.map((x) => (x.id === item.id ? item : x))
-    : [item, ...list];
+  list.some((x) => x.id === item.id) ? list.map((x) => (x.id === item.id ? item : x)) : [item, ...list];
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [tab, setTab] = useState<TabId>("brew");
@@ -79,10 +77,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSeedVersion(SEED_VERSION);
   }, [seedVersion, setRecipes, setSeedVersion]);
 
-  const recipes = useMemo(
-    () => storedRecipes.map((r) => localizeRecipe(r, lang)),
-    [storedRecipes, lang]
-  );
+  const recipes = useMemo(() => storedRecipes.map((r) => localizeRecipe(r, lang)), [storedRecipes, lang]);
   const [logs, setLogs] = useLocalStorage<LogEntry[]>("cc:logs:v1", []);
   const [recipeDraft, setRecipeDraft] = useState<Recipe | null>(null);
   const [logDraft, setLogDraft] = useState<LogEntry | null>(null);
@@ -100,10 +95,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
 
-  const saveRecipe = useCallback(
-    (r: Recipe) => setRecipes((list) => upsert(list, r)),
-    [setRecipes]
-  );
+  const saveRecipe = useCallback((r: Recipe) => setRecipes((list) => upsert(list, r)), [setRecipes]);
   const deleteRecipe = useCallback(
     (id: string) => {
       setRecipes((list) => list.filter((r) => r.id !== id));
@@ -113,9 +105,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const toggleFavorite = useCallback(
     (id: string) =>
-      setRecipes((list) =>
-        list.map((r) => (r.id === id ? { ...r, favorite: !r.favorite } : r))
-      ),
+      setRecipes((list) => list.map((r) => (r.id === id ? { ...r, favorite: !r.favorite } : r))),
     [setRecipes]
   );
 
@@ -191,9 +181,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toastMessage,
     }),
     [
-      tab, calc, recipes, saveRecipe, deleteRecipe, toggleFavorite, recipeDraft,
-      logs, saveLog, deleteLog, logDraft, timer, timerRecipeId, timerRecipe,
-      applyRecipe, exportBackup, importBackup, toast, toastMessage,
+      tab,
+      calc,
+      recipes,
+      saveRecipe,
+      deleteRecipe,
+      toggleFavorite,
+      recipeDraft,
+      logs,
+      saveLog,
+      deleteLog,
+      logDraft,
+      timer,
+      timerRecipeId,
+      timerRecipe,
+      applyRecipe,
+      exportBackup,
+      importBackup,
+      toast,
+      toastMessage,
     ]
   );
 

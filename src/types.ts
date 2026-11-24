@@ -1,20 +1,7 @@
 export type MethodId =
-  | "v60"
-  | "chemex"
-  | "aeropress"
-  | "french-press"
-  | "moka"
-  | "espresso"
-  | "cold-brew"
-  | "other";
+  "v60" | "chemex" | "aeropress" | "french-press" | "moka" | "espresso" | "cold-brew" | "other";
 
-export type Grind =
-  | "Extra fine"
-  | "Fine"
-  | "Medium-fine"
-  | "Medium"
-  | "Medium-coarse"
-  | "Coarse";
+export type Grind = "Extra fine" | "Fine" | "Medium-fine" | "Medium" | "Medium-coarse" | "Coarse";
 
 export interface RecipeStep {
   id: string;

@@ -41,7 +41,12 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
     patch({
       steps: [
         ...r.steps,
-        { id: uid(), label: t.recipes.stepN(r.steps.length + 1), seconds: 30, waterPct: last?.waterPct ?? 100 },
+        {
+          id: uid(),
+          label: t.recipes.stepN(r.steps.length + 1),
+          seconds: 30,
+          waterPct: last?.waterPct ?? 100,
+        },
       ],
     });
   };
@@ -75,7 +80,9 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-5">
           <div>
-            <label className={label} htmlFor="r-name">{t.recipes.name}</label>
+            <label className={label} htmlFor="r-name">
+              {t.recipes.name}
+            </label>
             <input
               id="r-name"
               className="input"
@@ -97,8 +104,24 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <NumberField label={t.recipes.doseLabel} unit="g/L" value={r.dose} step={1} min={10} max={1000} onChange={(dose) => patch({ dose })} />
-            <NumberField label={t.recipes.waterLabel} unit="ml" value={r.water} step={r.water < 100 ? 1 : 10} min={10} max={5000} onChange={(water) => patch({ water })} />
+            <NumberField
+              label={t.recipes.doseLabel}
+              unit="g/L"
+              value={r.dose}
+              step={1}
+              min={10}
+              max={1000}
+              onChange={(dose) => patch({ dose })}
+            />
+            <NumberField
+              label={t.recipes.waterLabel}
+              unit="ml"
+              value={r.water}
+              step={r.water < 100 ? 1 : 10}
+              min={10}
+              max={5000}
+              onChange={(water) => patch({ water })}
+            />
           </div>
           <div className="-mt-2 text-sm text-mute">
             {t.recipes.coffeeEq(
@@ -107,7 +130,15 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
             )}
           </div>
 
-          <NumberField label={t.recipes.waterTempLabel} unit="°C" value={r.tempC} step={1} min={0} max={100} onChange={(tempC) => patch({ tempC })} />
+          <NumberField
+            label={t.recipes.waterTempLabel}
+            unit="°C"
+            value={r.tempC}
+            step={1}
+            min={0}
+            max={100}
+            onChange={(tempC) => patch({ tempC })}
+          />
 
           <div>
             <span className={label}>{t.recipes.grindLabel}</span>
@@ -121,7 +152,9 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
           </div>
 
           <div>
-            <label className={label} htmlFor="r-notes">{t.recipes.notes}</label>
+            <label className={label} htmlFor="r-notes">
+              {t.recipes.notes}
+            </label>
             <textarea
               id="r-notes"
               rows={3}
@@ -138,7 +171,9 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
             <div>
               <div className="text-lg font-semibold">{t.recipes.timerSteps}</div>
               <div className="text-sm text-mute">
-                {r.steps.length ? t.recipes.stepsSummary(r.steps.length, fmtTime(totalSec)) : t.recipes.noSteps}
+                {r.steps.length
+                  ? t.recipes.stepsSummary(r.steps.length, fmtTime(totalSec))
+                  : t.recipes.noSteps}
               </div>
             </div>
             <Button icon="plus" onClick={addStep}>
@@ -158,13 +193,49 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onClose }: Recip
                   value={s.label}
                   onChange={(e) => patchStep(s.id, { label: e.target.value })}
                 />
-                <Button variant="ghost" size="icon" icon="up" aria-label={t.recipes.moveUp} disabled={i === 0} onClick={() => moveStep(i, -1)} />
-                <Button variant="ghost" size="icon" icon="down" aria-label={t.recipes.moveDown} disabled={i === r.steps.length - 1} onClick={() => moveStep(i, 1)} />
-                <Button variant="ghost" size="icon" icon="trash" aria-label={t.recipes.removeStep} onClick={() => patch({ steps: r.steps.filter((x) => x.id !== s.id) })} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  icon="up"
+                  aria-label={t.recipes.moveUp}
+                  disabled={i === 0}
+                  onClick={() => moveStep(i, -1)}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  icon="down"
+                  aria-label={t.recipes.moveDown}
+                  disabled={i === r.steps.length - 1}
+                  onClick={() => moveStep(i, 1)}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  icon="trash"
+                  aria-label={t.recipes.removeStep}
+                  onClick={() => patch({ steps: r.steps.filter((x) => x.id !== s.id) })}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <NumberField label={t.recipes.duration} unit="s" value={s.seconds} step={5} min={1} max={3600} onChange={(seconds) => patchStep(s.id, { seconds })} />
-                <NumberField label={t.recipes.waterByEnd} unit="%" value={s.waterPct} step={5} min={0} max={100} onChange={(waterPct) => patchStep(s.id, { waterPct })} />
+                <NumberField
+                  label={t.recipes.duration}
+                  unit="s"
+                  value={s.seconds}
+                  step={5}
+                  min={1}
+                  max={3600}
+                  onChange={(seconds) => patchStep(s.id, { seconds })}
+                />
+                <NumberField
+                  label={t.recipes.waterByEnd}
+                  unit="%"
+                  value={s.waterPct}
+                  step={5}
+                  min={0}
+                  max={100}
+                  onChange={(waterPct) => patchStep(s.id, { waterPct })}
+                />
               </div>
             </div>
           ))}

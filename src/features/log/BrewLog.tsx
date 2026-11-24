@@ -30,7 +30,11 @@ function Detail({ log, onEdit, onDelete }: { log: LogEntry; onEdit: () => void; 
         </div>
       </div>
 
-      {log.rating ? <Stars value={log.rating} size="lg" /> : <div className="text-mute">{t.log.notRated}</div>}
+      {log.rating ? (
+        <Stars value={log.rating} size="lg" />
+      ) : (
+        <div className="text-mute">{t.log.notRated}</div>
+      )}
 
       <div className="grid grid-cols-3 gap-3">
         {[
@@ -51,7 +55,9 @@ function Detail({ log, onEdit, onDelete }: { log: LogEntry; onEdit: () => void; 
       {log.tastes.length ? (
         <div className="flex flex-wrap gap-2">
           {log.tastes.map((name) => (
-            <span key={name} className="rounded-full bg-accent/15 px-4 py-2 text-accent">{t.tastes[name] ?? name}</span>
+            <span key={name} className="rounded-full bg-accent/15 px-4 py-2 text-accent">
+              {t.tastes[name] ?? name}
+            </span>
           ))}
         </div>
       ) : null}
@@ -59,7 +65,9 @@ function Detail({ log, onEdit, onDelete }: { log: LogEntry; onEdit: () => void; 
       {log.notes ? <p className="whitespace-pre-wrap text-lg leading-relaxed">{log.notes}</p> : null}
 
       <div className="flex gap-3">
-        <Button icon="edit" onClick={onEdit}>{t.common.edit}</Button>
+        <Button icon="edit" onClick={onEdit}>
+          {t.common.edit}
+        </Button>
         <ConfirmButton label={t.common.delete} onConfirm={onDelete} />
       </div>
     </div>
@@ -103,9 +111,20 @@ export function BrewLog() {
   const newEntry = (): LogEntry => {
     const m = getMethod("v60");
     return {
-      id: uid(), date: new Date().toISOString(), method: m.id, recipeName: "", beans: "",
-      dose: m.dose, water: 250, coffee: 15, tempC: m.tempC, grind: m.grind,
-      timeSec: 0, rating: 0, tastes: [], notes: "",
+      id: uid(),
+      date: new Date().toISOString(),
+      method: m.id,
+      recipeName: "",
+      beans: "",
+      dose: m.dose,
+      water: 250,
+      coffee: 15,
+      tempC: m.tempC,
+      grind: m.grind,
+      timeSec: 0,
+      rating: 0,
+      tastes: [],
+      notes: "",
     };
   };
 
@@ -131,8 +150,20 @@ export function BrewLog() {
         subtitle={t.log.subtitle}
         actions={
           <>
-            <Button variant="ghost" size="icon" icon="download" aria-label={t.log.exportAria} onClick={exportBackup} />
-            <Button variant="ghost" size="icon" icon="upload" aria-label={t.log.importAria} onClick={() => fileRef.current?.click()} />
+            <Button
+              variant="ghost"
+              size="icon"
+              icon="download"
+              aria-label={t.log.exportAria}
+              onClick={exportBackup}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              icon="upload"
+              aria-label={t.log.importAria}
+              onClick={() => fileRef.current?.click()}
+            />
             <input
               ref={fileRef}
               type="file"
@@ -183,7 +214,9 @@ export function BrewLog() {
                 const on = selected?.id === l.id;
                 return (
                   <div key={l.id}>
-                    {header ? <div className="mb-2 mt-3 px-2 text-sm text-mute first:mt-0">{header}</div> : null}
+                    {header ? (
+                      <div className="mb-2 mt-3 px-2 text-sm text-mute first:mt-0">{header}</div>
+                    ) : null}
                     <button
                       onClick={() => openDetail(l)}
                       className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-3 text-left transition active:scale-[0.99] ${
@@ -191,7 +224,9 @@ export function BrewLog() {
                       }`}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-lg font-medium">{l.beans || l.recipeName || t.methods[l.method]}</div>
+                        <div className="truncate text-lg font-medium">
+                          {l.beans || l.recipeName || t.methods[l.method]}
+                        </div>
                         <div className="tabular truncate text-sm text-mute">
                           {t.methods[l.method]} · {l.coffee} g · {l.water} ml
                           {l.timeSec ? ` · ${fmtTime(l.timeSec)}` : ""}
@@ -207,7 +242,11 @@ export function BrewLog() {
             <div className="hidden lg:col-span-3 lg:block">
               {selected ? (
                 <GlassCard className="sticky top-0">
-                  <Detail log={selected} onEdit={() => setEditing(selected)} onDelete={() => remove(selected)} />
+                  <Detail
+                    log={selected}
+                    onEdit={() => setEditing(selected)}
+                    onDelete={() => remove(selected)}
+                  />
                 </GlassCard>
               ) : null}
             </div>
@@ -217,7 +256,14 @@ export function BrewLog() {
 
       {detailOpen && !isWide && selected ? (
         <Modal title={t.log.modalTitle} onClose={() => setDetailOpen(false)}>
-          <Detail log={selected} onEdit={() => { setDetailOpen(false); setEditing(selected); }} onDelete={() => remove(selected)} />
+          <Detail
+            log={selected}
+            onEdit={() => {
+              setDetailOpen(false);
+              setEditing(selected);
+            }}
+            onDelete={() => remove(selected)}
+          />
         </Modal>
       ) : null}
 

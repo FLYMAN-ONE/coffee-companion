@@ -9,11 +9,7 @@ interface ConfirmButtonProps {
 }
 
 /** Two-tap delete: first tap arms it, second tap confirms. */
-export function ConfirmButton({
-  label,
-  confirmLabel,
-  onConfirm,
-}: ConfirmButtonProps) {
+export function ConfirmButton({ label, confirmLabel, onConfirm }: ConfirmButtonProps) {
   const { t } = useI18n();
   const [armed, setArmed] = useState(false);
 
@@ -24,11 +20,7 @@ export function ConfirmButton({
   }, [armed]);
 
   return (
-    <Button
-      variant="danger"
-      icon="trash"
-      onClick={() => (armed ? onConfirm() : setArmed(true))}
-    >
+    <Button variant="danger" icon="trash" onClick={() => (armed ? onConfirm() : setArmed(true))}>
       {armed ? (confirmLabel ?? t.common.confirmDelete) : label}
     </Button>
   );

@@ -20,14 +20,7 @@ export const methods: Method[] = [
   { id: "other", label: "Other", dose: 60, tempC: 93, grind: "Medium" },
 ];
 
-export const grinds: Grind[] = [
-  "Extra fine",
-  "Fine",
-  "Medium-fine",
-  "Medium",
-  "Medium-coarse",
-  "Coarse",
-];
+export const grinds: Grind[] = ["Extra fine", "Fine", "Medium-fine", "Medium", "Medium-coarse", "Coarse"];
 
 export const tastes = [
   "Sweet",

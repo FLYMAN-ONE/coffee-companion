@@ -89,7 +89,14 @@ export function Timer() {
       />
 
       <div className="no-scrollbar -mx-1 mb-5 flex gap-2 overflow-x-auto px-1 py-1">
-        <Chip disabled={active} selected={timerRecipeId === null} onClick={() => { timer.reset(); setTimerRecipeId(null); }}>
+        <Chip
+          disabled={active}
+          selected={timerRecipeId === null}
+          onClick={() => {
+            timer.reset();
+            setTimerRecipeId(null);
+          }}
+        >
           {t.timer.stopwatch}
         </Chip>
         {recipes
@@ -99,7 +106,10 @@ export function Timer() {
               key={r.id}
               disabled={active}
               selected={timerRecipeId === r.id}
-              onClick={() => { timer.reset(); applyRecipe(r); }}
+              onClick={() => {
+                timer.reset();
+                applyRecipe(r);
+              }}
             >
               {r.name}
             </Chip>
@@ -125,9 +135,7 @@ export function Timer() {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center px-[10cqw] text-center">
               <div className="mb-1 text-xl text-accent">{label}</div>
-              <div className="tabular text-[24cqw] font-semibold leading-none tracking-tight">
-                {bigTime}
-              </div>
+              <div className="tabular text-[24cqw] font-semibold leading-none tracking-tight">{bigTime}</div>
               <div className="mt-3 text-lg text-mute">{caption}</div>
               {hasSteps && status !== "idle" ? (
                 <div className="tabular mt-1 text-sm text-mute">
@@ -139,31 +147,53 @@ export function Timer() {
 
           <div className="flex w-full flex-wrap justify-center gap-3">
             {status === "idle" && (
-              <Button variant="primary" size="lg" icon="play" className="w-full max-w-sm" onClick={timer.start}>
+              <Button
+                variant="primary"
+                size="lg"
+                icon="play"
+                className="w-full max-w-sm"
+                onClick={timer.start}
+              >
                 {t.timer.start}
               </Button>
             )}
             {status === "running" && (
               <>
-                <Button size="lg" icon="pause" onClick={timer.pause}>{t.timer.pause}</Button>
+                <Button size="lg" icon="pause" onClick={timer.pause}>
+                  {t.timer.pause}
+                </Button>
                 {hasSteps && stepIndex < steps.length - 1 ? (
-                  <Button size="lg" icon="skip" onClick={timer.skip}>{t.timer.next}</Button>
+                  <Button size="lg" icon="skip" onClick={timer.skip}>
+                    {t.timer.next}
+                  </Button>
                 ) : (
-                  <Button size="lg" icon="flag" onClick={timer.finish}>{t.timer.finish}</Button>
+                  <Button size="lg" icon="flag" onClick={timer.finish}>
+                    {t.timer.finish}
+                  </Button>
                 )}
               </>
             )}
             {status === "paused" && (
               <>
-                <Button variant="primary" size="lg" icon="play" onClick={timer.resume}>{t.timer.resume}</Button>
-                <Button size="lg" icon="flag" onClick={timer.finish}>{t.timer.finish}</Button>
-                <Button size="lg" icon="reset" onClick={timer.reset}>{t.timer.reset}</Button>
+                <Button variant="primary" size="lg" icon="play" onClick={timer.resume}>
+                  {t.timer.resume}
+                </Button>
+                <Button size="lg" icon="flag" onClick={timer.finish}>
+                  {t.timer.finish}
+                </Button>
+                <Button size="lg" icon="reset" onClick={timer.reset}>
+                  {t.timer.reset}
+                </Button>
               </>
             )}
             {status === "done" && (
               <>
-                <Button variant="primary" size="lg" icon="log" onClick={saveToLog}>{t.timer.saveToLog}</Button>
-                <Button size="lg" icon="reset" onClick={timer.reset}>{t.timer.reset}</Button>
+                <Button variant="primary" size="lg" icon="log" onClick={saveToLog}>
+                  {t.timer.saveToLog}
+                </Button>
+                <Button size="lg" icon="reset" onClick={timer.reset}>
+                  {t.timer.reset}
+                </Button>
               </>
             )}
           </div>
@@ -184,7 +214,11 @@ export function Timer() {
                   >
                     <span
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                        done ? "bg-accent text-accent-ink" : current ? "bg-accent/30 text-accent" : "bg-raise text-mute"
+                        done
+                          ? "bg-accent text-accent-ink"
+                          : current
+                            ? "bg-accent/30 text-accent"
+                            : "bg-raise text-mute"
                       }`}
                     >
                       {done ? <Icon name="check" className="h-5 w-5" /> : i + 1}
