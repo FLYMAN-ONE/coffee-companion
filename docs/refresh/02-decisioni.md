@@ -96,3 +96,13 @@ Due giri di mockup in `docs/refresh/sequenza/` (`giro-1.html`: proposte sobrie, 
 - Larghezza proporzionale alla durata, con un minimo del 15 % per step; nomi su due righe invece di troncati.
 - Dove: Prepara (con orario d'inizio, nome e durata sotto), timer (acceso fino al momento attuale, con un punto sul livello che pulsa in accento nel preavviso), dettaglio ricetta (sopra l'elenco degli step) ed editor (blocchi selezionabili sopra il nastro).
 - Movimento: al cambio ricetta il nastro si scopre da sinistra a destra in 900 ms `--ease-out`; trascinando le dosi i ml cambiano all'istante. Con "riduci movimento" resta la dissolvenza.
+
+## 11. Lista ricette in Prepara: sipario di vetro (25/11)
+
+Scelta tra 4 alternative (dorso di icone, sipario di vetro, ricetta che vola nel titolo, maniglia da trascinare); mockup in `docs/refresh/lista/`.
+
+- Prepara usa sempre tutta la larghezza; il nastro d'acqua passa a 140 px di altezza.
+- La lista si apre toccando il titolo (icona del metodo, nome, freccia ▾). Scorre sopra la schermata come pannello smerigliato largo 340 px; dietro, la schermata arretra (scala 0,965, 36 px a destra), sfuma al 40 %.
+- Si chiude da sola 150 ms dopo la scelta, o toccando fuori. All'avvio è sempre chiusa (nessuno stato salvato).
+- Movimento: apertura con `--ease-spring` in 460 ms e righe a cascata in 280 ms, con scarti che si accorciano (tutte visibili entro 0,5 s); chiusura `--ease-out` in 300 ms. Con "riduci movimento" resta solo la dissolvenza.
+- Nella schermata Ricette la lista resta una colonna fissa.

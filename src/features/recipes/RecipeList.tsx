@@ -13,10 +13,24 @@ interface RecipeListProps {
   /** Show the "Free" row (doses and stopwatch) at the bottom. */
   withFree?: boolean;
   footer?: ReactNode;
+  /** Background classes of the panel (default: the surface level). */
+  className?: string;
+  /** Rows enter in a cascade (the list is shown in a sheet that just opened). */
+  cascade?: boolean;
 }
 
+/** Cascade delays (ms) for the recipe sheet rows: gaps shrink, the group settles fast. */
+const CASCADE_DELAYS = [60, 95, 125, 150, 170, 185, 195, 200];
+
 /** Favorites first, then all recipes; full names, method icon, duration and water. */
-export function RecipeList({ selectedId, onPick, withFree = false, footer }: RecipeListProps) {
+export function RecipeList({
+  selectedId,
+  onPick,
+  withFree = false,
+  footer,
+  className = "bg-surface",
+  cascade = false,
+}: RecipeListProps) {
   const { recipes } = useRecipes();
   const { t } = useI18n();
   const favorites = recipes.filter((r) => r.favorite);
@@ -28,14 +42,22 @@ export function RecipeList({ selectedId, onPick, withFree = false, footer }: Rec
     icon: Recipe["method"],
     title: string,
     sub: string,
-    onClick: () => void
+    onClick: () => void,
+    i: number
   ) => (
     <button
       key={key}
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`press flex items-center gap-3 rounded-[20px] p-2.5 text-left ${selected ? "bg-raised" : ""}`}
+      className={`press flex items-center gap-3 rounded-[20px] p-2.5 text-left ${selected ? "bg-raised" : ""} ${cascade ? "motion-move" : ""}`}
+      style={
+        cascade
+          ? {
+              animation: `row-in 280ms var(--ease-out) ${CASCADE_DELAYS[Math.min(i, CASCADE_DELAYS.length - 1)]}ms backwards`,
+            }
+          : undefined
+      }
     >
       <span
         className={`grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[14px] transition-colors duration-200 ${
@@ -51,30 +73,39 @@ export function RecipeList({ selectedId, onPick, withFree = false, footer }: Rec
     </button>
   );
 
-  const recipeRow = (r: Recipe) =>
+  const recipeRow = (r: Recipe, i: number) =>
     row(
       r.id,
       r.id === selectedId,
       r.method,
       r.name,
       `${r.steps.length ? fmtTime(totalSeconds(r)) : t.prepare.noTimer} · ${r.water} ml`,
-      () => onPick(r)
+      () => onPick(r),
+      i
     );
 
   return (
-    <nav className="no-scrollbar flex flex-col overflow-y-auto rounded-[28px] bg-surface px-3 py-4.5">
+    <nav className={`no-scrollbar flex flex-col overflow-y-auto rounded-[28px] px-3 py-4.5 ${className}`}>
       {favorites.length ? (
         <>
           <h3 className="eyebrow mx-2.5 mt-1.5 mb-2">{t.prepare.favorites}</h3>
-          {favorites.map(recipeRow)}
+          {favorites.map((r, i) => recipeRow(r, i))}
         </>
       ) : null}
       <h3 className={`eyebrow mx-2.5 mb-2 ${favorites.length ? "mt-4.5" : "mt-1.5"}`}>{t.prepare.all}</h3>
-      {rest.map(recipeRow)}
+      {rest.map((r, i) => recipeRow(r, favorites.length + i))}
       {withFree ? (
         <>
           <h3 className="eyebrow mx-2.5 mt-4.5 mb-2">{t.prepare.noRecipe}</h3>
-          {row("free", selectedId === null, "other", t.prepare.free, t.prepare.freeSub, () => onPick(null))}
+          {row(
+            "free",
+            selectedId === null,
+            "other",
+            t.prepare.free,
+            t.prepare.freeSub,
+            () => onPick(null),
+            recipes.length
+          )}
         </>
       ) : null}
       {footer}

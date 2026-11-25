@@ -60,6 +60,7 @@ export const en = {
     favorites: "Favorites",
     all: "All",
     noRecipe: "No recipe",
+    chooseRecipe: "Choose recipe",
     free: "Free",
     freeSub: "doses and stopwatch",
     freeHint: "Pick the method, set the doses and use the stopwatch",

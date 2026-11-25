@@ -1,0 +1,1506 @@
+<title>Lista ricette richiudibile</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600&display=swap"
+/>
+<style>
+  /* Four ways to collapse the recipe list in Prepare. Each option is the real Prepare screen
+     at iPad size (1180x820), scaled to fit. Single dark look, palettes copied from src/styles/theme.css. */
+  :root {
+    color-scheme: dark;
+    --color-app: #0e1116;
+    --color-focus: #0b0d11;
+    --color-surface: #161b22;
+    --color-raised: #1f262f;
+    --color-raised-2: #28303a;
+    --color-line: rgb(238 241 245 / 0.07);
+    --color-ink: #eef1f5;
+    --color-mute: #97a1ae;
+    --color-faint: #606a77;
+    --color-accent: #dd8c5c;
+    --color-accent-ink: #2a1406;
+    --color-accent-dim: #2b333e;
+    --color-water: #8fcbe8;
+    --color-water-deep: #5d97b3;
+    --color-glass: #525d6b;
+    --font-sans: "Manrope", -apple-system, system-ui, sans-serif;
+    --font-num: "Space Grotesk", "Manrope", system-ui, sans-serif;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  }
+  :root[data-palette="abisso"] {
+    --color-app: #090c0d;
+    --color-focus: #070a0a;
+    --color-surface: #111617;
+    --color-raised: #1a2122;
+    --color-raised-2: #232c2d;
+    --color-line: rgb(238 242 242 / 0.07);
+    --color-ink: #eef2f2;
+    --color-mute: #929c9c;
+    --color-faint: #5b6566;
+    --color-accent: #ff8f72;
+    --color-accent-ink: #3a1206;
+    --color-accent-dim: #223031;
+    --color-water: #8ed3cb;
+    --color-water-deep: #5a9e96;
+    --color-glass: #4d5a59;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+  }
+  body {
+    background: var(--color-focus);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 32px 64px;
+  }
+  button {
+    font: inherit;
+    color: inherit;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .page {
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+  .intro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .intro h1 {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .intro p {
+    color: var(--color-mute);
+    max-width: 62ch;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .seg {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--color-surface);
+    border-radius: 16px;
+  }
+  .seg button {
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--color-mute);
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--color-raised);
+    color: var(--color-ink);
+  }
+  .num {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+  .press {
+    transition:
+      transform 160ms var(--ease-out),
+      background-color 200ms,
+      color 200ms,
+      box-shadow 200ms;
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+
+  /* Option card */
+  .opt {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .opt-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 18px;
+  }
+  .letter {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font: 700 22px var(--font-num);
+  }
+  .opt-head h2 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .opt-head .sub {
+    color: var(--color-mute);
+    font-size: 15px;
+  }
+  .opt-head .grow {
+    flex: 1;
+  }
+  .demo-btn {
+    padding: 11px 18px;
+    border-radius: 14px;
+    background: var(--color-raised);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .frame {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px var(--color-line),
+      0 30px 60px -30px rgb(0 0 0 / 0.6);
+  }
+  .notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px 28px;
+    list-style: none;
+    padding: 0;
+    color: var(--color-mute);
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  .notes b {
+    color: var(--color-ink);
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  /* ---------- The app stage (real iPad size) ---------- */
+  .stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1180px;
+    height: 820px;
+    transform-origin: 0 0;
+    display: flex;
+    background: var(--color-app);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .rail {
+    width: 88px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--color-line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 24px 0 20px;
+  }
+  .rail .logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    display: grid;
+    place-items: center;
+    margin-bottom: 22px;
+  }
+  .rail .it {
+    width: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 0 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-mute);
+  }
+  .rail .it span {
+    width: 52px;
+    height: 32px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+  }
+  .rail .it.on {
+    color: var(--color-ink);
+  }
+  .rail .it.on span {
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    color: var(--color-accent);
+  }
+  .main {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    padding: 28px;
+  }
+  .prep {
+    height: 100%;
+    display: grid;
+    grid-template-columns: var(--colw, 300px) minmax(0, 1fr);
+    column-gap: var(--gap, 24px);
+  }
+  .col {
+    position: relative;
+    min-width: 0;
+    border-radius: 28px;
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+  .list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    padding: 18px 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .list h3 {
+    margin: 6px 10px 8px;
+  }
+  .list h3 + .row {
+    margin-top: 0;
+  }
+  .list .gap {
+    height: 18px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 20px;
+    text-align: left;
+    width: 100%;
+  }
+  .row.sel {
+    background: var(--color-raised);
+  }
+  .tile {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: var(--color-raised);
+    color: var(--color-mute);
+    transition:
+      background-color 200ms,
+      color 200ms,
+      box-shadow 200ms;
+  }
+  .row.sel .tile {
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    color: var(--color-accent);
+  }
+  .row .t {
+    display: block;
+    font-size: 15.5px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .row .s {
+    display: block;
+    margin-top: 2px;
+    font-size: 12.5px;
+    color: var(--color-mute);
+    letter-spacing: 0;
+  }
+  .ic {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .content {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .hdr {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .hdr .big {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+  .hdr .big .ic {
+    width: 30px;
+    height: 30px;
+  }
+  .hdr .ttl {
+    min-width: 0;
+    flex: 1;
+  }
+  .hdr h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hdr p {
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--color-mute);
+  }
+  .iconbtn {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    color: var(--color-mute);
+  }
+  .iconbtn.on {
+    color: var(--color-accent);
+  }
+  .facts {
+    display: flex;
+    gap: 8px;
+  }
+  .fact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 14px;
+    background: var(--color-surface);
+    padding: 8px 14px;
+    font-size: 13.5px;
+    color: var(--color-mute);
+  }
+  .fact .ic {
+    width: 20px;
+    height: 20px;
+  }
+  .fact b {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .doses {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .dose {
+    position: relative;
+    border-radius: 22px;
+    padding: 14px 18px 12px;
+    background: var(--color-surface);
+  }
+  .dose.on {
+    background: var(--color-raised);
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+  }
+  .dose.lk {
+    background: none;
+    box-shadow: inset 0 0 0 1.5px var(--color-line);
+  }
+  .dose .eyebrow {
+    font-size: 12px;
+  }
+  .dose.on .eyebrow,
+  .dose.lk .eyebrow i {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .dose .v {
+    margin-top: 2px;
+    font-size: 50px;
+    font-weight: 500;
+    line-height: 1.15;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .dose.lk .v {
+    opacity: 0.75;
+  }
+  .dose .v small {
+    font: 500 16px var(--font-sans);
+    color: var(--color-mute);
+  }
+  .dose .w {
+    color: var(--color-water);
+  }
+  .dose .lock {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+    display: grid;
+    place-items: center;
+    color: var(--color-faint);
+  }
+  .dose.lk .lock {
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    color: var(--color-accent);
+  }
+  .ruler {
+    position: relative;
+    height: 96px;
+    border-radius: 22px;
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+  .ruler .ticks {
+    position: absolute;
+    inset: 18px 0 30px;
+    background:
+      repeating-linear-gradient(
+          90deg,
+          var(--color-glass) 0 2px,
+          transparent 2px 120px
+        )
+        calc(50% + 1px) 0 / 100% 100%,
+      repeating-linear-gradient(90deg, var(--color-accent-dim) 0 2px, transparent 2px 12px) calc(50% + 1px)
+        14px / 100% 60%;
+    background-repeat: repeat-x;
+    -webkit-mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+    mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  }
+  .ruler .needle {
+    position: absolute;
+    left: calc(50% - 2px);
+    top: 10px;
+    width: 4px;
+    height: 58px;
+    border-radius: 2px;
+    background: var(--color-accent);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--color-accent) 60%, transparent);
+  }
+  .ruler .lbl {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: var(--color-mute);
+  }
+  .seq .rib {
+    position: relative;
+    height: var(--ribh, 112px);
+    transition: height 460ms var(--ease-out);
+  }
+  .seq svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .seq .cut {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    transform: translateX(-50%);
+    background: var(--color-app);
+  }
+  .seq .ml {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    font-size: 22px;
+    font-weight: 500;
+    padding-bottom: 6px;
+    white-space: nowrap;
+  }
+  .seq .ml.end {
+    transform: translate(calc(-100% + 7px), -100%);
+  }
+  .seq .ml small {
+    font: 600 11.5px var(--font-sans);
+    color: var(--color-mute);
+    margin-left: 2px;
+  }
+  .seq .steps {
+    display: flex;
+    margin-top: 10px;
+  }
+  .seq .steps div {
+    flex: 1;
+    min-width: 0;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  .seq .steps .a {
+    font-size: 12px;
+    color: var(--color-faint);
+  }
+  .seq .steps b {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .seq .steps .d {
+    font-size: 13px;
+    color: var(--color-mute);
+  }
+  .playrow {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .play {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 72px;
+    padding: 0 34px 0 28px;
+    border-radius: 24px;
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-size: 21px;
+    font-weight: 800;
+  }
+  .play .ic {
+    width: 26px;
+    height: 26px;
+    fill: currentColor;
+    stroke: none;
+  }
+  .playrow .info {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-mute);
+  }
+  .playrow .info b {
+    display: block;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  /* ---------- A: Dorso (spine of icons) ---------- */
+  [data-mode="spine"] .prep {
+    transition: grid-template-columns 460ms var(--ease-out);
+  }
+  [data-mode="spine"].closed .prep {
+    --colw: 84px;
+  }
+  [data-mode="spine"] .list {
+    transition: opacity 220ms var(--ease-out);
+  }
+  [data-mode="spine"].closed .list {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .list .listhead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: -6px -2px 4px 10px;
+  }
+  .collapse {
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+    display: grid;
+    place-items: center;
+    color: var(--color-mute);
+    background: var(--color-raised);
+  }
+  .spine {
+    position: absolute;
+    inset: 0;
+    width: 84px;
+    padding: 14px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms var(--ease-out);
+  }
+  [data-mode="spine"].closed .spine {
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 160ms;
+  }
+  .spine .tile {
+    width: 52px;
+    height: 52px;
+    border-radius: 17px;
+    opacity: 0;
+    transform: translateX(-14px);
+    transition:
+      opacity 260ms var(--ease-out),
+      transform 360ms var(--ease-out),
+      background-color 200ms,
+      color 200ms,
+      box-shadow 200ms;
+  }
+  [data-mode="spine"].closed .spine .tile {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(180ms + var(--i) * 40ms);
+  }
+  .spine .tile.sel {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--color-accent) 22%, transparent),
+      0 8px 26px -6px color-mix(in srgb, var(--color-accent) 70%, transparent);
+  }
+  .spine .sep {
+    width: 28px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--color-line);
+    margin: 4px 0;
+  }
+  .spine .open {
+    width: 52px;
+    height: 52px;
+    border-radius: 17px;
+    display: grid;
+    place-items: center;
+    color: var(--color-ink);
+    background: var(--color-raised-2);
+  }
+  .spine .more {
+    margin-top: auto;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-faint);
+    text-align: center;
+    line-height: 1.3;
+  }
+  [data-mode="spine"].closed .seq,
+  [data-mode="drag"].closed .seq,
+  [data-mode="morph"].closed .seq,
+  [data-mode="glass"] .seq {
+    --ribh: 150px;
+  }
+
+  /* ---------- B: Sipario di vetro (overlay) ---------- */
+  [data-mode="glass"] .main {
+    overflow: hidden;
+  }
+  [data-mode="glass"] .prep {
+    --colw: 0px;
+    --gap: 0px;
+  }
+  [data-mode="glass"] .content {
+    transition:
+      transform 460ms var(--ease-out),
+      opacity 300ms var(--ease-out),
+      filter 300ms var(--ease-out);
+    transform-origin: 70% 50%;
+  }
+  [data-mode="glass"].open .content {
+    transform: scale(0.965) translateX(36px);
+    opacity: 0.4;
+    filter: blur(2px);
+  }
+  .picker {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 18px 6px 6px;
+    margin: -6px 0 -6px -6px;
+    border-radius: 24px;
+    text-align: left;
+    min-width: 0;
+    flex: 1;
+    background: linear-gradient(90deg, var(--color-surface), transparent 85%);
+  }
+  .picker .chev {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: var(--color-raised);
+    color: var(--color-ink);
+    flex-shrink: 0;
+  }
+  .sheet {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    bottom: 20px;
+    width: 340px;
+    border-radius: 30px;
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    -webkit-backdrop-filter: blur(26px) saturate(1.3);
+    backdrop-filter: blur(26px) saturate(1.3);
+    box-shadow:
+      0 0 0 1px var(--color-line),
+      0 40px 80px -20px rgb(0 0 0 / 0.7);
+    transform: translateX(calc(-100% - 40px));
+    transition: transform 380ms var(--ease-out);
+    z-index: 5;
+    overflow: hidden;
+  }
+  [data-mode="glass"].open .sheet {
+    transform: none;
+    transition: transform 520ms var(--ease-spring);
+  }
+  .sheet .list {
+    width: 100%;
+    padding: 22px 16px;
+  }
+  .sheet .row {
+    opacity: 0;
+    transform: translateX(-18px);
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out),
+      background-color 200ms;
+  }
+  [data-mode="glass"].open .sheet .row {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 340ms var(--ease-out) calc(120ms + var(--i) * 30ms),
+      transform 460ms var(--ease-out) calc(120ms + var(--i) * 30ms),
+      background-color 200ms;
+  }
+  .scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+  }
+  [data-mode="glass"].open .scrim {
+    pointer-events: auto;
+  }
+
+  /* ---------- C: Si chiude da sola (morph) ---------- */
+  [data-mode="morph"] .prep {
+    transition:
+      grid-template-columns 500ms var(--ease-out),
+      column-gap 500ms var(--ease-out);
+  }
+  [data-mode="morph"].closed .prep {
+    --colw: 0px;
+    --gap: 0px;
+  }
+  [data-mode="morph"] .list {
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 400ms var(--ease-out);
+  }
+  [data-mode="morph"].closed .list {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  .stack {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 56px;
+    padding: 0 18px 0 8px;
+    border-radius: 20px;
+    background: var(--color-surface);
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateX(16px) scale(0.96);
+    pointer-events: none;
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 300ms var(--ease-out);
+  }
+  [data-mode="morph"].closed .stack {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    transition:
+      opacity 300ms var(--ease-out) 300ms,
+      transform 420ms var(--ease-spring) 300ms;
+  }
+  .stack .pile {
+    display: flex;
+  }
+  .stack .pile i {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: var(--color-raised-2);
+    color: var(--color-mute);
+    box-shadow: 0 0 0 3px var(--color-surface);
+  }
+  .stack .pile i + i {
+    margin-left: -14px;
+  }
+  .stack .pile i:first-child {
+    background: color-mix(in srgb, var(--color-accent) 22%, var(--color-raised));
+    color: var(--color-accent);
+    position: relative;
+    z-index: 2;
+  }
+  .stack .pile i:nth-child(2) {
+    position: relative;
+    z-index: 1;
+  }
+  .flyer {
+    position: absolute;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+    transform-origin: 0 0;
+    font-weight: 600;
+  }
+  [data-mode="morph"] .hdr .ttl,
+  [data-mode="morph"] .hdr .big {
+    transition: opacity 220ms var(--ease-out);
+  }
+  [data-mode="morph"].flying .hdr .ttl,
+  [data-mode="morph"].flying .hdr .big {
+    opacity: 0;
+    transition: none;
+  }
+
+  /* ---------- D: Maniglia trascinabile (drag) ---------- */
+  [data-mode="drag"] .prep {
+    --gap: 0px;
+  }
+  [data-mode="drag"] .prep.settle {
+    transition: grid-template-columns 340ms var(--ease-out);
+  }
+  [data-mode="drag"] .col {
+    overflow: visible;
+    background: none;
+  }
+  [data-mode="drag"] .col .panel {
+    position: absolute;
+    inset: 0 24px 0 0;
+    border-radius: 28px;
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+  [data-mode="drag"] .list {
+    opacity: calc((var(--p) - 0.15) * 1.6);
+  }
+  .grip {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 24px;
+    display: grid;
+    place-items: center;
+    cursor: ew-resize;
+    touch-action: none;
+  }
+  .grip::before {
+    content: "";
+    width: 6px;
+    height: 72px;
+    border-radius: 3px;
+    background: var(--color-glass);
+    transition:
+      background-color 200ms,
+      height 300ms var(--ease-out),
+      box-shadow 200ms;
+  }
+  .grip.active::before {
+    background: var(--color-accent);
+    height: 110px;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 70%, transparent);
+  }
+  .edge {
+    position: absolute;
+    inset: 0 24px 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    opacity: calc(1 - var(--p) * 3);
+    pointer-events: none;
+  }
+  [data-mode="drag"].closed .edge {
+    pointer-events: auto;
+  }
+  .edge .bar {
+    width: 4px;
+    flex: 1;
+    max-height: 210px;
+    border-radius: 2px;
+    background: linear-gradient(transparent, var(--color-accent), transparent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+  .edge .vname {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  [data-mode="drag"].closed .col .panel {
+    background: none;
+  }
+  [data-mode="drag"].closed .grip {
+    width: 56px;
+    right: -16px;
+  }
+  .hint {
+    position: absolute;
+    z-index: 6;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: var(--color-raised-2);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink);
+    box-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.6);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms var(--ease-out);
+  }
+  .hint.show {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage *,
+    .stage {
+      transition-property: opacity, color, background-color !important;
+    }
+    .press:active {
+      transform: none;
+    }
+  }
+  @media (max-width: 700px) {
+    .notes {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="page">
+  <div class="intro">
+    <div>
+      <div class="eyebrow">Coffee Companion · Prepara</div>
+      <h1>Lista ricette richiudibile</h1>
+      <p>
+        Quattro modi di chiudere la colonna delle ricette e dare tutta la larghezza ai valori, al righello e al
+        nastro. Ogni riquadro è la schermata vera a 1180×820, ridotta: si può toccare. Chiusa, il nastro passa
+        da 112 a 150 px di altezza e il righello si ricentra da solo.
+      </p>
+    </div>
+    <div class="seg" id="palette">
+      <button aria-pressed="true" data-p="ardesia">Ardesia</button>
+      <button aria-pressed="false" data-p="abisso">Abisso</button>
+    </div>
+  </div>
+
+  <section class="opt" data-opt="spine">
+    <div class="opt-head">
+      <span class="letter">A</span>
+      <div>
+        <h2>Dorso di icone</h2>
+        <div class="sub">La colonna si stringe a 84 px e diventa una striscia di metodi</div>
+      </div>
+      <div class="grow"></div>
+      <button class="demo-btn press" data-demo>Apri / chiudi</button>
+    </div>
+    <div class="frame"></div>
+    <ul class="notes">
+      <li><b>Chiudi e riapri</b>Bottone « in cima alla lista; da chiusa, » in cima al dorso.</li>
+      <li>
+        <b>Da chiusa</b>Le ricette preferite come tessere: la corrente accesa in rame con alone. Toccarne una la
+        sceglie senza riaprire.
+      </li>
+      <li><b>Layout</b>I valori guadagnano 216 px, la lista resta un tocco a sinistra.</li>
+      <li>
+        <b>Movimento</b>La colonna si stringe in 460 ms; le tessere entrano una dopo l'altra (40 ms di scarto).
+      </li>
+    </ul>
+  </section>
+
+  <section class="opt" data-opt="glass">
+    <div class="opt-head">
+      <span class="letter">B</span>
+      <div>
+        <h2>Sipario di vetro</h2>
+        <div class="sub">Sempre a tutta larghezza; la lista scorre sopra come un pannello smerigliato</div>
+      </div>
+      <div class="grow"></div>
+      <button class="demo-btn press" data-demo>Apri / chiudi</button>
+    </div>
+    <div class="frame"></div>
+    <ul class="notes">
+      <li>
+        <b>Chiudi e riapri</b>Si apre toccando il nome della ricetta in alto. Si chiude da sola appena scegli, o
+        toccando fuori.
+      </li>
+      <li><b>Da chiusa</b>Niente colonna: il titolo diventa il selettore, con la freccia accanto.</li>
+      <li><b>Layout</b>I valori hanno sempre tutta la pagina; la lista non sposta mai nulla.</li>
+      <li>
+        <b>Movimento</b>Il pannello entra con una molla leggera, le righe a cascata; dietro, la schermata
+        arretra, sfuma e si sfoca.
+      </li>
+    </ul>
+  </section>
+
+  <section class="opt" data-opt="morph">
+    <div class="opt-head">
+      <span class="letter">C</span>
+      <div>
+        <h2>La ricetta vola nel titolo</h2>
+        <div class="sub">Scegli e la lista si chiude: la riga scelta diventa il titolo</div>
+      </div>
+      <div class="grow"></div>
+      <button class="demo-btn press" data-demo>Apri / chiudi</button>
+    </div>
+    <div class="frame"></div>
+    <ul class="notes">
+      <li>
+        <b>Chiudi e riapri</b>Si chiude scegliendo una ricetta. Si riapre con il mazzetto «Ricette» accanto al
+        titolo.
+      </li>
+      <li>
+        <b>Da chiusa</b>Nessuna colonna; a destra del titolo tre tessere sovrapposte, la prima è la ricetta
+        corrente.
+      </li>
+      <li><b>Layout</b>Tutta la larghezza ai valori; la colonna sparisce del tutto.</li>
+      <li>
+        <b>Movimento</b>Icona e nome della riga volano fino al titolo (520 ms) mentre la colonna si chiude dietro.
+      </li>
+    </ul>
+  </section>
+
+  <section class="opt" data-opt="drag">
+    <div class="opt-head">
+      <span class="letter">D</span>
+      <div>
+        <h2>Maniglia da trascinare</h2>
+        <div class="sub">La colonna segue il dito e si posa aperta o chiusa</div>
+      </div>
+      <div class="grow"></div>
+      <button class="demo-btn press" data-demo>Apri / chiudi</button>
+    </div>
+    <div class="frame"></div>
+    <ul class="notes">
+      <li>
+        <b>Chiudi e riapri</b>Trascina la maniglia sul bordo della colonna (o toccala). Si posa aperta o chiusa in
+        base a dove la lasci e alla velocità.
+      </li>
+      <li>
+        <b>Da chiusa</b>Un filo di luce rame con il nome della ricetta scritto in verticale; toccarlo riapre.
+      </li>
+      <li><b>Layout</b>I valori guadagnano 276 px.</li>
+      <li>
+        <b>Movimento</b>1:1 col dito, oltre i 300 px con resistenza; al rilascio si posa in 340 ms. La maniglia si
+        accende mentre la tieni.
+      </li>
+    </ul>
+  </section>
+</div>
+
+<script>
+  const ICON = {
+    v60: '<path d="M4 6h16l-6.5 9h-3z"/><path d="M9 19h6"/><path d="M12 15v4"/>',
+    chemex: '<path d="M6 3h12l-4.5 8L18 19v2H6v-2l4.5-8z"/><path d="M10 11h4"/>',
+    aeropress: '<rect x="8" y="3" width="8" height="13" rx="1.5"/><path d="M6 17h12v3H6z"/><path d="M10 7h4"/>',
+    kalita: '<path d="M4 7h16l-3 8H7z"/><path d="M9 7l1 8M15 7l-1 8"/><path d="M9 19h6"/>',
+    french: '<rect x="6" y="7" width="10" height="13" rx="1.5"/><path d="M16 10h2.5v7H16"/><path d="M11 3v11"/><path d="M8 4h6"/>',
+    other: '<path d="M5 9h12v4a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5z"/><path d="M17 10.5h1.5a2.2 2.2 0 0 1 0 4.4H17"/>',
+    chevL: '<path d="M14 6l-6 6 6 6"/><path d="M19 6l-6 6 6 6" opacity=".45"/>',
+    chevR: '<path d="M10 6l6 6-6 6"/><path d="M5 6l6 6-6 6" opacity=".45"/>',
+    down: '<path d="M6 9l6 6 6-6"/>',
+    heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+    lock: '<rect x="5" y="10.5" width="14" height="10" rx="3"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/>',
+    unlock: '<rect x="5" y="10.5" width="14" height="10" rx="3"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 6.6-1.6"/>',
+    thermo: '<path d="M10 14V5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0z"/>',
+    grind: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/>',
+    clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+    play: '<path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.5-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z"/>',
+    book: '<path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/>',
+    log: '<path d="M6 4h12v16H6z"/><path d="M9 9h6M9 13h6"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
+  };
+  const ic = (n, cls = "ic") => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
+
+  const RECIPES = [
+    { id: "hoff", m: "v60", name: "V60 di Hoffmann", t: "3:30", w: 500, fav: true },
+    { id: "chemex", m: "chemex", name: "Chemex classica", t: "4:30", w: 700, fav: true },
+    { id: "aero", m: "aeropress", name: "AeroPress invertita", t: "2:00", w: 230, fav: true },
+    { id: "kasuya", m: "v60", name: "V60 4:6 di Kasuya", t: "3:30", w: 300 },
+    { id: "kalita", m: "kalita", name: "Kalita Wave", t: "3:15", w: 400 },
+    { id: "french", m: "french", name: "French press di Hoffmann", t: "9:00", w: 500 },
+  ];
+  const FREE = { id: "free", m: "other", name: "Libero", sub: "Dosi e cronometro" };
+  const METHOD = { v60: "V60", chemex: "Chemex", aeropress: "AeroPress", kalita: "Kalita", french: "French press" };
+  const fmt = (n) => n.toFixed(1).replace(".", ",");
+
+  function rowHTML(r, sel, i) {
+    const sub = r.sub ?? `${r.t} · ${r.w} ml`;
+    return `<button class="row press ${sel ? "sel" : ""}" data-id="${r.id}" style="--i:${i}">
+      <span class="tile">${ic(r.m)}</span>
+      <span><span class="t">${r.name}</span><span class="s num">${sub}</span></span></button>`;
+  }
+  function listHTML(sel, head) {
+    let i = 0;
+    const favs = RECIPES.filter((r) => r.fav);
+    const rest = RECIPES.filter((r) => !r.fav);
+    return `<nav class="list">${head ?? ""}
+      <h3 class="eyebrow">Preferite</h3>${favs.map((r) => rowHTML(r, r.id === sel, i++)).join("")}
+      <div class="gap"></div><h3 class="eyebrow">Tutte</h3>${rest.map((r) => rowHTML(r, r.id === sel, i++)).join("")}
+      <div class="gap"></div><h3 class="eyebrow">Senza ricetta</h3>${rowHTML(FREE, sel === "free", i++)}</nav>`;
+  }
+
+  function ribbonHTML(water) {
+    // steps: [start, end] in time fraction; pour fills the first 40% of each pour step
+    const steps = [
+      { a: 0, b: 0.25, to: 15, name: "Fioritura", s: "0:00", d: "0:45" },
+      { a: 0.25, b: 0.5, to: 60, name: "Prima versata", s: "0:45", d: "0:45" },
+      { a: 0.5, b: 0.75, to: 100, name: "Seconda versata", s: "1:30", d: "0:45" },
+      { a: 0.75, b: 1, to: 100, name: "Discesa", s: "2:15", d: "1:15", wait: true },
+    ];
+    const H = 150, top = 34;
+    const y = (p) => `calc(${H - 8}px - ${p / 100} * (var(--ribh) - ${8 + top}px))`;
+    // path in a 1000 x 100 box; level 0..100 maps to 92..(top share)
+    const Y = (p) => 92 - p * 0.62;
+    let pts = [[0, Y(0)]], lvl = 0;
+    const marks = [];
+    for (const s of steps) {
+      if (!s.wait) {
+        const e = s.a + (s.b - s.a) * 0.4;
+        pts.push([e * 1000, Y(s.to)]);
+        marks.push({ x: e, to: s.to });
+        lvl = s.to;
+      }
+      pts.push([s.b * 1000, Y(lvl)]);
+    }
+    const line = "M" + pts.map((p) => p.join(",")).join(" L");
+    const area = line + " L1000,100 L0,100 Z";
+    const id = "g" + Math.random().toString(36).slice(2, 7);
+    return `<div class="seq"><div class="eyebrow" style="margin-bottom:12px">Sequenza</div>
+      <div class="rib"><svg viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style="stop-color:var(--color-water);stop-opacity:.55"/>
+          <stop offset="1" style="stop-color:var(--color-water-deep);stop-opacity:.12"/></linearGradient></defs>
+        <path d="${area}" fill="url(#${id})"/>
+        <path d="${line}" fill="none" stroke="var(--color-water)" stroke-width="3" vector-effect="non-scaling-stroke"
+          style="filter:drop-shadow(0 0 8px color-mix(in srgb, var(--color-water) 55%, transparent))"/></svg>
+        ${steps.slice(1).map((s) => `<i class="cut" style="left:${s.a * 100}%"></i>`).join("")}
+        ${marks
+          .map(
+            (m) =>
+              `<span class="ml num ${m.x > 0.6 ? "" : ""}" style="left:${m.x * 100}%;top:${(Y(m.to) / 100) * 100}%">${Math.round(
+                (m.to / 100) * water
+              )}<small>ml</small></span>`
+          )
+          .join("")}
+      </div>
+      <div class="steps">${steps
+        .map((s) => `<div><span class="a num">${s.s}</span><b>${s.name}</b><span class="d num">${s.d}</span></div>`)
+        .join("")}</div></div>`;
+  }
+
+  function contentHTML(r, mode) {
+    const water = r.w ?? 500;
+    const coffee = water / 16.7;
+    const title = `<span class="big">${ic(r.m)}</span>
+      <div class="ttl"><h1>${r.name}</h1><p>${METHOD[r.m] ?? "Senza ricetta"} · 4 passaggi</p></div>`;
+    const head =
+      mode === "glass"
+        ? `<button class="picker press" data-open>${title}<span class="chev">${ic("down")}</span></button>`
+        : title;
+    const stack =
+      mode === "morph"
+        ? `<button class="stack press" data-open><span class="pile">${[
+            r.m,
+            ...["chemex", "aeropress", "v60"].filter((m) => m !== r.m),
+          ]
+            .slice(0, 3)
+            .map((m) => `<i>${ic(m)}</i>`)
+            .join("")}</span>Ricette</button>`
+        : "";
+    return `<section class="content">
+      <header class="hdr">${head}${stack}<button class="iconbtn on">${ic("heart")}</button></header>
+      <div class="facts"><span class="fact">${ic("thermo")}<b class="num">94 °C</b></span>
+        <span class="fact">${ic("grind")}<b>Medio-fine</b></span><span class="fact">${ic("clock")}<b class="num">${
+      r.t ?? "3:00"
+    }</b></span></div>
+      <div class="doses">
+        <div class="dose on"><div class="eyebrow">Caffè</div><div class="v num">${fmt(coffee)}<small>g</small></div>
+          <span class="lock">${ic("unlock")}</span></div>
+        <div class="dose lk"><div class="eyebrow">Rapporto <i>· bloccato</i></div><div class="v num">1:16,7</div>
+          <span class="lock">${ic("lock")}</span></div>
+        <div class="dose"><div class="eyebrow">Acqua</div><div class="v num"><span class="w">${water}</span><small>ml</small></div>
+          <span class="lock">${ic("unlock")}</span></div>
+      </div>
+      <div class="ruler"><div class="ticks"></div><div class="needle"></div><div class="lbl num">${Math.round(coffee)}</div></div>
+      ${ribbonHTML(water)}
+      <div class="playrow"><button class="play press">${ic("play")}Play</button>
+        <div class="info">Durata<b class="num">${r.t ?? "3:00"}</b></div></div>
+    </section>`;
+  }
+
+  function railHTML() {
+    const it = (n, l, on) => `<div class="it ${on ? "on" : ""}"><span>${ic(n)}</span>${l}</div>`;
+    return `<nav class="rail"><div class="logo">${ic("v60")}</div>${it("v60", "Prepara", true)}${it(
+      "book",
+      "Ricette"
+    )}${it("log", "Diario")}<div style="flex:1"></div>${it("gear", "Opzioni")}</nav>`;
+  }
+
+  /* ---------- one demo per option ---------- */
+  function setup(section) {
+    const mode = section.dataset.opt;
+    const frame = section.querySelector(".frame");
+    const stage = document.createElement("div");
+    stage.className = "stage";
+    stage.dataset.mode = mode;
+    frame.append(stage);
+    let sel = "hoff";
+    let open = mode !== "glass";
+    const cur = () => RECIPES.find((r) => r.id === sel) ?? FREE;
+
+    const fit = () => {
+      const s = frame.clientWidth / 1180;
+      stage.style.transform = `scale(${s})`;
+      frame.style.height = 820 * s + "px";
+      stage._s = s;
+    };
+    new ResizeObserver(fit).observe(frame);
+
+    function render() {
+      const r = cur();
+      let col = "";
+      if (mode === "spine") {
+        const favs = RECIPES.filter((x) => x.fav);
+        col = `<aside class="col">${listHTML(
+          sel,
+          `<div class="listhead"><span class="eyebrow">Ricette</span><button class="collapse press" data-close aria-label="Chiudi lista">${ic(
+            "chevL"
+          )}</button></div>`
+        )}
+          <div class="spine"><button class="open press" data-open aria-label="Apri lista">${ic("chevR")}</button>
+            <span class="sep"></span>
+            ${favs
+              .map(
+                (f, i) =>
+                  `<button class="tile press ${f.id === sel ? "sel" : ""}" data-id="${f.id}" style="--i:${i}">${ic(
+                    f.m
+                  )}</button>`
+              )
+              .join("")}
+            ${
+              favs.some((f) => f.id === sel)
+                ? ""
+                : `<span class="sep"></span><button class="tile press sel" style="--i:${favs.length}" data-open>${ic(
+                    r.m
+                  )}</button>`
+            }
+            <span class="more num">+${RECIPES.length - favs.length}<br>altre</span></div></aside>`;
+      } else if (mode === "glass") {
+        col = `<aside></aside>`;
+      } else if (mode === "morph") {
+        col = `<aside class="col">${listHTML(sel)}</aside>`;
+      } else {
+        col = `<aside class="col"><div class="panel">${listHTML(sel)}</div>
+          <div class="edge" data-open><span class="bar"></span><span class="vname">${r.name}</span><span class="bar"></span></div>
+          <div class="grip" aria-label="Maniglia"></div></aside>`;
+      }
+      const sheet =
+        mode === "glass"
+          ? `<div class="scrim" data-close></div><div class="sheet">${listHTML(sel)}</div>`
+          : "";
+      stage.innerHTML = `${railHTML()}<main class="main"><div class="prep">${col}${contentHTML(r, mode)}</div>${sheet}
+        ${mode === "drag" ? '<div class="hint">Trascina la maniglia</div>' : ""}</main>`;
+      apply();
+      if (mode === "drag") wireDrag();
+    }
+
+    function apply() {
+      stage.classList.toggle("closed", !open);
+      stage.classList.toggle("open", open);
+      if (mode === "drag") {
+        const prep = stage.querySelector(".prep");
+        prep.style.setProperty("--colw", open ? "324px" : "24px");
+        prep.style.setProperty("--p", open ? 1 : 0);
+      }
+    }
+    const setOpen = (v) => {
+      if (mode === "drag") stage.querySelector(".prep").classList.add("settle");
+      open = v;
+      apply();
+    };
+
+    function morphPick(row, id) {
+      // FLIP: the row's tile and name fly to the header, then the list closes.
+      const s = stage._s || 1;
+      const base = stage.getBoundingClientRect();
+      const rel = (el) => {
+        const b = el.getBoundingClientRect();
+        return { x: (b.left - base.left) / s, y: (b.top - base.top) / s, w: b.width / s, h: b.height / s };
+      };
+      const from = rel(row.querySelector(".tile"));
+      sel = id;
+      render(); // still open, new selection shown
+      const fly = document.createElement("div");
+      fly.className = "flyer";
+      const r = cur();
+      fly.innerHTML = `<span class="tile" style="background:color-mix(in srgb, var(--color-accent) 14%, transparent);color:var(--color-accent)">${ic(
+        r.m
+      )}</span><span style="font-size:15.5px;white-space:nowrap">${r.name}</span>`;
+      fly.style.left = from.x + "px";
+      fly.style.top = from.y + "px";
+      stage.append(fly);
+      stage.classList.add("flying");
+      open = false;
+      apply();
+      // target measured after the layout settles: header big tile position at the end state
+      setTimeout(() => {
+        const to = rel(stage.querySelector(".hdr .big"));
+        const k = to.h / 42;
+        fly.animate(
+          [
+            { transform: "translate(0,0) scale(1)" },
+            { transform: `translate(${to.x - from.x}px, ${to.y - from.y}px) scale(${k})` },
+          ],
+          { duration: 520, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "forwards" }
+        ).onfinish = () => {
+          stage.classList.remove("flying");
+          fly.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" }).onfinish = () =>
+            fly.remove();
+        };
+      }, 500);
+    }
+
+    stage.addEventListener("click", (e) => {
+      if (stage._dragged) return;
+      const t = e.target.closest("[data-id],[data-open],[data-close]");
+      if (!t) return;
+      if (t.hasAttribute("data-open")) return setOpen(true);
+      if (t.hasAttribute("data-close")) return setOpen(false);
+      const id = t.dataset.id;
+      if (mode === "morph" && open) return morphPick(t, id);
+      sel = id;
+      render();
+      if (mode === "glass") setTimeout(() => setOpen(false), 140);
+    });
+
+    function wireDrag() {
+      const grip = stage.querySelector(".grip");
+      const prep = stage.querySelector(".prep");
+      const hint = stage.querySelector(".hint");
+      let d = null;
+      grip.addEventListener("pointerdown", (e) => {
+        grip.setPointerCapture(e.pointerId);
+        prep.classList.remove("settle");
+        d = { x: e.clientX, w: open ? 324 : 24, t: performance.now(), lx: e.clientX, v: 0, moved: false };
+        grip.classList.add("active");
+      });
+      grip.addEventListener("pointermove", (e) => {
+        if (!d) return;
+        const s = stage._s || 1;
+        const dx = (e.clientX - d.x) / s;
+        if (Math.abs(dx) > 4) d.moved = true;
+        let w = d.w + dx;
+        if (w > 324) w = 324 + (w - 324) * 0.3;
+        if (w < 24) w = 24 - (24 - w) * 0.3;
+        const now = performance.now();
+        d.v = (e.clientX - d.lx) / s / Math.max(1, now - d.t);
+        d.t = now;
+        d.lx = e.clientX;
+        prep.style.setProperty("--colw", w + "px");
+        prep.style.setProperty("--p", Math.max(0, Math.min(1, (w - 24) / 300)));
+      });
+      const end = () => {
+        if (!d) return;
+        grip.classList.remove("active");
+        const w = parseFloat(prep.style.getPropertyValue("--colw"));
+        if (!d.moved) setOpen(!open);
+        else setOpen(Math.abs(d.v) > 0.4 ? d.v > 0 : w > 174);
+        stage._dragged = d.moved;
+        setTimeout(() => (stage._dragged = false), 0);
+        d = null;
+        hint.classList.remove("show");
+      };
+      grip.addEventListener("pointerup", end);
+      grip.addEventListener("pointercancel", end);
+      if (!stage._hinted) {
+        stage._hinted = true;
+        hint.classList.add("show");
+      }
+    }
+
+    section.querySelector("[data-demo]").addEventListener("click", () => setOpen(!open));
+    render();
+    fit();
+  }
+
+  document.querySelectorAll(".opt").forEach(setup);
+
+  document.getElementById("palette").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    document.documentElement.dataset.palette = b.dataset.p;
+    for (const x of e.currentTarget.children) x.setAttribute("aria-pressed", String(x === b));
+  });
+</script>

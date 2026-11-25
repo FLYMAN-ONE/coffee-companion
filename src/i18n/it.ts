@@ -57,6 +57,7 @@ export const it: Dict = {
     favorites: "Preferite",
     all: "Tutte",
     noRecipe: "Senza ricetta",
+    chooseRecipe: "Scegli la ricetta",
     free: "Libero",
     freeSub: "dosi e cronometro",
     freeHint: "Scegli il metodo, regola le dosi e usa il cronometro",
