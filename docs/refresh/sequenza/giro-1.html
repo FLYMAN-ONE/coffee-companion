@@ -1,0 +1,663 @@
+<meta charset="utf-8" />
+<title>Sequenza: alternative</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap"
+/>
+<style>
+  /* Layout: one column of options; each option shows the Sequence at the real width of the Prepare column (712px). Single dark look, palettes from src/styles/theme.css. */
+  :root {
+    color-scheme: dark;
+    --color-app: #0e1116;
+    --color-focus: #0b0d11;
+    --color-surface: #161b22;
+    --color-raised: #1f262f;
+    --color-raised-2: #28303a;
+    --color-line: rgb(238 241 245 / 0.07);
+    --color-ink: #eef1f5;
+    --color-prose: #d6dce4;
+    --color-mute: #97a1ae;
+    --color-faint: #606a77;
+    --color-accent: #dd8c5c;
+    --color-accent-ink: #2a1406;
+    --color-water: #8fcbe8;
+    --color-water-deep: #5d97b3;
+    --color-glass: #525d6b;
+    --font-sans: "Manrope", -apple-system, system-ui, sans-serif;
+    --font-num: "Space Grotesk", "Manrope", system-ui, sans-serif;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  :root[data-palette="abisso"] {
+    --color-app: #090c0d;
+    --color-focus: #070a0a;
+    --color-surface: #111617;
+    --color-raised: #1a2122;
+    --color-raised-2: #232c2d;
+    --color-line: rgb(238 242 242 / 0.07);
+    --color-ink: #eef2f2;
+    --color-prose: #d4dddc;
+    --color-mute: #929c9c;
+    --color-faint: #5b6566;
+    --color-accent: #ff8f72;
+    --color-accent-ink: #3a1206;
+    --color-water: #8ed3cb;
+    --color-water-deep: #5a9e96;
+    --color-glass: #4d5a59;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+  }
+  body {
+    background: var(--color-app);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    padding-block: 32px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .num {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+  .wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  header.top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .lead {
+    color: var(--color-mute);
+    font-size: 14.5px;
+    line-height: 1.55;
+    max-width: 62ch;
+    margin-top: 6px;
+  }
+  .seg {
+    display: flex;
+    background: var(--color-surface);
+    border-radius: 16px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .seg button {
+    padding: 9px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-mute);
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      transform 160ms var(--ease-out);
+  }
+  .seg button:active {
+    transform: scale(0.97);
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--color-raised);
+    color: var(--color-ink);
+  }
+  .opt {
+    background: var(--color-surface);
+    border-radius: 28px;
+    padding: 22px 22px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .opt h2 {
+    font-size: 19px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .opt h2 .tag {
+    font-family: var(--font-num);
+    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: var(--color-raised);
+    color: var(--color-mute);
+  }
+  .opt.ref h2 .tag {
+    background: none;
+    box-shadow: inset 0 0 0 1.5px var(--color-line);
+  }
+  .opt p.d {
+    color: var(--color-mute);
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 66ch;
+  }
+  .opt p.d b {
+    color: var(--color-prose);
+    font-weight: 600;
+  }
+  .scroll {
+    overflow-x: auto;
+    margin-inline: -6px;
+    padding-inline: 6px;
+    scrollbar-width: none;
+  }
+  .stage {
+    width: 748px;
+    background: var(--color-app);
+    border-radius: 22px;
+    padding: 20px 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+  .stage > section {
+    padding-inline: 0;
+  }
+  .stage .rname {
+    font-size: 12px;
+    color: var(--color-faint);
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+  .stage .rname b {
+    color: var(--color-mute);
+    font-weight: 600;
+  }
+  .fs {
+    margin-inline: -0px;
+  }
+  .inner {
+    padding-inline: 0;
+  }
+  .stagebox {
+    padding-inline: 0;
+  }
+  /* shared */
+  .cols {
+    display: flex;
+    gap: 6px;
+  }
+  .col {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .sub {
+    font-size: 13px;
+    color: var(--color-mute);
+  }
+  .w {
+    color: var(--color-water);
+  }
+  /* 0 current */
+  .cur-bar {
+    height: 14px;
+    border-radius: 7px;
+    background: var(--color-raised-2);
+  }
+  .cur-bar.p {
+    background: color-mix(in srgb, var(--color-water) 16%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-water) 35%, transparent);
+  }
+  /* A curve */
+  .curve svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  /* B tiles */
+  .tile {
+    border-radius: 18px;
+    padding: 12px 12px 11px;
+    min-height: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    background: var(--color-raised);
+  }
+  .tile.p {
+    background: color-mix(in srgb, var(--color-water) 11%, var(--color-app));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-water) 22%, transparent);
+  }
+  .tile .big {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .tile .big small {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-mute);
+    margin-left: 3px;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .tile .meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .tile .ix {
+    font-size: 12px;
+    color: var(--color-faint);
+  }
+  /* C rail */
+  .rail-top {
+    font-size: 12.5px;
+    color: var(--color-faint);
+    height: 18px;
+  }
+  .track {
+    position: relative;
+    height: 16px;
+    display: flex;
+    align-items: center;
+  }
+  .track .ln {
+    position: absolute;
+    left: 0;
+    right: -6px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-raised-2);
+  }
+  .track .ln.p {
+    height: 6px;
+    background: color-mix(in srgb, var(--color-water) 55%, transparent);
+  }
+  .track .dot {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-app);
+    box-shadow: inset 0 0 0 2.5px var(--color-glass);
+  }
+  .track .dot.p {
+    box-shadow: inset 0 0 0 2.5px var(--color-water);
+  }
+  .rail-end {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 0;
+    flex: none;
+  }
+  .rail-end .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-glass);
+    margin-right: -7px;
+  }
+  /* D list */
+  .list {
+    display: grid;
+    gap: 4px;
+  }
+  .list.two {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 14px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 46px 10px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    height: 40px;
+    padding-inline: 12px 14px;
+    border-radius: 14px;
+    background: var(--color-surface);
+  }
+  .row .t {
+    font-size: 13.5px;
+    color: var(--color-faint);
+    text-align: right;
+  }
+  .row .pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 4px;
+    background: var(--color-raised-2);
+  }
+  .row .pip.p {
+    background: var(--color-water);
+  }
+  .row .n {
+    font-size: 14.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .row .n span {
+    font-weight: 500;
+    color: var(--color-mute);
+    font-size: 13px;
+    margin-left: 8px;
+  }
+  .row .r {
+    font-size: 15px;
+    font-weight: 500;
+    text-align: right;
+  }
+  .row .r small {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--color-mute);
+    margin-left: 3px;
+  }
+  .row .r.q {
+    color: var(--color-mute);
+    font-size: 13.5px;
+  }
+  /* E thick bar */
+  .thick {
+    display: flex;
+    gap: 3px;
+    height: 46px;
+  }
+  .thick > div {
+    min-width: 0;
+    border-radius: 6px;
+    background: var(--color-raised);
+    display: flex;
+    align-items: center;
+    padding-inline: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .thick > div:first-child {
+    border-radius: 16px 6px 6px 16px;
+  }
+  .thick > div:last-child {
+    border-radius: 6px 16px 16px 6px;
+  }
+  .thick > div.p {
+    background: color-mix(in srgb, var(--color-water) 20%, var(--color-app));
+    color: var(--color-water);
+  }
+  .thick .v {
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .thick .v.q {
+    color: var(--color-mute);
+    font-size: 13.5px;
+  }
+  .thick .v small {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    opacity: 0.75;
+    margin-left: 2px;
+  }
+  .ticks {
+    display: flex;
+    gap: 3px;
+    margin-top: 8px;
+  }
+  .ticks .col .tt {
+    font-size: 12px;
+    color: var(--color-faint);
+    margin-bottom: 2px;
+  }
+  .foot {
+    color: var(--color-faint);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Sequenza: 5 alternative</h1>
+      <p class="lead">
+        La barra “Sequenza” della schermata Prepara, alla larghezza reale della colonna (712 px su iPad
+        1180×820). Ogni proposta su due ricette: V60 (versate ravvicinate) e French Press (step brevissimi
+        accanto a step di 5 minuti). Lo spazio libero sopra Play è di circa 230 px.
+      </p>
+    </div>
+    <div class="seg" role="group" aria-label="Palette">
+      <button id="p-ardesia" type="button" aria-pressed="true" data-p="ardesia">Ardesia</button>
+      <button id="p-abisso" type="button" aria-pressed="false" data-p="abisso">Abisso</button>
+    </div>
+  </header>
+  <div id="opts" class="wrap" style="gap: 20px"></div>
+  <p class="foot">
+    In tutte le proposte i nomi possono andare su due righe invece di essere troncati (oggi “Mescola e ruota”
+    diventa “Mesc…”), e gli step molto brevi hanno una larghezza minima. Nessuna animazione mentre si
+    trascinano le dosi: i ml cambiano all'istante, come i numeri sopra.
+  </p>
+</div>
+
+<script>
+  const R = [
+    {
+      name: "V60",
+      water: 500,
+      steps: [
+        ["Pre-infusione", 45, 12],
+        ["Prima versata", 30, 60],
+        ["Seconda versata", 30, 100],
+        ["Mescola e ruota", 15, 100],
+        ["Drenaggio", 75, 100],
+      ],
+    },
+    {
+      name: "French Press",
+      water: 500,
+      steps: [
+        ["Versa l'acqua", 15, 100],
+        ["Infusione", 240, 100],
+        ["Rompi la crosta", 30, 100],
+        ["Riposo", 300, 100],
+        ["Versa piano", 30, 100],
+      ],
+    },
+  ];
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  function prep(r) {
+    const total = r.steps.reduce((a, s) => a + s[1], 0);
+    let t = 0,
+      prev = 0;
+    const steps = r.steps.map(([label, sec, pct], i) => {
+      const o = {
+        i,
+        label,
+        sec,
+        pct,
+        prevPct: prev,
+        start: t,
+        pour: pct > prev,
+        ml: Math.round((pct / 100) * r.water),
+        add: Math.round(((pct - prev) / 100) * r.water),
+      };
+      t += sec;
+      prev = pct;
+      return o;
+    });
+    const raw = steps.map((s) => Math.max(s.sec / total, 0.14));
+    const sum = raw.reduce((a, b) => a + b, 0);
+    steps.forEach((s, i) => (s.w = raw[i] / sum));
+    return { total, steps, water: r.water };
+  }
+  const flex = (s) => `style="flex:${s.w} 1 0"`;
+
+  const OPTIONS = [
+    {
+      tag: "0",
+      ref: true,
+      title: "Attuale",
+      desc: "Per riferimento: barretta sottile, blocchi proporzionali alla durata, versate tinte d'acqua.",
+      render: ({ steps }) =>
+        `<div class="cols">${steps.map((s) => `<div class="col" style="gap:6px;flex:${s.sec} 1 0"><div class="cur-bar ${s.pour ? "p" : ""}"></div><div class="sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b class="name" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.label}</b><span class="num">${fmt(s.sec)}${s.pour ? ` · ${s.ml} ml` : ""}</span></div></div>`).join("")}</div>`,
+    },
+    {
+      tag: "A",
+      title: "Curva dell'acqua",
+      desc: "<b>L'acqua nella caraffa nel tempo.</b> Le versate sono rampe che salgono, le attese tratti piani; in cima a ogni rampa il totale da raggiungere. Sotto, gli step con l'orario di inizio. Racconta la ricetta in un colpo d'occhio e richiama la caraffa del timer.",
+      render: ({ steps, water }) => {
+        const W = 712,
+          H = 112,
+          top = 26,
+          base = H - 8;
+        let x = 0;
+        const xs = steps.map((s) => {
+          const a = x;
+          x += s.w * W;
+          return [a, x];
+        });
+        const y = (p) => base - (p / 100) * (base - top);
+        const pts = steps
+          .map(
+            (s, i) =>
+              `L${xs[i][0].toFixed(1)} ${y(s.prevPct).toFixed(1)} L${xs[i][1].toFixed(1)} ${y(s.pct).toFixed(1)}`
+          )
+          .join(" ");
+        const area = `M0 ${base} ${pts} L${W} ${base} Z`;
+        const line = `M0 ${y(0)} ${pts}`;
+        const marks = steps.filter((s) => s.pour);
+        const grid = [...new Set(marks.map((s) => s.pct))]
+          .map(
+            (p) =>
+              `<line x1="0" x2="${W}" y1="${y(p)}" y2="${y(p)}" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="2 5"/>`
+          )
+          .join("");
+        const seps = xs
+          .slice(1)
+          .map(
+            ([a]) =>
+              `<line x1="${a}" x2="${a}" y1="${top - 6}" y2="${base}" stroke="var(--color-line)" stroke-width="1.5"/>`
+          )
+          .join("");
+        const labels = marks
+          .map((s) => {
+            const xe = xs[s.i][1];
+            const anchor = xe > W - 40 ? "end" : "middle";
+            return `<g><circle cx="${xe}" cy="${y(s.pct)}" r="4.5" fill="var(--color-water)"/><text x="${anchor === "end" ? xe - 8 : xe}" y="${y(s.pct) - 11}" text-anchor="${anchor}" fill="var(--color-water)" font-family="var(--font-num)" font-size="15" font-weight="500">${s.ml}<tspan fill="var(--color-mute)" font-family="var(--font-sans)" font-size="11.5"> ml</tspan></text></g>`;
+          })
+          .join("");
+        return `<div class="curve"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Acqua nel tempo">${grid}<path d="${area}" fill="var(--color-water)" fill-opacity=".13"/>${seps}<path d="${line}" fill="none" stroke="var(--color-water)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${labels}<line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--color-raised-2)" stroke-width="2"/></svg>
+        <div class="cols" style="gap:0;margin-top:8px">${steps.map((s) => `<div class="col" style="flex:${s.w} 1 0;padding-right:8px;gap:2px"><span class="num sub" style="color:var(--color-faint);font-size:12px">${fmt(s.start)}</span><span class="name">${s.label}</span><span class="num sub">${fmt(s.sec)}</span></div>`).join("")}</div></div>`;
+      },
+    },
+    {
+      tag: "B",
+      title: "Tessere",
+      desc: "<b>Una tessera per step</b>, stessa forma dei blocchi dell'editor ricette. Nelle versate il numero grande è l'acqua da raggiungere, nelle attese la durata. Più alta e leggibile, ma più “pesante” sullo schermo.",
+      render: ({ steps }) =>
+        `<div class="cols">${steps.map((s) => `<div class="tile ${s.pour ? "p" : ""}" ${flex(s)}><div class="meta"><span class="name">${s.label}</span></div><div class="meta"><span class="num big ${s.pour ? "w" : ""}">${s.pour ? `${s.ml}<small>ml</small>` : fmt(s.sec)}</span>${s.pour ? `<span class="num sub">${fmt(s.sec)}</span>` : ""}</div></div>`).join("")}</div>`,
+    },
+    {
+      tag: "C",
+      title: "Binario",
+      desc: "<b>Una linea con le fermate</b>, come una mappa della metro. Sopra ogni fermata l'orario in cui scatta lo step (lo stesso che vedrai sul timer), sotto nome e quantità. Le versate sono tratti spessi color acqua, le attese un filo sottile. Leggera, molto ordinata.",
+      render: ({ steps, total }) =>
+        `<div class="cols" style="gap:0">${steps.map((s) => `<div class="col" style="flex:${s.w} 1 0;gap:8px;padding-right:0"><span class="rail-top num">${fmt(s.start)}</span><div class="track"><div class="ln ${s.pour ? "p" : ""}"></div><div class="dot ${s.pour ? "p" : ""}"></div></div><div style="padding-right:10px;display:flex;flex-direction:column;gap:2px"><span class="name">${s.label}</span><span class="num sub">${s.pour ? `<span class="w">${s.ml} ml</span> · ` : ""}${fmt(s.sec)}</span></div></div>`).join("")}<div class="rail-end" style="gap:8px"><span class="rail-top num" style="color:var(--color-mute);white-space:nowrap">${fmt(total)}</span><div class="track"><div class="dot"></div></div></div></div>`,
+    },
+    {
+      tag: "D",
+      title: "Scaletta",
+      desc: "<b>Un elenco, una riga per step</b>: orario di inizio, nome e durata, a destra l'acqua da raggiungere. Niente proporzioni, si legge come una ricetta scritta. Con più di 5 step passa a due colonne.",
+      render: ({ steps }) =>
+        `<div class="list ${steps.length > 5 ? "two" : ""}">${steps.map((s) => `<div class="row"><span class="t num">${fmt(s.start)}</span><i class="pip ${s.pour ? "p" : ""}"></i><span class="n">${s.label}<span class="num">${fmt(s.sec)}</span></span>${s.pour ? `<span class="r num w">${s.ml}<small>ml</small></span>` : `<span class="r q">attesa</span>`}</div>`).join("")}</div>`,
+    },
+    {
+      tag: "E",
+      title: "Barra unica",
+      desc: "<b>Evoluzione dell'attuale</b>: un'unica barra spessa e arrotondata divisa in segmenti, con l'acqua scritta dentro le versate e la durata dentro le attese. Sotto, orario di inizio e nome. La più vicina a oggi e alla timeline del timer.",
+      render: ({ steps }) =>
+        `<div><div class="thick">${steps.map((s) => `<div class="${s.pour ? "p" : ""}" ${flex(s)}><span class="v num ${s.pour ? "" : "q"}">${s.pour ? `${s.ml}<small>ml</small>` : fmt(s.sec)}</span></div>`).join("")}</div><div class="ticks">${steps.map((s) => `<div class="col" style="flex:${s.w} 1 0;padding-left:4px;gap:1px"><span class="tt num">${fmt(s.start)}</span><span class="name">${s.label}</span>${s.pour ? `<span class="num sub">${fmt(s.sec)}</span>` : ""}</div>`).join("")}</div></div>`,
+    },
+  ];
+
+  document.getElementById("opts").innerHTML = OPTIONS.map(
+    (o) => `
+  <article class="opt ${o.ref ? "ref" : ""}">
+    <h2><span class="tag">${o.tag}</span>${o.title}</h2>
+    <p class="d">${o.desc}</p>
+    <div class="scroll"><div class="stage">
+      ${R.map((r) => `<section><div class="rname">Ricetta · <b>${r.name}</b> · ${r.water} ml</div><div class="eyebrow" style="margin-bottom:10px">Sequenza</div>${o.render(prep(r))}</section>`).join("")}
+    </div></div>
+  </article>`
+  ).join("");
+
+  const set = (p) => {
+    document.documentElement.dataset.palette = p;
+    document
+      .querySelectorAll(".seg button")
+      .forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
+    try {
+      localStorage.setItem("seq-palette", p);
+    } catch {}
+  };
+  document
+    .querySelectorAll(".seg button")
+    .forEach((b) => b.addEventListener("click", () => set(b.dataset.p)));
+  try {
+    const p = localStorage.getItem("seq-palette");
+    if (p) set(p);
+  } catch {}
+</script>

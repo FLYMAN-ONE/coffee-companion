@@ -10,6 +10,10 @@ import { fmtDec, fmtTime, uid } from "../../lib/format";
 import type { Recipe, RecipeStep } from "../../types";
 import { doseFromRatio, round1 } from "../prepare/logic/dosing";
 import { totalSeconds } from "./logic/recipe";
+import { sequenceLayout } from "./logic/sequence";
+import { WaterRibbon } from "./WaterRibbon";
+
+const RIBBON_H = 72;
 
 interface RecipeEditorProps {
   recipe: Recipe;
@@ -31,7 +35,7 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onCancel }: Reci
 
   const ratio = round1(1000 / r.dose);
   const total = totalSeconds(r) || 1;
-  const pours = r.steps.map((s, i) => s.waterPct > (i ? r.steps[i - 1].waterPct : 0));
+  const layout = sequenceLayout(r.steps);
   const step = r.steps[sel];
   const ml = (pct: number) => Math.round((pct / 100) * r.water);
 
@@ -156,35 +160,34 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onCancel }: Reci
         <span className="eyebrow">
           {r.steps.length ? t.recipes.stepsHint(fmtTime(total)) : t.recipes.noSteps}
         </span>
-        <div className="flex h-[74px] gap-1">
-          {r.steps.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setSel(i)}
-              aria-pressed={i === sel}
-              style={{ flex: Math.max(s.seconds / total, 0.07) }}
-              className={`press flex min-w-0 flex-col justify-between rounded-[14px] px-2.5 py-2 text-left ${
-                pours[i] ? "bg-water/16" : "bg-raised"
-              } ${i === sel ? "shadow-[inset_0_0_0_2px_var(--color-accent)]" : ""}`}
-            >
-              <b className="truncate text-[12.5px]">{s.label}</b>
-              <span className="num text-xs tracking-normal text-mute">
-                {fmtTime(s.seconds)}
-                {pours[i] ? (
-                  <>
-                    <br />
-                    {ml(s.waterPct)} ml
-                  </>
-                ) : null}
-              </span>
-            </button>
-          ))}
+        <div className="flex gap-2">
+          <div className="relative min-w-0 flex-1">
+            <div className="pointer-events-none absolute inset-x-0 top-0">
+              <WaterRibbon steps={layout} water={r.water} height={RIBBON_H} gap="surface" labelSize={16} />
+            </div>
+            <div className="relative flex">
+              {layout.map((s, i) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSel(i)}
+                  aria-pressed={i === sel}
+                  style={{ flex: `${s.x1 - s.x0} 1 0`, paddingTop: RIBBON_H + 8 }}
+                  className={`press flex min-w-0 flex-col rounded-[16px] px-2 pb-2 text-left ${
+                    i === sel ? "bg-accent/8 shadow-[inset_0_0_0_2px_var(--color-accent)]" : ""
+                  }`}
+                >
+                  <b className="line-clamp-2 text-[12.5px] leading-tight">{s.label}</b>
+                  <span className="num text-xs tracking-normal text-mute">{fmtTime(s.seconds)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <button
             type="button"
             onClick={addStep}
             aria-label={t.recipes.addStep}
-            className="press grid w-[52px] shrink-0 place-items-center rounded-[14px] bg-accent/14 text-accent"
+            className="press grid w-[52px] shrink-0 place-items-center self-stretch rounded-[16px] bg-accent/14 text-accent"
           >
             +
           </button>

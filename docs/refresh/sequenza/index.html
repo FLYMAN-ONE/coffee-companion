@@ -1,0 +1,714 @@
+<meta charset="utf-8" />
+<title>Sequenza: alternative</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600&display=swap"
+/>
+<style>
+  /* Layout: second round. One column of options; each shows the Sequence at the real width of the Prepare column (712px) on the app background. Single dark look, palettes copied from src/styles/theme.css. */
+  :root {
+    color-scheme: dark;
+    --color-app: #0e1116;
+    --color-focus: #0b0d11;
+    --color-surface: #161b22;
+    --color-raised: #1f262f;
+    --color-raised-2: #28303a;
+    --color-line: rgb(238 241 245 / 0.07);
+    --color-ink: #eef1f5;
+    --color-prose: #d6dce4;
+    --color-mute: #97a1ae;
+    --color-faint: #606a77;
+    --color-accent: #dd8c5c;
+    --color-accent-ink: #2a1406;
+    --color-accent-bright: #f0b38c;
+    --color-water: #8fcbe8;
+    --color-water-deep: #5d97b3;
+    --color-glass: #525d6b;
+    --font-sans: "Manrope", -apple-system, system-ui, sans-serif;
+    --font-num: "Space Grotesk", "Manrope", system-ui, sans-serif;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  :root[data-palette="abisso"] {
+    --color-app: #090c0d;
+    --color-focus: #070a0a;
+    --color-surface: #111617;
+    --color-raised: #1a2122;
+    --color-raised-2: #232c2d;
+    --color-line: rgb(238 242 242 / 0.07);
+    --color-ink: #eef2f2;
+    --color-prose: #d4dddc;
+    --color-mute: #929c9c;
+    --color-faint: #5b6566;
+    --color-accent: #ff8f72;
+    --color-accent-ink: #3a1206;
+    --color-accent-bright: #ffc0ae;
+    --color-water: #8ed3cb;
+    --color-water-deep: #5a9e96;
+    --color-glass: #4d5a59;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+  }
+  body {
+    background: var(--color-app);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    padding-block: 32px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .num {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+  .wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  header.top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .lead {
+    color: var(--color-mute);
+    font-size: 14.5px;
+    line-height: 1.55;
+    max-width: 62ch;
+    margin-top: 6px;
+  }
+  .tools {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .seg {
+    display: flex;
+    background: var(--color-surface);
+    border-radius: 16px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .seg button,
+  .btn {
+    padding: 9px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-mute);
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      transform 160ms var(--ease-out);
+  }
+  .btn {
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    color: var(--color-accent);
+    border-radius: 16px;
+    padding: 13px 18px;
+  }
+  .seg button:active,
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--color-raised);
+    color: var(--color-ink);
+  }
+  .opt {
+    background: var(--color-surface);
+    border-radius: 28px;
+    padding: 22px 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .opt h2 {
+    font-size: 19px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .opt h2 .tag {
+    font-family: var(--font-num);
+    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: var(--color-raised);
+    color: var(--color-mute);
+  }
+  .opt p.d {
+    color: var(--color-mute);
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 66ch;
+  }
+  .opt p.d b {
+    color: var(--color-prose);
+    font-weight: 600;
+  }
+  .scroll {
+    overflow-x: auto;
+    margin-inline: -6px;
+    padding-inline: 6px;
+    scrollbar-width: none;
+  }
+  .stage {
+    width: 748px;
+    background: var(--color-app);
+    border-radius: 22px;
+    padding: 20px 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .rname {
+    font-size: 12px;
+    color: var(--color-faint);
+    margin-bottom: 12px;
+  }
+  .rname b {
+    color: var(--color-mute);
+    font-weight: 600;
+  }
+  .cols {
+    display: flex;
+  }
+  .col {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .sub {
+    font-size: 13px;
+    color: var(--color-mute);
+  }
+  .w {
+    color: var(--color-water);
+  }
+  .big {
+    font-family: var(--font-num);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .big small {
+    font-family: var(--font-sans);
+    font-size: 0.5em;
+    font-weight: 600;
+    letter-spacing: 0;
+    margin-left: 2px;
+    color: var(--color-mute);
+  }
+  svg {
+    display: block;
+    overflow: visible;
+  }
+  .glow {
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-water) 55%, transparent));
+  }
+  /* motion: entrance on recipe change, slow idle wave */
+  @keyframes drift {
+    to {
+      transform: translateX(var(--L));
+    }
+  }
+  .wave {
+    animation: drift 5.5s linear infinite;
+  }
+  .rise {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: rise 700ms var(--ease-out) both;
+  }
+  @keyframes rise {
+    from {
+      transform: scaleY(0);
+    }
+  }
+  .wipe {
+    animation: wipe 900ms var(--ease-out) both;
+  }
+  @keyframes wipe {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+  .fadeup {
+    animation: fadeup 420ms var(--ease-out) both;
+  }
+  @keyframes fadeup {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  .arc {
+    transition: stroke-dasharray 800ms var(--ease-out);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wave,
+    .rise,
+    .wipe {
+      animation: none;
+    }
+    .fadeup {
+      animation-name: fade;
+    }
+    .arc {
+      transition: none;
+    }
+    * {
+      transition-property: opacity, color, background-color !important;
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  /* B tubes */
+  .tubes {
+    display: grid;
+    gap: 8px;
+  }
+  .tube-col {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    min-width: 0;
+  }
+  .tube-txt {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+    padding-block: 2px;
+  }
+  /* D ring */
+  .ring-wrap {
+    display: grid;
+    grid-template-columns: 196px minmax(0, 1fr);
+    gap: 26px;
+    align-items: center;
+  }
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lg {
+    display: grid;
+    grid-template-columns: 24px 40px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    height: 32px;
+  }
+  .lg .ix {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--color-raised-2);
+    color: var(--color-mute);
+  }
+  .lg .ix.p {
+    background: var(--color-water);
+    color: var(--color-app);
+  }
+  .lg .t {
+    font-size: 13px;
+    color: var(--color-faint);
+  }
+  .lg .n {
+    font-size: 14.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lg .n span {
+    font-weight: 500;
+    color: var(--color-mute);
+    font-size: 13px;
+    margin-left: 6px;
+  }
+  .lg .r {
+    font-size: 17px;
+  }
+  /* E basins */
+  .basins {
+    display: flex;
+    gap: 6px;
+    height: 128px;
+  }
+  .basin {
+    position: relative;
+    min-width: 0;
+    border-radius: 20px;
+    background: var(--color-raised);
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+  .basin .fill {
+    position: absolute;
+    inset: auto 0 0 0;
+  }
+  .basin .fill svg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 10px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .basin .txt {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px 12px 12px;
+  }
+  .basin .add {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-water);
+    background: color-mix(in srgb, var(--color-app) 55%, transparent);
+    border-radius: 8px;
+    padding: 2px 6px;
+    align-self: flex-start;
+  }
+  .foot {
+    color: var(--color-faint);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .foot b {
+    color: var(--color-mute);
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Sequenza, secondo giro</h1>
+      <p class="lead">
+        Cinque proposte più d'impatto: acqua, vetro, luce e un minimo di movimento, con numeri grandi.
+        Larghezza reale della colonna (712 px su iPad 1180×820), circa 230 px di altezza disponibili sopra
+        Play. Ricette d'esempio: V60 e French Press.
+      </p>
+    </div>
+    <div class="tools">
+      <button id="replay" class="btn" type="button">Rivedi l'ingresso</button>
+      <div class="seg" role="group" aria-label="Palette">
+        <button id="p-ardesia" type="button" aria-pressed="true" data-p="ardesia">Ardesia</button>
+        <button id="p-abisso" type="button" aria-pressed="false" data-p="abisso">Abisso</button>
+      </div>
+    </div>
+  </header>
+  <div id="opts" class="wrap" style="gap: 20px"></div>
+  <p class="foot">
+    <b>Movimento.</b> L'ingresso (riempimento o tracciato, 0,7–0,9 s, curva <i>ease-out</i>) parte solo quando
+    cambi ricetta. Trascinando le dosi i ml cambiano all'istante, senza animazioni. L'onda lenta nella
+    proposta B è facoltativa; con “riduci movimento” restano solo dissolvenze.
+  </p>
+</div>
+
+<script>
+  const R = [
+    {
+      name: "V60",
+      water: 500,
+      steps: [
+        ["Pre-infusione", 45, 12],
+        ["Prima versata", 30, 60],
+        ["Seconda versata", 30, 100],
+        ["Mescola e ruota", 15, 100],
+        ["Drenaggio", 75, 100],
+      ],
+    },
+    {
+      name: "French Press",
+      water: 500,
+      steps: [
+        ["Versa l'acqua", 15, 100],
+        ["Infusione", 240, 100],
+        ["Rompi la crosta", 30, 100],
+        ["Riposo", 300, 100],
+        ["Versa piano", 30, 100],
+      ],
+    },
+  ];
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  let n = 0;
+  const uid = () => `u${n++}`;
+  function prep(r) {
+    const total = r.steps.reduce((a, s) => a + s[1], 0);
+    let t = 0,
+      prev = 0;
+    const steps = r.steps.map(([label, sec, pct], i) => {
+      const o = {
+        i,
+        label,
+        sec,
+        pct,
+        prevPct: prev,
+        start: t,
+        pour: pct > prev,
+        ml: Math.round((pct / 100) * r.water),
+        add: Math.round(((pct - prev) / 100) * r.water),
+      };
+      t += sec;
+      prev = pct;
+      return o;
+    });
+    const raw = steps.map((s) => Math.max(s.sec / total, 0.15));
+    const sum = raw.reduce((a, b) => a + b, 0);
+    steps.forEach((s, i) => (s.w = raw[i] / sum));
+    return { total, steps, water: r.water };
+  }
+  const grad = (id, a = 1, b = 1) =>
+    `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--color-water);stop-opacity:${a}"/><stop offset="1" style="stop-color:var(--color-water-deep);stop-opacity:${b}"/></linearGradient>`;
+  const wavePath = (w, amp, L, h) => {
+    let d = `M${-L} ${amp}`;
+    for (let x = -L; x < w + L; x += L) d += ` q${L / 4} ${-amp} ${L / 2} 0 t${L / 2} 0`;
+    return d + ` V${h} H${-L} Z`;
+  };
+  const delay = (i, base = 0) => `animation-delay:${base + i * 70}ms`;
+
+  const OPTIONS = [
+    {
+      tag: "A",
+      title: "Nastro d'acqua",
+      desc: "<b>Un nastro luminoso che si gonfia a ogni versata.</b> Lo spessore è l'acqua nella caraffa: sale nelle versate, resta piano nelle attese. In cima a ogni rampa il totale in grande. All'ingresso il nastro scorre da sinistra a destra, come il tempo dell'estrazione.",
+      render: ({ steps }) => {
+        const W = 712,
+          H = 124,
+          base = 116,
+          top = 30;
+        const g = uid();
+        let x = 0;
+        const xs = steps.map((s) => {
+          const a = x;
+          x += s.w * W;
+          return [a, x];
+        });
+        const y = (p) => base - 8 - (p / 100) * (base - 8 - top);
+        const edge = steps
+          .map(
+            (s, i) =>
+              `L${xs[i][0].toFixed(1)} ${y(s.prevPct).toFixed(1)} C${(xs[i][0] + (xs[i][1] - xs[i][0]) * 0.5).toFixed(1)} ${y(s.prevPct).toFixed(1)} ${(xs[i][0] + (xs[i][1] - xs[i][0]) * 0.5).toFixed(1)} ${y(s.pct).toFixed(1)} ${xs[i][1].toFixed(1)} ${y(s.pct).toFixed(1)}`
+          )
+          .join(" ");
+        const band = `M0 ${base} L0 ${y(0)} ${edge} L${W} ${base} Z`;
+        const line = `M0 ${y(0)} ${edge}`;
+        const cuts = xs
+          .slice(1)
+          .map(([a]) => `<rect x="${a - 1.5}" y="0" width="3" height="${base + 2}" fill="var(--color-app)"/>`)
+          .join("");
+        const labels = steps
+          .filter((s) => s.pour)
+          .map((s) => {
+            const xe = xs[s.i][1];
+            const end = xe > W - 60;
+            return `<g class="fadeup" style="${delay(s.i, 350)}"><circle cx="${xe}" cy="${y(s.pct)}" r="5" fill="var(--color-ink)" stroke="var(--color-water)" stroke-width="3"/><text x="${end ? xe - 10 : xe}" y="${y(s.pct) - 13}" text-anchor="${end ? "end" : "middle"}" class="big" fill="var(--color-ink)" font-size="22">${s.ml}<tspan font-size="11.5" fill="var(--color-mute)" font-family="var(--font-sans)" font-weight="600"> ml</tspan></text></g>`;
+          })
+          .join("");
+        return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><defs>${grad(g, 0.55, 0.12)}</defs>
+        <g class="wipe"><path d="${band}" fill="url(#${g})"/><path d="${line}" class="glow" fill="none" stroke="var(--color-water)" stroke-width="3" stroke-linecap="round"/>${cuts}</g>${labels}</svg>
+        <div class="cols" style="margin-top:10px">${steps.map((s) => `<div class="col fadeup" style="flex:${s.w} 1 0;padding-right:10px;gap:2px;${delay(s.i, 200)}"><span class="num sub" style="font-size:12px;color:var(--color-faint)">${fmt(s.start)}</span><span class="name">${s.label}</span><span class="num sub">${fmt(s.sec)}</span></div>`).join("")}</div>`;
+      },
+    },
+    {
+      tag: "B",
+      title: "Provette",
+      desc: "<b>Ogni step è una provetta di vetro</b> riempita fino all'acqua raggiunta a fine step. Nelle versate la parte appena aggiunta brilla, sopra quella già versata; nelle attese il livello resta fermo e più spento. A fianco il totale in grande. Richiama la caraffa del timer.",
+      render: ({ steps }) => {
+        const TW = 38,
+          TH = 132;
+        return `<div class="tubes" style="grid-template-columns:repeat(${steps.length},minmax(0,1fr))">${steps
+          .map((s) => {
+            const c = uid(),
+              g = uid();
+            const lv = (p) => TH - 4 - (p / 100) * (TH - 14);
+            const L = 19;
+            return `<div class="tube-col"><svg width="${TW}" height="${TH}" viewBox="0 0 ${TW} ${TH}" style="flex:none"><defs><clipPath id="${c}"><rect x="3" y="3" width="${TW - 6}" height="${TH - 6}" rx="${(TW - 6) / 2}"/></clipPath>${grad(g, 1, 0.85)}</defs>
+          <rect x="3" y="3" width="${TW - 6}" height="${TH - 6}" rx="${(TW - 6) / 2}" fill="var(--color-raised)"/>
+          <g clip-path="url(#${c})">
+            <g class="rise" style="${delay(s.i)}">
+              <g transform="translate(0 ${lv(s.pct)})"><path class="wave" style="--L:${L}px" d="${wavePath(TW, 2.2, L, TH)}" fill="${s.pour ? `url(#${g})` : "var(--color-water-deep)"}" fill-opacity="${s.pour ? 1 : 0.45}"/></g>
+              ${s.pour && s.prevPct ? `<rect x="0" y="${lv(s.prevPct)}" width="${TW}" height="${TH}" fill="var(--color-water-deep)" fill-opacity=".75"/>` : ""}
+            </g>
+          </g>
+          <rect x="3" y="3" width="${TW - 6}" height="${TH - 6}" rx="${(TW - 6) / 2}" fill="none" stroke="${s.pour ? "var(--color-water)" : "var(--color-glass)"}" stroke-opacity="${s.pour ? 0.7 : 1}" stroke-width="2" ${s.pour ? 'class="glow"' : ""}/>
+          <rect x="9" y="12" width="3" height="${TH * 0.45}" rx="1.5" fill="var(--color-ink)" fill-opacity=".14"/>
+        </svg>
+        <div class="tube-txt fadeup" style="${delay(s.i, 250)}"><div><span class="num sub" style="font-size:12px;color:var(--color-faint)">${fmt(s.start)}</span><span class="name" style="margin-top:2px">${s.label}</span></div>
+        <div>${s.pour ? `<div class="num w" style="font-size:12.5px;font-weight:600">+${s.add}</div>` : ""}<div class="big" style="font-size:25px;color:${s.pour ? "var(--color-ink)" : "var(--color-mute)"}">${s.ml}<small>ml</small></div><div class="num sub" style="margin-top:3px">${fmt(s.sec)}</div></div></div></div>`;
+          })
+          .join("")}</div>`;
+      },
+    },
+    {
+      tag: "C",
+      title: "Quadranti",
+      desc: "<b>Un piccolo quadrante per step</b>, come un orologio dell'intera estrazione: l'arco acceso mostra quando cade lo step e quanto dura rispetto al totale. Al centro i ml da raggiungere nelle versate, la durata nelle attese. Gli archi si tracciano all'ingresso.",
+      render: ({ steps, total }) => {
+        const r = 38,
+          sw = 8,
+          C = 2 * Math.PI * r,
+          S = 2 * (r + sw);
+        return `<div class="cols" style="justify-content:space-between">${steps
+          .map((s) => {
+            const len = Math.max((s.sec / total) * C - 3, 2),
+              off = (s.start / total) * C;
+            return `<div class="col" style="align-items:center;gap:10px;width:${100 / steps.length}%"><div style="position:relative;width:${S}px;height:${S}px">
+          <svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" style="transform:rotate(-90deg)"><circle cx="${S / 2}" cy="${S / 2}" r="${r}" fill="none" stroke="var(--color-raised)" stroke-width="${sw}"/>
+          <circle cx="${S / 2}" cy="${S / 2}" r="${r + sw / 2 + 5}" fill="none" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="1.5 ${(2 * Math.PI * (r + sw / 2 + 5)) / 12 - 1.5}"/>
+          <circle class="arc ${s.pour ? "glow" : ""}" data-dash="${len} ${C}" cx="${S / 2}" cy="${S / 2}" r="${r}" fill="none" stroke="${s.pour ? "var(--color-water)" : "var(--color-ink)"}" stroke-opacity="${s.pour ? 1 : 0.55}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="0 ${C}" stroke-dashoffset="${-off}" style="transition-delay:${s.i * 90}ms"/></svg>
+          <div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center">${s.pour ? `<div class="big" style="font-size:22px">${s.ml}<small style="display:block;margin:3px 0 0">ml</small></div>` : `<div class="big" style="font-size:20px;color:var(--color-mute)">${fmt(s.sec)}</div>`}</div></div>
+          <div class="fadeup" style="text-align:center;${delay(s.i, 200)}"><span class="name">${s.label}</span><span class="num sub">${s.pour ? `<span class="w">${fmt(s.sec)}</span>` : "attesa"} · ${fmt(s.start)}</span></div></div>`;
+          })
+          .join("")}</div>`;
+      },
+    },
+    {
+      tag: "D",
+      title: "Anello",
+      desc: "<b>Tutta l'estrazione in un anello</b>, come il quadrante di un timer: ogni spicchio è uno step, le versate accese e numerate. Al centro durata totale e acqua. Accanto, la legenda con orario di inizio e totale da raggiungere. Molto d'impatto, occupa la stessa altezza di oggi più un po'.",
+      render: ({ steps, total, water }) => {
+        const S = 196,
+          r = 78,
+          sw = 24,
+          C = 2 * Math.PI * r,
+          gap = 4;
+        const arcs = steps
+          .map((s) => {
+            const len = Math.max((s.sec / total) * C - gap, 1.5),
+              off = (s.start / total) * C;
+            const mid = ((s.start + s.sec / 2) / total) * 2 * Math.PI - Math.PI / 2;
+            const showN = (s.sec / total) * 360 > 20;
+            return `<circle class="arc ${s.pour ? "glow" : ""}" data-dash="${len} ${C}" cx="${S / 2}" cy="${S / 2}" r="${r}" fill="none" stroke="${s.pour ? "var(--color-water)" : "var(--color-raised-2)"}" stroke-width="${sw}" stroke-dasharray="0 ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 ${S / 2} ${S / 2})" style="transition-delay:${s.i * 110}ms"/>
+          ${showN ? `<text class="fadeup" x="${S / 2 + Math.cos(mid) * r}" y="${S / 2 + Math.sin(mid) * r + 4.5}" text-anchor="middle" font-size="12.5" font-weight="800" fill="${s.pour ? "var(--color-app)" : "var(--color-mute)"}" style="${delay(s.i, 500)}">${s.i + 1}</text>` : ""}`;
+          })
+          .join("");
+        return `<div class="ring-wrap"><div style="position:relative;width:${S}px;height:${S}px"><svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}"><circle cx="${S / 2}" cy="${S / 2}" r="${r - sw / 2 - 8}" fill="var(--color-surface)"/>${arcs}</svg>
+        <div style="position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:4px"><div class="big" style="font-size:34px">${fmt(total)}</div><div class="num w" style="font-size:14px;font-weight:600">${water} ml</div></div></div>
+        <div class="legend">${steps.map((s) => `<div class="lg fadeup" style="${delay(s.i, 150)}"><span class="ix ${s.pour ? "p" : ""}">${s.i + 1}</span><span class="t num">${fmt(s.start)}</span><span class="n">${s.label}<span class="num">${fmt(s.sec)}</span></span>${s.pour ? `<span class="r big">${s.ml}<small>ml</small></span>` : `<span class="sub">attesa</span>`}</div>`).join("")}</div></div>`;
+      },
+    },
+    {
+      tag: "E",
+      title: "Vasche",
+      desc: "<b>Blocchi larghi quanto lo step, riempiti d'acqua</b> fino al livello raggiunto: da sinistra a destra si vede il livello salire a gradini e poi restare fermo. Le versate hanno l'acqua più viva e il badge con quanto aggiungere; sopra, nome e totale in grande.",
+      render: ({ steps }) =>
+        `<div class="basins">${steps
+          .map((s) => {
+            const g = uid();
+            return `<div class="basin" style="flex:${s.w} 1 0">
+        <div class="fill rise" style="height:${Math.max(s.pct, 3)}%;background:linear-gradient(to bottom,color-mix(in srgb,var(--color-water) ${s.pour ? 40 : 14}%,transparent),color-mix(in srgb,var(--color-water-deep) ${s.pour ? 14 : 6}%,transparent));${delay(s.i)}">
+          <i style="position:absolute;left:0;right:0;top:0;height:2px;background:var(--color-water);opacity:${s.pour ? 0.9 : 0.3}" class="${s.pour ? "glow" : ""}"></i>
+        </div>
+        <div class="txt fadeup" style="${delay(s.i, 250)}"><div><span class="name">${s.label}</span><span class="num sub">${fmt(s.sec)}</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px">${s.pour ? `<span class="add num">+${s.add}</span>` : ""}<span class="big" style="font-size:24px;color:${s.pour ? "var(--color-ink)" : "var(--color-mute)"}">${s.ml}<small>ml</small></span></div></div>
+      </div>`;
+          })
+          .join("")}</div>`,
+    },
+  ];
+
+  function render() {
+    document.getElementById("opts").innerHTML = OPTIONS.map(
+      (o) => `
+  <article class="opt">
+    <h2><span class="tag">${o.tag}</span>${o.title}</h2>
+    <p class="d">${o.desc}</p>
+    <div class="scroll"><div class="stage">
+      ${R.map((r) => `<section><div class="rname">Ricetta · <b>${r.name}</b> · ${r.water} ml</div><div class="eyebrow" style="margin-bottom:12px">Sequenza</div>${o.render(prep(r))}</section>`).join("")}
+    </div></div>
+  </article>`
+    ).join("");
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() =>
+        document.querySelectorAll(".arc").forEach((a) => a.setAttribute("stroke-dasharray", a.dataset.dash))
+      )
+    );
+  }
+  render();
+  document.getElementById("replay").addEventListener("click", render);
+
+  const set = (p) => {
+    document.documentElement.dataset.palette = p;
+    document
+      .querySelectorAll(".seg button")
+      .forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
+    try {
+      localStorage.setItem("seq-palette", p);
+    } catch {}
+  };
+  document
+    .querySelectorAll(".seg button")
+    .forEach((b) => b.addEventListener("click", () => set(b.dataset.p)));
+  try {
+    const p = localStorage.getItem("seq-palette");
+    if (p) set(p);
+  } catch {}
+</script>

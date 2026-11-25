@@ -40,7 +40,7 @@ src/
   features/<nome>/      una cartella per schermata, ognuna con il proprio store
     prepare/            PrepareScreen, usePrepare() (ricetta scelta, caffè/rapporto/acqua, blocco); logic/dosing.ts
     timer/              useTimer, FocusScreen (caraffa, timeline, pausa, fine); useTimerSession() / useTimerClock()
-    recipes/            RecipesScreen, RecipeList (condivisa con Prepara), RecipeEditor (timeline + righelli); logic/
+    recipes/            RecipesScreen, RecipeList (condivisa con Prepara), RecipeEditor (nastro + righelli), WaterRibbon; logic/
     log/                LogScreen, LogEditor, useLogs() (selezione inclusa), useBackup()
     settings/           SettingsScreen, useSettings() (suoni)
   data/
@@ -68,6 +68,7 @@ Pattern degli store: `xStore.ts` definisce interfaccia, context e hook con `crea
 - **Ricette seed**: hanno id `builtin-*`. Se si modificano in `defaultRecipes.ts`, incrementare `SEED_VERSION`: `prepareStorage` le aggiorna una volta all'avvio (`mergeSeed`), mantenendo i preferiti e lasciando intatte le ricette dell'utente. Le fonti (The World Atlas of Coffee, video di James Hoffmann) sono citate nelle note.
 - **Persistenza**: solo `localStorage`, chiavi in `data/storageKeys.ts`. Ogni lettura passa da un `sanitize*` (dati corrotti o vecchi non rompono la UI). Per cambiare la forma dei dati: aggiungere una migrazione in `data/migrations.ts` e incrementare `SCHEMA_VERSION`, con un test. I dati dell'utente sul suo iPad non vanno mai persi.
 - **Timer**: basato su `Date.now()` (non su contatori), quindi resta preciso in pausa/background. Le azioni sono stabili; suoni e fine automatica stanno nel callback dell'intervallo. Il timer segue la ricetta scelta in Prepara. Solo `FocusScreen` deve usare `useTimerClock()` (si aggiorna ogni 100 ms): altrove usare `useTimerSession()` (stato e azioni stabili). L'audio va sbloccato da un gesto dell'utente (`unlockAudio` in start/resume) per iPadOS; i suoni si spengono dalle Impostazioni.
+- **Nastro d'acqua** (`features/recipes/WaterRibbon.tsx`, logica in `logic/sequence.ts`): la ricetta come nastro il cui spessore è l'acqua nella caraffa, con il totale sopra ogni versata. È l'unica rappresentazione degli step in tutta l'app: Prepara, timer (con `progress`), dettaglio ricetta ed editor.
 - **Navigazione**: niente URL/router, il tab attivo è stato in memoria (`store.tab`).
 
 ## Convenzioni

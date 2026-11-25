@@ -12,6 +12,8 @@ import type { RecipeStep } from "../../types";
 import { useLogs } from "../log/logsStore";
 import { doseFromRatio } from "../prepare/logic/dosing";
 import { usePrepare } from "../prepare/prepareStore";
+import { sequenceLayout } from "../recipes/logic/sequence";
+import { WaterRibbon } from "../recipes/WaterRibbon";
 import { useTimerClock } from "./timerStore";
 
 /** Seconds a stopwatch-only brew takes to "fill" the carafe. */
@@ -251,8 +253,9 @@ function Carafe({
   );
 }
 
+/** Water ribbon of the recipe, lit up to the current moment; current step highlighted below. */
 function Timeline({
-  steps,
+  steps: recipeSteps,
   water,
   stepIndex,
   stepProgress,
@@ -266,36 +269,38 @@ function Timeline({
   done: boolean;
   warn: boolean;
 }) {
-  const total = steps.reduce((s, x) => s + x.seconds, 0) || 1;
-  const pours = steps.map((s, i) => s.waterPct > (i ? steps[i - 1].waterPct : 0));
+  const steps = sequenceLayout(recipeSteps);
+  const cur = steps[stepIndex];
+  const progress = done || !cur ? 1 : cur.x0 + (cur.x1 - cur.x0) * stepProgress;
   return (
-    <div className="mt-2.5 flex gap-1.5">
-      {steps.map((s, i) => {
-        const isDone = done || i < stepIndex;
-        const cur = !done && i === stepIndex;
-        const fill = isDone ? 100 : cur ? stepProgress * 100 : 0;
-        return (
-          <div key={s.id} className="flex min-w-0 flex-col gap-2" style={{ flex: s.seconds / total }}>
+    <div className="mt-2.5">
+      <WaterRibbon
+        steps={steps}
+        water={water}
+        height={100}
+        gap="focus"
+        labelSize={24}
+        progress={progress}
+        warn={warn}
+      />
+      <div className="mt-2.5 flex">
+        {steps.map((s, i) => {
+          const isDone = done || i < stepIndex;
+          const isCur = !done && i === stepIndex;
+          return (
             <div
-              className="motion-move h-3 overflow-hidden rounded-md bg-raised"
-              style={cur && warn ? { animation: "pulse-bar 1s ease-in-out infinite" } : undefined}
+              key={s.id}
+              className={`flex min-w-0 flex-col pr-2.5 transition-colors duration-300 ${isCur ? "text-ink" : isDone ? "text-mute" : "text-faint"}`}
+              style={{ flex: `${s.x1 - s.x0} 1 0` }}
             >
-              <i className="block h-full rounded-md bg-accent" style={{ width: `${fill}%` }} />
-            </div>
-            <div
-              className={`truncate text-sm font-semibold ${cur ? "text-ink" : isDone ? "text-mute" : "text-faint"}`}
-            >
-              {s.label}
-              <span
-                className={`num block text-[13px] font-normal tracking-normal ${cur ? "text-water" : ""}`}
-              >
-                {fmtTime(s.seconds)}
-                {pours[i] ? ` · ${Math.round((s.waterPct / 100) * water)} ml` : ""}
+              <b className="truncate text-sm font-semibold">{s.label}</b>
+              <span className={`num text-[13px] tracking-normal ${isCur ? "text-water" : ""}`}>
+                {fmtTime(s.start)} · {fmtTime(s.seconds)}
               </span>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

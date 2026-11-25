@@ -11,6 +11,8 @@ import { usePrepare } from "../prepare/prepareStore";
 import { splitNotes } from "./logic/notes";
 import { RecipeEditor } from "./RecipeEditor";
 import { totalSeconds } from "./logic/recipe";
+import { sequenceLayout } from "./logic/sequence";
+import { WaterRibbon } from "./WaterRibbon";
 import { RecipeList } from "./RecipeList";
 import { useRecipes } from "./recipesStore";
 
@@ -148,7 +150,20 @@ function RecipeDetail({
 
       {r.steps.length ? (
         <div className="flex flex-col gap-2">
-          <div className="eyebrow">{t.recipes.steps}</div>
+          <div className="eyebrow mb-1">{t.recipes.steps}</div>
+          <div
+            key={r.id}
+            className="motion-fade mb-2"
+            style={{ animation: "ribbon-wipe 900ms var(--ease-out) both" }}
+          >
+            <WaterRibbon
+              steps={sequenceLayout(r.steps)}
+              water={r.water}
+              height={96}
+              gap="surface"
+              labelSize={18}
+            />
+          </div>
           <ol className="flex flex-col gap-1.5">
             {r.steps.map((s, i) => (
               <li key={s.id} className="flex items-center gap-3.5 rounded-2xl bg-raised px-3.5 py-2.5">

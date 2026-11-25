@@ -10,8 +10,10 @@ import { useI18n } from "../../i18n";
 import { fmtDec, fmtTime } from "../../lib/format";
 import type { Recipe } from "../../types";
 import { totalSeconds } from "../recipes/logic/recipe";
+import { sequenceLayout } from "../recipes/logic/sequence";
 import { RecipeList } from "../recipes/RecipeList";
 import { useRecipes } from "../recipes/recipesStore";
+import { WaterRibbon } from "../recipes/WaterRibbon";
 import { useTimerSession } from "../timer/timerStore";
 import { DOSE_FIELDS, RULER_SCALES, derivedField, type DoseField } from "./logic/dosing";
 import { usePrepare } from "./prepareStore";
@@ -244,32 +246,25 @@ function LockIcon({ locked }: { locked: boolean }) {
   );
 }
 
-/** Mini timeline of the recipe: block width ∝ duration, pours tinted terracotta. */
+/** The recipe as a ribbon of water, with start time, name and duration of each step below. */
 function Sequence({ recipe, water }: { recipe: Recipe; water: number }) {
   const { t } = useI18n();
-  const total = totalSeconds(recipe) || 1;
-  const pours = recipe.steps.map((s, i) => s.waterPct > (i ? recipe.steps[i - 1].waterPct : 0));
+  const steps = sequenceLayout(recipe.steps);
+
   return (
-    <div>
-      <div className="eyebrow mb-2.5">{t.prepare.sequence}</div>
-      <div className="flex gap-1.5">
-        {recipe.steps.map((s, i) => {
-          const pour = pours[i];
-          return (
-            <div key={s.id} className="flex min-w-0 flex-col gap-1.5" style={{ flex: s.seconds / total }}>
-              <div
-                className={`h-3.5 rounded-[7px] ${pour ? "bg-water/16 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-water)_35%,transparent)]" : "bg-raised-2"}`}
-              />
-              <div className="truncate text-[13px] text-mute">
-                <b className="block truncate text-sm font-semibold text-ink">{s.label}</b>
-                <span className="num tracking-normal">
-                  {fmtTime(s.seconds)}
-                  {pour ? ` · ${Math.round((s.waterPct / 100) * water)} ml` : ""}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+    <div key={recipe.id}>
+      <div className="eyebrow mb-3">{t.prepare.sequence}</div>
+      <div className="motion-fade" style={{ animation: "ribbon-wipe 900ms var(--ease-out) both" }}>
+        <WaterRibbon steps={steps} water={water} height={112} gap="app" />
+      </div>
+      <div className="mt-2.5 flex" style={{ animation: "fade-in 300ms var(--ease-out)" }}>
+        {steps.map((s) => (
+          <div key={s.id} className="flex min-w-0 flex-col pr-2.5" style={{ flex: `${s.x1 - s.x0} 1 0` }}>
+            <span className="num text-xs tracking-normal text-faint">{fmtTime(s.start)}</span>
+            <b className="line-clamp-2 text-sm leading-tight font-semibold text-ink">{s.label}</b>
+            <span className="num text-[13px] tracking-normal text-mute">{fmtTime(s.seconds)}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

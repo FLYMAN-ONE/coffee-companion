@@ -87,3 +87,12 @@ La "salvia evoluta" non convinceva del tutto. Dopo due giri di proposte (`docs/r
 | **Abisso notte**                 | `#090c0d` / `#111617` | corallo `#ff8f72` | acquamarina `#8ed3cb`      | più profonda, accento più visibile |
 
 Il selettore può restare definitivo. Tutti i colori dei componenti passano dai token; contrasti verificati: testo ≥ 15:1, secondario ≈ 6:1, accenti 6,6–8,2:1, stelle vuote ≥ 3,4:1. Icona dell'app rigenerata in rame su ardesia.
+
+## 10. Sequenza: nastro d'acqua (25/11)
+
+Due giri di mockup in `docs/refresh/sequenza/` (`giro-1.html`: proposte sobrie, scartate come "piatte e banali"; `index.html`: proposte d'impatto). Scelta la **A · Nastro d'acqua**, poi estesa a tutta l'app.
+
+- Lo spessore del nastro è l'acqua nella caraffa: sale con una curva a S nelle versate, resta piano nelle attese. Sopra ogni versata il totale da raggiungere in grande.
+- Larghezza proporzionale alla durata, con un minimo del 15 % per step; nomi su due righe invece di troncati.
+- Dove: Prepara (con orario d'inizio, nome e durata sotto), timer (acceso fino al momento attuale, con un punto sul livello che pulsa in accento nel preavviso), dettaglio ricetta (sopra l'elenco degli step) ed editor (blocchi selezionabili sopra il nastro).
+- Movimento: al cambio ricetta il nastro si scopre da sinistra a destra in 900 ms `--ease-out`; trascinando le dosi i ml cambiano all'istante. Con "riduci movimento" resta la dissolvenza.
