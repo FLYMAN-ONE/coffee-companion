@@ -4,6 +4,7 @@ import type { MethodId, Recipe } from "../../../types";
  * Coffee (g), ratio (1:N) and water (ml) are tied by water = coffee × ratio.
  * One of the three is locked; changing one of the two free values recomputes
  * the other free one, so only two numbers ever move together.
+ * In Prepare only coffee and water move (see `prepareLock`); the ratio is read-only.
  */
 export type DoseField = "coffee" | "ratio" | "water";
 export const DOSE_FIELDS: DoseField[] = ["coffee", "ratio", "water"];
@@ -18,8 +19,18 @@ export interface PrepareState extends Dosing {
   /** Selected recipe; null = "Free" (doses and stopwatch, method chosen by hand). */
   recipeId: string | null;
   method: MethodId;
-  lock: DoseField;
 }
+
+/** Coffee or water: the two values Prepare lets you move. */
+export type PrepareField = Exclude<DoseField, "ratio">;
+export const PREPARE_FIELDS: PrepareField[] = ["coffee", "water"];
+
+/**
+ * What stays put in Prepare when `changed` moves. With a recipe its ratio holds, so the dose
+ * scales (less coffee, less water); in Free the other amount holds and the ratio follows.
+ */
+export const prepareLock = (hasRecipe: boolean, changed: PrepareField): DoseField =>
+  hasRecipe ? "ratio" : changed === "coffee" ? "water" : "coffee";
 
 export const round1 = (v: number): number => Math.round(v * 10) / 10;
 
@@ -51,6 +62,27 @@ export const dosingFromRecipe = (r: Pick<Recipe, "dose" | "water">): Dosing => (
 /** g/L dose for a ratio (stored in recipes and log entries). */
 export const doseFromRatio = (ratio: number): number => (ratio > 0 ? Math.round(1000 / ratio) : 60);
 
+/** g/L dose for a coffee weight and a water volume (recipe editor: coffee and water are the inputs). */
+export const doseFromCoffee = (coffee: number, water: number): number =>
+  water > 0 && coffee > 0 ? Math.round((coffee * 1_000_000) / water) / 1000 : 60;
+
+/** How the recipe editor takes the coffee: grams, concentration (g/L) or ratio (1:N). */
+export type CoffeeInput = "g" | "gpl" | "ratio";
+
+/** The editor's coffee value in a given input mode, from the stored dose (g/L in whole grams). */
+export const coffeeInputValue = (mode: CoffeeInput, dose: number, water: number): number =>
+  mode === "g" ? round1((water * dose) / 1000) : mode === "gpl" ? Math.round(dose) : round1(1000 / dose);
+
+/** g/L dose from the editor's coffee value in a given input mode. */
+export const doseFromInput = (mode: CoffeeInput, value: number, water: number): number =>
+  mode === "g"
+    ? doseFromCoffee(value, water)
+    : mode === "gpl"
+      ? Math.round(value)
+      : value > 0
+        ? Math.round(1_000_000 / value) / 1000
+        : 60;
+
 /** Ruler scales per field: value step, pixels per step, tick and label spacing. */
 export const RULER_SCALES: Record<
   DoseField,
@@ -67,5 +99,4 @@ export const DEFAULT_PREPARE: PrepareState = {
   coffee: 30,
   ratio: 16.7,
   water: 500,
-  lock: "ratio",
 };

@@ -36,6 +36,11 @@ export function RecipesScreen() {
           closeEditor();
           if (r) setSelectedId(r.id);
         }}
+        onDelete={(r) => {
+          if (editing?.id === r.id) closeEditor();
+          deleteRecipe(r.id);
+          toast(t.recipes.toastDeleted);
+        }}
         footer={
           <div className="px-1 pt-3.5 pb-1">
             <Button icon="plus" className="w-full" onClick={() => openEditor(newRecipe())}>

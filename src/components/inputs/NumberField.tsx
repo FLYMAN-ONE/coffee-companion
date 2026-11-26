@@ -85,7 +85,7 @@ export function NumberField({
         >
           <input
             type="text"
-            inputMode="decimal"
+            inputMode={decimals ? "decimal" : "numeric"}
             aria-label={label ?? unit}
             value={text}
             onFocus={(e) => {
@@ -93,8 +93,10 @@ export function NumberField({
               e.target.select();
             }}
             onChange={(e) => {
-              setDraft(e.target.value);
-              const v = parse(e.target.value);
+              // Whole numbers only: drop anything but digits (no comma or point).
+              const raw = decimals ? e.target.value : e.target.value.replace(/\D/g, "");
+              setDraft(raw);
+              const v = parse(raw);
               if (!Number.isNaN(v) && v >= min && v <= max) onChange(round(v));
             }}
             onBlur={() => {

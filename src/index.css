@@ -197,6 +197,13 @@
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 35%, transparent);
   }
 }
+/* Countdown before the brew: each second lands from slightly larger. */
+@keyframes count-in {
+  from {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
 @keyframes flash {
   12% {
     opacity: 0.32;

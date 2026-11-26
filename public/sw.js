@@ -1,5 +1,5 @@
 // Bump CACHE on releases that must invalidate old assets.
-const CACHE = 'coffee-companion-v4'
+const CACHE = 'coffee-companion-v5'
 const BASE = self.registration.scope
 
 self.addEventListener('install', (event) => {

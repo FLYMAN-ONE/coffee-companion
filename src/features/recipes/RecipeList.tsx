@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { SwipeRow } from "../../components/ui/SwipeRow";
 import { Icon } from "../../components/ui/Icon";
 import { useI18n } from "../../i18n";
 import { fmtTime } from "../../lib/format";
@@ -17,6 +18,8 @@ interface RecipeListProps {
   className?: string;
   /** Rows enter in a cascade (the list is shown in a sheet that just opened). */
   cascade?: boolean;
+  /** When given, recipe rows swipe left to reveal a delete action. */
+  onDelete?: (r: Recipe) => void;
 }
 
 /** Cascade delays (ms) for the recipe sheet rows: gaps shrink, the group settles fast. */
@@ -30,7 +33,9 @@ export function RecipeList({
   footer,
   className = "bg-surface",
   cascade = false,
+  onDelete,
 }: RecipeListProps) {
+  const [swipedId, setSwipedId] = useState<string | null>(null);
   const { recipes } = useRecipes();
   const { t } = useI18n();
   const favorites = recipes.filter((r) => r.favorite);
@@ -73,8 +78,8 @@ export function RecipeList({
     </button>
   );
 
-  const recipeRow = (r: Recipe, i: number) =>
-    row(
+  const recipeRow = (r: Recipe, i: number) => {
+    const el = row(
       r.id,
       r.id === selectedId,
       r.method,
@@ -83,6 +88,22 @@ export function RecipeList({
       () => onPick(r),
       i
     );
+    if (!onDelete) return el;
+    return (
+      <SwipeRow
+        key={r.id}
+        open={swipedId === r.id}
+        onOpenChange={(o) => setSwipedId(o ? r.id : null)}
+        actionLabel={t.common.delete}
+        onAction={() => {
+          setSwipedId(null);
+          onDelete(r);
+        }}
+      >
+        {el}
+      </SwipeRow>
+    );
+  };
 
   return (
     <nav className={`no-scrollbar flex flex-col overflow-y-auto rounded-[28px] px-3 py-4.5 ${className}`}>

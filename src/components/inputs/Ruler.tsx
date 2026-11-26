@@ -36,6 +36,11 @@ const SETTLE = "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)";
 /** Past min/max the track follows the finger with resistance, up to this many pixels. */
 const RUBBER_MAX = 40;
 const RUBBER_FACTOR = 0.3;
+/** A tap on a number glides the track to it: longer than the settle, so the jump reads as travel. */
+const JUMP = "transform 420ms cubic-bezier(0.23, 1, 0.32, 1)";
+/** Finger movement (px) below which a touch is a tap, and how far from a number a tap still hits it. */
+const TAP_SLOP = 6;
+const TAP_REACH = 30;
 const isMultiple = (v: number, of: number) => Math.abs(v / of - Math.round(v / of)) < 1e-6;
 
 /**
@@ -62,7 +67,7 @@ export function Ruler({
   const box = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
-  const drag = useRef<{ x: number; pos: number } | null>(null);
+  const drag = useRef<{ x: number; pos: number; moved: boolean } | null>(null);
   const pos = useRef(value);
   const emitted = useRef(value);
   /** Width the track was last placed for; -1 forces the first placement. */
@@ -71,12 +76,12 @@ export function Ruler({
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
   const snap = (v: number) => +(Math.round(clamp(v) / step) * step).toFixed(3);
 
-  const place = (p: number, settle: boolean) => {
+  const place = (p: number, settle: boolean | "jump") => {
     const el = track.current;
     if (!el) return;
     // Measure at call time: the observed `width` state can lag right after mount.
     const w = box.current?.clientWidth || width;
-    el.style.transition = settle ? SETTLE : "none";
+    el.style.transition = settle === "jump" ? JUMP : settle ? SETTLE : "none";
     el.style.transform = `translateX(${w / 2 - ((p - min) / step) * px}px)`;
   };
 
@@ -114,7 +119,7 @@ export function Ruler({
   };
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
-    drag.current = { x: e.clientX, pos: pos.current };
+    drag.current = { x: e.clientX, pos: pos.current, moved: false };
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
@@ -125,6 +130,8 @@ export function Ruler({
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d) return;
+    if (!d.moved && Math.abs(e.clientX - d.x) < TAP_SLOP) return;
+    d.moved = true;
     const raw = d.pos - ((e.clientX - d.x) / px) * step;
     const p = clamp(raw);
     pos.current = p;
@@ -134,12 +141,31 @@ export function Ruler({
     place(p + (rubberPx / px) * step, false);
     emit(snap(p));
   };
-  const onPointerUp = () => {
-    if (!drag.current) return;
+  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d) return;
     drag.current = null;
-    pos.current = emitted.current;
-    place(emitted.current, true);
+    // A tap near a number jumps straight to it (fast travel across the scale).
+    const target = !d.moved && e.type === "pointerup" ? labelAt(e.clientX, d.pos) : null;
+    if (target !== null) {
+      pos.current = target;
+      emit(target);
+      place(target, "jump");
+    } else {
+      pos.current = emitted.current;
+      place(emitted.current, true);
+    }
     onDragEnd?.();
+  };
+
+  /** The labelled value under a tap at `clientX`, or null when the tap is not near a number. */
+  const labelAt = (clientX: number, at: number): number | null => {
+    const rect = box.current?.getBoundingClientRect();
+    if (!rect) return null;
+    const tapped = at + ((clientX - rect.left - rect.width / 2) / px) * step;
+    const nearest = snap(Math.round(tapped / label) * label);
+    if (!isMultiple(nearest, label) || nearest === emitted.current) return null;
+    return Math.abs(((nearest - tapped) / step) * px) <= TAP_REACH ? nearest : null;
   };
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const delta = { ArrowRight: step, ArrowUp: step, ArrowLeft: -step, ArrowDown: -step }[e.key];

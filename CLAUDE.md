@@ -51,8 +51,8 @@ src/
     factories.ts        newRecipe / newLogEntry
     methods.ts          default per metodo; defaultRecipes.ts ricette seed
   components/
-    ui/                 Button, Chip, Icon (incluse le icone dei metodi), Sheet, Segmented, Stars, SwapNumber, ConfirmButton
-    inputs/             Ruler (righello), NumberField
+    ui/                 Button, Chip, Icon (incluse le icone dei metodi), Sheet, Segmented, Stars, SwapNumber, ConfirmButton, SwipeRow
+    inputs/             Ruler (righello; tap su un numero per saltarci), NumberField
     layout/             Rail
   i18n/                 en.ts (definisce il tipo Dict), it.ts, useI18n, localizeRecipe
   lib/                  createStore, useLocalStorage, audio, format, download
@@ -63,11 +63,11 @@ Pattern degli store: `xStore.ts` definisce interfaccia, context e hook con `crea
 
 ## Concetti chiave
 
-- **Dosi con blocco** (`features/prepare/logic/dosing.ts`): caffè (g), rapporto (1:N) e acqua (ml) con acqua = caffè × rapporto. Uno dei tre è bloccato (default: rapporto) e non cambia mai; muovendo uno dei due liberi si ricalcola l'altro. Le ricette e il diario salvano la dose in g/L: si converte ai bordi (`dosingFromRecipe`, `doseFromRatio`).
-- **Ricette**: `steps[].waterPct` è l'acqua cumulativa a fine passaggio (0–100 % del totale), `seconds` la durata del passaggio. Senza passaggi il timer è un cronometro. Nell'editor l'acqua degli step si modifica in ml ma resta salvata in %.
+- **Dosi** (`features/prepare/logic/dosing.ts`): caffè (g), rapporto (1:N) e acqua (ml) con acqua = caffè × rapporto. In Prepara si muovono solo caffè e acqua, il rapporto è in sola lettura (`prepareLock`): con una ricetta il rapporto resta fisso e la dose scala; in Libero resta fermo l'altro valore e il rapporto è il risultato. Le ricette e il diario salvano la dose in g/L: si converte ai bordi (`dosingFromRecipe`, `doseFromRatio`).
+- **Ricette**: `steps[].waterPct` è l'acqua cumulativa a fine passaggio (0–100 % del totale), `seconds` la durata del passaggio. Senza passaggi il timer è un cronometro. Nell'editor si inseriscono l'acqua e il caffè in grammi (passo 0,1), in g/L (solo interi) o come rapporto (`CoffeeInput`, `doseFromInput`); gli altri due valori sono mostrati come risultato. L'acqua degli step si modifica in ml ma resta salvata in %.
 - **Ricette seed**: hanno id `builtin-*`. Se si modificano in `defaultRecipes.ts`, incrementare `SEED_VERSION`: `prepareStorage` le aggiorna una volta all'avvio (`mergeSeed`), mantenendo i preferiti e lasciando intatte le ricette dell'utente. Le fonti (The World Atlas of Coffee, video di James Hoffmann) sono citate nelle note.
 - **Persistenza**: solo `localStorage`, chiavi in `data/storageKeys.ts`. Ogni lettura passa da un `sanitize*` (dati corrotti o vecchi non rompono la UI). Per cambiare la forma dei dati: aggiungere una migrazione in `data/migrations.ts` e incrementare `SCHEMA_VERSION`, con un test. I dati dell'utente sul suo iPad non vanno mai persi.
-- **Timer**: basato su `Date.now()` (non su contatori), quindi resta preciso in pausa/background. Le azioni sono stabili; suoni e fine automatica stanno nel callback dell'intervallo. Il timer segue la ricetta scelta in Prepara. Solo `FocusScreen` deve usare `useTimerClock()` (si aggiorna ogni 100 ms): altrove usare `useTimerSession()` (stato e azioni stabili). L'audio va sbloccato da un gesto dell'utente (`unlockAudio` in start/resume) per iPadOS; i suoni si spengono dalle Impostazioni.
+- **Timer**: basato su `Date.now()` (non su contatori), quindi resta preciso in pausa/background. Le azioni sono stabili; suoni e fine automatica stanno nel callback dell'intervallo. Il timer segue la ricetta scelta in Prepara. Play avvia un conto alla rovescia di 5 s (`COUNTDOWN_MS`, stato `countdown`; un tocco lo annulla), anche "Ricomincia". Solo `FocusScreen` deve usare `useTimerClock()` (si aggiorna ogni 100 ms): altrove usare `useTimerSession()` (stato e azioni stabili). L'audio va sbloccato da un gesto dell'utente (`unlockAudio` in start/resume) per iPadOS; i suoni si spengono dalle Impostazioni.
 - **Nastro d'acqua** (`features/recipes/WaterRibbon.tsx`, logica in `logic/sequence.ts`): la ricetta come nastro il cui spessore è l'acqua nella caraffa, con il totale sopra ogni versata. È l'unica rappresentazione degli step in tutta l'app: Prepara, timer (con `progress`), dettaglio ricetta ed editor.
 - **Navigazione**: niente URL/router, il tab attivo è stato in memoria (`store.tab`).
 

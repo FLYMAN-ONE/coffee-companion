@@ -52,7 +52,6 @@ describe("sanitizers", () => {
       recipeId: null,
       method: "moka",
       coffee: 16,
-      lock: "ratio",
     });
     expect(sanitizeSettings(undefined)).toEqual({ sound: true, palette: "ardesia" });
     expect(sanitizeSettings({ sound: false })).toEqual({ sound: false, palette: "ardesia" });

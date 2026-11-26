@@ -15,7 +15,15 @@ import { RecipeList } from "../recipes/RecipeList";
 import { useRecipes } from "../recipes/recipesStore";
 import { WaterRibbon } from "../recipes/WaterRibbon";
 import { useTimerSession } from "../timer/timerStore";
-import { DOSE_FIELDS, RULER_SCALES, derivedField, type DoseField } from "./logic/dosing";
+import { COUNTDOWN_MS } from "../timer/useTimer";
+import {
+  DOSE_FIELDS,
+  RULER_SCALES,
+  derivedField,
+  prepareLock,
+  type DoseField,
+  type PrepareField,
+} from "./logic/dosing";
 import { usePrepare } from "./prepareStore";
 
 /** How long the picked row stays visible before the recipe sheet closes. */
@@ -33,9 +41,7 @@ export function PrepareScreen() {
   const { toggleFavorite } = useRecipes();
   const { actions } = useTimerSession();
 
-  const firstFree = (lock: DoseField) => DOSE_FIELDS.find((f) => f !== lock) ?? "coffee";
-  const [selected, setSelected] = useState<DoseField>(() => firstFree(prep.lock));
-  const field = selected === prep.lock ? firstFree(prep.lock) : selected;
+  const [field, setField] = useState<PrepareField>("coffee");
   const [dragging, setDragging] = useState(false);
   const [listOpen, setListOpen] = useState(false);
   const sheetId = useId();
@@ -57,12 +63,8 @@ export function PrepareScreen() {
     prep.pickRecipe(r);
     setTimeout(() => setListOpen(false), PICK_CLOSE_DELAY);
   };
-  const lock = (f: DoseField) => {
-    if (f === prep.lock) return;
-    prep.setLock(f);
-    toast(t.prepare.lockedToast[f]);
-  };
-  const select = (f: DoseField) => (f === prep.lock ? toast(t.prepare.lockedTap) : setSelected(f));
+  // While dragging, the value that follows lights up: the other amount with a recipe, the ratio in Free.
+  const follower = derivedField(prepareLock(recipe !== null, field), field);
 
   return (
     <div className="relative h-full">
@@ -125,62 +127,64 @@ export function PrepareScreen() {
           {duration ? <Fact icon="clock" value={fmtTime(duration)} num /> : null}
         </div>
 
-        <div role="radiogroup" aria-label={t.prepare.rulerAria("")} className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {DOSE_FIELDS.map((f) => {
-            const on = f === field;
-            const locked = f === prep.lock;
-            const derived = dragging && f === derivedField(prep.lock, field);
-            return (
-              <div key={f} className="relative grid">
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={on}
-                  onClick={() => select(f)}
-                  className={`press rounded-[22px] px-[18px] pt-3.5 pb-3 text-left ${
-                    locked
-                      ? "shadow-[inset_0_0_0_1.5px_var(--color-line)]"
-                      : on
-                        ? "bg-raised shadow-[inset_0_0_0_2px_var(--color-accent)]"
-                        : derived
-                          ? "bg-accent/7"
-                          : "bg-surface"
-                  }`}
-                >
-                  <div className={`eyebrow text-xs ${on || derived ? "text-accent" : ""}`}>
-                    {t.prepare.fields[f]}
-                    {locked ? (
-                      <span className="tracking-[0.06em] text-accent"> · {t.prepare.locked}</span>
-                    ) : null}
-                  </div>
-                  <div
-                    className={`mt-0.5 flex items-baseline gap-1.5 text-[50px] leading-[1.15] font-medium ${locked ? "opacity-75" : ""}`}
-                  >
-                    <SwapNumber
-                      text={text[f]}
-                      template={template[f]}
-                      swapKey={prep.recipeId}
-                      className={f === "water" ? "text-water" : ""}
-                    />
-                    {unit[f] ? <small className="text-base font-medium text-mute">{unit[f]}</small> : null}
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => lock(f)}
-                  aria-pressed={locked}
-                  aria-label={
-                    locked
-                      ? t.prepare.unlockAria(t.prepare.fields[f])
-                      : t.prepare.lockAria(t.prepare.fields[f])
-                  }
-                  className={`press absolute top-2 right-2 grid h-[46px] w-[46px] place-items-center rounded-[15px] ${
-                    locked ? "bg-accent/14 text-accent" : "text-faint"
-                  }`}
-                >
-                  <LockIcon locked={locked} />
-                </button>
+            const derived = dragging && f === follower;
+            const value = (
+              <div
+                className={`mt-0.5 flex items-baseline gap-1.5 text-[50px] leading-[1.15] font-medium ${
+                  f === "ratio" ? "opacity-75" : ""
+                }`}
+              >
+                <SwapNumber
+                  text={text[f]}
+                  template={template[f]}
+                  swapKey={prep.recipeId}
+                  className={f === "water" ? "text-water" : ""}
+                />
+                {unit[f] ? <small className="text-base font-medium text-mute">{unit[f]}</small> : null}
               </div>
+            );
+            // The ratio is read-only: set by the recipe, or the result of coffee and water in Free.
+            if (f === "ratio")
+              return (
+                <div
+                  key={f}
+                  className={`rounded-[22px] px-[18px] pt-3.5 pb-3 shadow-[inset_0_0_0_1.5px_var(--color-line)] transition-colors duration-200 ${
+                    derived ? "bg-accent/7" : ""
+                  }`}
+                >
+                  <div className={`eyebrow text-xs ${derived ? "text-accent" : ""}`}>
+                    {t.prepare.fields.ratio}
+                    <span className="tracking-[0.06em] text-faint">
+                      {" "}
+                      · {recipe ? t.prepare.ratioRecipe : t.prepare.ratioResult}
+                    </span>
+                  </div>
+                  {value}
+                </div>
+              );
+            const on = f === field;
+            return (
+              <button
+                key={f}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => setField(f)}
+                className={`press rounded-[22px] px-[18px] pt-3.5 pb-3 text-left ${
+                  on
+                    ? "bg-raised shadow-[inset_0_0_0_2px_var(--color-accent)]"
+                    : derived
+                      ? "bg-accent/7"
+                      : "bg-surface"
+                }`}
+              >
+                <div className={`eyebrow text-xs ${on || derived ? "text-accent" : ""}`}>
+                  {t.prepare.fields[f]}
+                </div>
+                {value}
+              </button>
             );
           })}
         </div>
@@ -194,7 +198,7 @@ export function PrepareScreen() {
           onDragEnd={() => setDragging(false)}
           ariaLabel={t.prepare.rulerAria(t.prepare.fields[field])}
           ariaValueText={`${text[field]} ${unit[field] ?? ""}`}
-          formatLabel={(v) => (field === "ratio" ? `1:${Math.round(v)}` : String(Math.round(v)))}
+          formatLabel={(v) => String(Math.round(v))}
         />
 
         {recipe && recipe.steps.length ? (
@@ -219,7 +223,7 @@ export function PrepareScreen() {
         )}
 
         <div className="mt-auto flex items-center gap-5">
-          <Button variant="primary" size="xl" icon="play" onClick={actions.start}>
+          <Button variant="primary" size="xl" icon="play" onClick={() => actions.start(COUNTDOWN_MS)}>
             {t.prepare.play}
           </Button>
           <div className="text-sm leading-normal text-mute">
@@ -276,32 +280,6 @@ function Fact({
       <Icon name={icon} className="h-5 w-5" />
       <b className={`font-semibold text-ink ${num ? "num" : ""}`}>{value}</b>
     </span>
-  );
-}
-
-/** Padlock whose shackle swings open when unlocked. */
-function LockIcon({ locked }: { locked: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="h-[22px] w-[22px]"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      aria-hidden="true"
-    >
-      <rect x="5" y="10.5" width="14" height="10" rx="3" />
-      <path
-        d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"
-        className="motion-none"
-        style={{
-          transformOrigin: "15.5px 10.5px",
-          transform: locked ? "none" : "translateY(-1.5px) rotate(28deg)",
-          transition: "transform 350ms var(--ease-spring)",
-        }}
-      />
-    </svg>
   );
 }
 

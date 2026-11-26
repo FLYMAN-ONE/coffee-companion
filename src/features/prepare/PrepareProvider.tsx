@@ -8,7 +8,8 @@ import {
   DEFAULT_PREPARE,
   applyChange,
   dosingFromRecipe,
-  type DoseField,
+  prepareLock,
+  type PrepareField,
   type PrepareState,
 } from "./logic/dosing";
 import { PrepareContext } from "./prepareStore";
@@ -29,14 +30,14 @@ export function PrepareProvider({ children }: { children: ReactNode }) {
   );
   const setMethod = useCallback((method: MethodId) => setState((s) => ({ ...s, method })), [setState]);
   const change = useCallback(
-    (field: DoseField, value: number) => setState((s) => ({ ...s, ...applyChange(s, s.lock, field, value) })),
+    (field: PrepareField, value: number) =>
+      setState((s) => ({ ...s, ...applyChange(s, prepareLock(s.recipeId !== null, field), field, value) })),
     [setState]
   );
-  const setLock = useCallback((lock: DoseField) => setState((s) => ({ ...s, lock })), [setState]);
 
   const value = useMemo(
-    () => ({ ...state, recipe, pickRecipe, setMethod, change, setLock }),
-    [state, recipe, pickRecipe, setMethod, change, setLock]
+    () => ({ ...state, recipe, pickRecipe, setMethod, change }),
+    [state, recipe, pickRecipe, setMethod, change]
   );
   return <PrepareContext value={value}>{children}</PrepareContext>;
 }

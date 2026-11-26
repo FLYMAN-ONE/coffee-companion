@@ -2,13 +2,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RecipeStep } from "../../types";
 import { chimeDone, chimeStep, chimeTick, unlockAudio } from "../../lib/audio";
 
-export type TimerStatus = "idle" | "running" | "paused" | "done";
+export type TimerStatus = "idle" | "countdown" | "running" | "paused" | "done";
+
+/** Delay between Play and the start of the brew, to get the kettle in hand. */
+export const COUNTDOWN_MS = 5000;
 
 interface Clock {
   status: TimerStatus;
   /** ms accumulated before the current run */
   base: number;
-  /** Date.now() when the current run started */
+  /** Date.now() when the current run started (during the countdown: when it will start) */
   startedAt: number;
 }
 
@@ -53,6 +56,23 @@ export function useTimer(steps: RecipeStep[]) {
 
   // Tick while running: refresh the display, play cues, finish at the end of the recipe.
   useEffect(() => {
+    if (clock.status === "countdown") {
+      const id = window.setInterval(() => {
+        const t = Date.now();
+        const left = clock.startedAt - t;
+        if (left <= 0) {
+          cues.current = { step: -1, sec: -1 };
+          setClock({ status: "running", base: 0, startedAt: clock.startedAt });
+          chimeStep();
+        } else {
+          const sec = Math.ceil(left / 1000);
+          if (sec <= 3 && sec !== cues.current.sec) chimeTick();
+          cues.current.sec = sec;
+        }
+        setNow(t);
+      }, TICK_MS);
+      return () => window.clearInterval(id);
+    }
     if (clock.status !== "running") return;
     const id = window.setInterval(() => {
       const t = Date.now();
@@ -79,7 +99,7 @@ export function useTimer(steps: RecipeStep[]) {
 
   // Keep the iPad awake while brewing.
   useEffect(() => {
-    if (clock.status !== "running" || !("wakeLock" in navigator)) return;
+    if ((clock.status !== "running" && clock.status !== "countdown") || !("wakeLock" in navigator)) return;
     let lock: WakeLockSentinel | null = null;
     let cancelled = false;
     const acquire = () =>
@@ -106,10 +126,14 @@ export function useTimer(steps: RecipeStep[]) {
     setNow(t);
   };
 
-  const start = useCallback(() => {
+  /** Start the brew, after `delayMs` of countdown (0 = right away). */
+  const start = useCallback((delayMs = 0) => {
     unlockAudio();
     cues.current = { step: -1, sec: -1 };
-    run(0);
+    if (delayMs <= 0) return run(0);
+    const t = Date.now();
+    setClock({ status: "countdown", base: 0, startedAt: t + delayMs });
+    setNow(t);
   }, []);
 
   const pause = useCallback(() => {
@@ -155,6 +179,7 @@ export function useTimer(steps: RecipeStep[]) {
 
   return {
     status: clock.status,
+    countdownMs: clock.status === "countdown" ? Math.max(0, clock.startedAt - now) : 0,
     elapsedMs,
     totalMs,
     hasSteps,

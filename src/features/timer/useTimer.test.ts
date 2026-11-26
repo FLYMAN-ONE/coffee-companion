@@ -120,4 +120,17 @@ describe("useTimer", () => {
     expect(result.current.status).toBe("idle");
     expect(result.current.elapsedMs).toBe(0);
   });
+
+  it("counts down before starting when given a delay", () => {
+    const { result } = renderHook(() => useTimer(steps));
+    act(() => result.current.start(5000));
+    expect(result.current.status).toBe("countdown");
+    advance(2000);
+    expect(result.current.countdownMs).toBeCloseTo(3000, -2);
+    expect(result.current.elapsedMs).toBe(0);
+    advance(3100);
+    expect(result.current.status).toBe("running");
+    advance(10_000);
+    expect(result.current.elapsedMs).toBeCloseTo(10_000, -3);
+  });
 });

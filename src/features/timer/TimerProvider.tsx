@@ -10,7 +10,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const { recipe } = usePrepare();
   const timer = useTimer(recipe?.steps ?? NO_STEPS);
   const { status, start, pause, resume, reset, finish, skip } = timer;
-  const busy = status === "running" || status === "paused";
+  const busy = status === "countdown" || status === "running" || status === "paused";
   const session = useMemo(
     () => ({ status, busy, actions: { start, pause, resume, reset, finish, skip } }),
     [status, busy, start, pause, resume, reset, finish, skip]

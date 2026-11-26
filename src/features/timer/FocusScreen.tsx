@@ -15,6 +15,7 @@ import { usePrepare } from "../prepare/prepareStore";
 import { sequenceLayout } from "../recipes/logic/sequence";
 import { WaterRibbon } from "../recipes/WaterRibbon";
 import { useTimerClock } from "./timerStore";
+import { COUNTDOWN_MS } from "./useTimer";
 
 /** Seconds a stopwatch-only brew takes to "fill" the carafe. */
 const STOPWATCH_FILL_S = 180;
@@ -30,7 +31,18 @@ export function FocusScreen() {
   const { t, lang } = useI18n();
   const { recipe } = prep;
   const steps = recipe?.steps ?? [];
-  const { status, hasSteps, stepIndex, elapsedMs, totalMs, stepStart, stepEnd, stepRemainingMs } = timer;
+  const {
+    status,
+    hasSteps,
+    stepIndex,
+    elapsedMs,
+    totalMs,
+    stepStart,
+    stepEnd,
+    stepRemainingMs,
+    countdownMs,
+  } = timer;
+  const counting = status === "countdown";
   const pauseSheet = usePresence(status === "paused", 150);
 
   // Leaving (close or save at the end): play the 200ms exit, then let the timer go idle,
@@ -63,7 +75,7 @@ export function FocusScreen() {
     <div
       role="dialog"
       aria-label={t.focus.label}
-      onClick={() => status === "running" && timer.pause()}
+      onClick={() => (counting ? leave(timer.reset) : status === "running" && timer.pause())}
       className={`motion-fade fixed inset-0 z-40 flex cursor-pointer flex-col bg-focus px-11 pt-[max(34px,env(safe-area-inset-top))] pb-[max(30px,env(safe-area-inset-bottom))] ${
         leaving ? "pointer-events-none" : ""
       }`}
@@ -96,15 +108,29 @@ export function FocusScreen() {
 
       <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_320px] items-center gap-5">
         <div className="flex flex-col gap-1.5">
-          <span
-            className={`num text-[232px] leading-[0.92] font-medium tracking-[-0.05em] transition-colors duration-400 ${
-              warn ? "text-accent" : "text-ink"
-            }`}
-          >
-            {fmtTime(bigTime)}
-          </span>
+          {counting ? (
+            <span
+              key={Math.ceil(countdownMs / 1000)}
+              className="num motion-move origin-left text-[232px] leading-[0.92] font-medium tracking-[-0.05em] text-accent"
+              style={{ animation: "count-in 420ms var(--ease-out)" }}
+            >
+              {Math.max(1, Math.ceil(countdownMs / 1000))}
+            </span>
+          ) : (
+            <span
+              className={`num text-[232px] leading-[0.92] font-medium tracking-[-0.05em] transition-colors duration-400 ${
+                warn ? "text-accent" : "text-ink"
+              }`}
+            >
+              {fmtTime(bigTime)}
+            </span>
+          )}
           <span className="ml-2 text-[15px] font-semibold text-faint">
-            {hasSteps && status !== "done" ? t.focus.remaining : t.focus.elapsed}
+            {counting
+              ? t.focus.startsIn
+              : hasSteps && status !== "done"
+                ? t.focus.remaining
+                : t.focus.elapsed}
           </span>
           <div className="mt-6.5 flex items-baseline gap-[18px]">
             {step ? (
@@ -152,7 +178,9 @@ export function FocusScreen() {
           warn={warn}
         />
       ) : null}
-      <div className="mt-4 text-center text-[13px] text-faint">{t.focus.tapToPause}</div>
+      <div className="mt-4 text-center text-[13px] text-faint">
+        {counting ? t.focus.tapToCancel : t.focus.tapToPause}
+      </div>
 
       {/* Flash at each step change: remounting on a new key replays the CSS animation once. */}
       {status === "running" && stepIndex > 0 ? (
@@ -333,7 +361,7 @@ function PauseSheet({ exiting }: { exiting: boolean }) {
         ) : null}
       </div>
       <div className="flex items-center justify-between border-t border-line pt-4">
-        <Button variant="text" icon="reset" onClick={() => (timer.reset(), timer.start())}>
+        <Button variant="text" icon="reset" onClick={() => (timer.reset(), timer.start(COUNTDOWN_MS))}>
           {t.focus.restart}
         </Button>
         <Button variant="danger" icon="stop" onClick={timer.finish}>

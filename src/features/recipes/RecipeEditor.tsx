@@ -3,12 +3,19 @@ import { NumberField } from "../../components/inputs/NumberField";
 import { Ruler } from "../../components/inputs/Ruler";
 import { Button } from "../../components/ui/Button";
 import { Chip } from "../../components/ui/Chip";
+import { Segmented } from "../../components/ui/Segmented";
 import { ConfirmButton } from "../../components/ui/ConfirmButton";
 import { grinds, methods } from "../../data/methods";
 import { useI18n } from "../../i18n";
 import { fmtDec, fmtTime, uid } from "../../lib/format";
 import type { Recipe, RecipeStep } from "../../types";
-import { doseFromRatio, round1 } from "../prepare/logic/dosing";
+import {
+  coffeeInputValue,
+  doseFromCoffee,
+  doseFromInput,
+  round1,
+  type CoffeeInput,
+} from "../prepare/logic/dosing";
 import { totalSeconds } from "./logic/recipe";
 import { sequenceLayout } from "./logic/sequence";
 import { WaterRibbon } from "./WaterRibbon";
@@ -29,11 +36,31 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onCancel }: Reci
   const [r, setR] = useState<Recipe>(recipe);
   const [sel, setSel] = useState(0);
   const [error, setError] = useState(false);
+  // The coffee is entered as grams, g/L or ratio; the recipe always stores the dose in g/L.
+  const [mode, setMode] = useState<CoffeeInput>("g");
   const patch = (p: Partial<Recipe>) => setR((cur) => ({ ...cur, ...p }));
   const patchStep = (i: number, p: Partial<RecipeStep>) =>
     setR((cur) => ({ ...cur, steps: cur.steps.map((s, j) => (j === i ? { ...s, ...p } : s)) }));
 
-  const ratio = round1(1000 / r.dose);
+  const coffee = coffeeInputValue("g", r.dose, r.water);
+  const ratio = coffeeInputValue("ratio", r.dose, r.water);
+  const gpl = coffeeInputValue("gpl", r.dose, r.water);
+  // In grams the coffee stays put when the water changes; in g/L and ratio the dose does.
+  const setWater = (water: number) =>
+    patch(mode === "g" ? { water, dose: doseFromCoffee(coffee, water) } : { water });
+  const field = {
+    g: { label: t.recipes.coffeeLabel, unit: "g", step: 0.1, min: 0.5, max: 300, decimals: 1 },
+    gpl: { label: t.recipes.doseLabel, unit: "g/L", step: 1, min: 1, max: 1000, decimals: 0 },
+    ratio: { label: t.recipes.ratioLabel, unit: undefined, step: 0.1, min: 1, max: 30, decimals: 1 },
+  }[mode];
+  const derived = {
+    g: [`${fmtDec(gpl, 0, lang)} g/L`, `${t.recipes.ratio} 1:${fmtDec(ratio, 1, lang)}`],
+    gpl: [
+      `${fmtDec(coffee, 1, lang)} g ${t.recipes.coffee}`,
+      `${t.recipes.ratio} 1:${fmtDec(ratio, 1, lang)}`,
+    ],
+    ratio: [`${fmtDec(coffee, 1, lang)} g ${t.recipes.coffee}`, `${fmtDec(gpl, 0, lang)} g/L`],
+  }[mode];
   const total = totalSeconds(r) || 1;
   const layout = sequenceLayout(r.steps);
   const step = r.steps[sel];
@@ -120,16 +147,18 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onCancel }: Reci
           step={r.water < 100 ? 1 : 10}
           min={10}
           max={5000}
-          onChange={(water) => patch({ water })}
+          onChange={setWater}
         />
         <NumberField
-          label={t.recipes.ratioLabel}
-          value={ratio}
-          step={0.1}
-          min={1}
-          max={30}
-          decimals={1}
-          onChange={(v) => patch({ dose: doseFromRatio(v) })}
+          key={mode}
+          label={field.label}
+          unit={field.unit}
+          value={coffeeInputValue(mode, r.dose, r.water)}
+          step={field.step}
+          min={field.min}
+          max={field.max}
+          decimals={field.decimals}
+          onChange={(v) => patch({ dose: doseFromInput(mode, v, r.water) })}
         />
         <NumberField
           label={t.recipes.temp}
@@ -141,9 +170,22 @@ export function RecipeEditor({ recipe, isNew, onSave, onDelete, onCancel }: Reci
           onChange={(tempC) => patch({ tempC })}
         />
       </div>
-      <p className="-mt-2 text-[13px] text-mute">
-        = <span className="num">{fmtDec((r.water * r.dose) / 1000, 1, lang)} g</span> {t.recipes.coffee}
-      </p>
+      <div className="-mt-1 flex items-center gap-3">
+        <span className="eyebrow">{t.recipes.coffeeIn}</span>
+        <Segmented
+          label={t.recipes.coffeeIn}
+          value={mode}
+          onChange={setMode}
+          options={[
+            { id: "g", label: t.recipes.coffeeModes.g },
+            { id: "gpl", label: t.recipes.coffeeModes.gpl },
+            { id: "ratio", label: t.recipes.coffeeModes.ratio },
+          ]}
+        />
+        <span className="num ml-auto text-[14px] tracking-normal text-mute">
+          = <span className="text-ink">{derived[0]}</span> · <span className="text-ink">{derived[1]}</span>
+        </span>
+      </div>
 
       <div className="flex flex-col gap-2">
         <span className="eyebrow">{t.recipes.grind}</span>

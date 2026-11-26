@@ -1,4 +1,4 @@
-import type { DoseField, PrepareState } from "../features/prepare/logic/dosing";
+import type { PrepareState } from "../features/prepare/logic/dosing";
 import type { Grind, LogEntry, MethodId, Recipe, RecipeStep } from "../types";
 import { getMethod, grinds, methods } from "./methods";
 
@@ -73,8 +73,6 @@ export function sanitizeLog(x: unknown): LogEntry | null {
   };
 }
 
-const doseFields: DoseField[] = ["coffee", "ratio", "water"];
-
 export function sanitizePrepare(x: unknown, fallback: PrepareState): PrepareState {
   if (!isObj(x)) return fallback;
   return {
@@ -83,7 +81,6 @@ export function sanitizePrepare(x: unknown, fallback: PrepareState): PrepareStat
     coffee: num(x.coffee, fallback.coffee, 0.5, 500),
     ratio: num(x.ratio, fallback.ratio, 1, 30),
     water: num(x.water, fallback.water, 10, 5000),
-    lock: doseFields.includes(x.lock as DoseField) ? (x.lock as DoseField) : "ratio",
   };
 }
 
